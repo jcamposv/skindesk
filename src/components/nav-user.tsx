@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   ChevronsUpDownIcon,
   LogOutIcon,
   SettingsIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 
-import { signOutAction } from "@/actions/auth.actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -45,6 +46,8 @@ interface NavUserProps {
 
 export function NavUser({ initialUser }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const [signingOut, startSignOut] = useTransition();
   // Server-resolved user is the source of truth on first paint, so no skeleton.
   // We subscribe to auth changes only to react when the user signs out from
   // another tab; the layout-level redirect handles the no-user case after that.
@@ -57,6 +60,19 @@ export function NavUser({ initialUser }: NavUserProps) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  function handleSignOut() {
+    startSignOut(async () => {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      router.replace(ROUTES.login);
+      router.refresh();
+    });
+  }
 
   const fullName =
     (user.user_metadata?.full_name as string | undefined) ??
@@ -113,13 +129,11 @@ export function NavUser({ initialUser }: NavUserProps) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
-                void signOutAction();
-              }}
+              disabled={signingOut}
+              onClick={handleSignOut}
             >
               <LogOutIcon />
-              Cerrar sesión
+              {signingOut ? "Cerrando…" : "Cerrar sesión"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
