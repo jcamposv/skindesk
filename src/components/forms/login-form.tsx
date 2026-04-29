@@ -4,17 +4,11 @@ import { useActionState, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { signInAction, signInWithMagicLinkAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -41,42 +35,23 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [tab, setTab] = useState<"password" | "magic">("password");
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Inicia sesión</CardTitle>
-          <CardDescription>
-            Accede con tu correo y contraseña, o pide un enlace mágico.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs
-            value={tab}
-            onValueChange={(v) => setTab(v as typeof tab)}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="password">Contraseña</TabsTrigger>
-              <TabsTrigger value="magic">Magic Link</TabsTrigger>
-            </TabsList>
-            <TabsContent value="password" className="mt-4">
-              <PasswordForm />
-            </TabsContent>
-            <TabsContent value="magic" className="mt-4">
-              <MagicLinkForm />
-            </TabsContent>
-          </Tabs>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            ¿No tienes cuenta?{" "}
-            <Link
-              href={ROUTES.register}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Crear cuenta
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+    <div className={cn("flex w-full flex-col gap-6", className)} {...props}>
+      <Tabs
+        value={tab}
+        onValueChange={(v) => setTab(v as typeof tab)}
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="password">Contraseña</TabsTrigger>
+          <TabsTrigger value="magic">Magic Link</TabsTrigger>
+        </TabsList>
+        <TabsContent value="password" className="mt-6">
+          <PasswordForm />
+        </TabsContent>
+        <TabsContent value="magic" className="mt-6">
+          <MagicLinkForm />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -86,6 +61,7 @@ function PasswordForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [, startTransition] = useTransition();
   const [state, formAction, pending] = useActionState<ActionState | null, FormData>(
     signInAction,
@@ -105,7 +81,7 @@ function PasswordForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5">
         <FormField
           control={form.control}
           name="email"
@@ -117,6 +93,7 @@ function PasswordForm() {
                   type="email"
                   placeholder="m@example.com"
                   autoComplete="email"
+                  className="h-11"
                   {...field}
                 />
               </FormControl>
@@ -129,13 +106,39 @@ function PasswordForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contraseña</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Contraseña</FormLabel>
+                <Link
+                  href="#"
+                  className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+                  aria-label="Olvidé mi contraseña"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="current-password"
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    className="h-11 pr-10"
+                    {...field}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -144,9 +147,18 @@ function PasswordForm() {
         {state?.message && !state.success ? (
           <p className="text-sm text-destructive">{state.message}</p>
         ) : null}
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" size="lg" className="h-11" disabled={pending}>
           {pending ? "Entrando…" : "Iniciar sesión"}
         </Button>
+        <p className="text-center text-sm text-muted-foreground">
+          ¿No tienes cuenta?{" "}
+          <Link
+            href={ROUTES.register}
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Crear cuenta
+          </Link>
+        </p>
       </form>
     </Form>
   );
@@ -175,7 +187,7 @@ function MagicLinkForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5">
         <FormField
           control={form.control}
           name="email"
@@ -187,6 +199,7 @@ function MagicLinkForm() {
                   type="email"
                   placeholder="m@example.com"
                   autoComplete="email"
+                  className="h-11"
                   {...field}
                 />
               </FormControl>
@@ -204,9 +217,12 @@ function MagicLinkForm() {
             {state.message}
           </p>
         ) : null}
-        <Button type="submit" disabled={pending}>
-          {pending ? "Enviando…" : "Enviar enlace"}
+        <Button type="submit" size="lg" className="h-11" disabled={pending}>
+          {pending ? "Enviando…" : "Enviar enlace mágico"}
         </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          Te enviaremos un correo con un enlace para entrar sin contraseña.
+        </p>
       </form>
     </Form>
   );

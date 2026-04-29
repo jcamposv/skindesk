@@ -32,22 +32,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center">
-          <Logo
-            size="sm"
-            variant="sidebar"
-            withWordmark={false}
-            className="group-data-[collapsible=icon]:hidden"
-          />
-          <Logo
-            size="sm"
-            variant="sidebar"
-            withWordmark
-            className="hidden group-data-[collapsible=icon]:flex"
-          />
-          <span className="font-semibold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-            SkinDesk
-          </span>
+        <div className="flex items-center justify-start rounded-lg bg-white/90 px-2 py-1.5 shadow-sm ring-1 ring-white/30 group-data-[collapsible=icon]:justify-center">
+          <Logo size="sm" className="h-7 w-auto" />
         </div>
       </SidebarHeader>
       <SidebarContent>

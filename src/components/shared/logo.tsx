@@ -1,53 +1,40 @@
 import Image from "next/image";
 
-import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type LogoSize = "sm" | "md" | "lg";
-type LogoVariant = "default" | "sidebar";
+type LogoSize = "sm" | "md" | "lg" | "xl";
 
-const SIZE_PX: Record<LogoSize, { w: number; h: number; text: string }> = {
-  sm: { w: 24, h: 24, text: "text-sm" },
-  md: { w: 32, h: 32, text: "text-base" },
-  lg: { w: 48, h: 48, text: "text-xl" },
+/**
+ * The brand asset is a logomark (icon + wordmark) at 111×42 (~2.64:1).
+ * These sizes preserve that aspect ratio.
+ */
+const SIZE_PX: Record<LogoSize, { w: number; h: number }> = {
+  sm: { w: 96, h: 36 },
+  md: { w: 132, h: 50 },
+  lg: { w: 176, h: 67 },
+  xl: { w: 240, h: 91 },
 };
 
 interface LogoProps {
   size?: LogoSize;
-  variant?: LogoVariant;
-  withWordmark?: boolean;
   className?: string;
 }
 
 /**
- * SkinDesk brand mark. Renders /public/logo.svg via next/image and optionally
- * the wordmark next to it. Adapts text color to its container (sidebar vs default).
+ * Renders the SkinDesk logomark from /public/logo.svg.
+ * The SVG is self-contained (icon + wordmark in brand colors) — do not append
+ * extra text alongside it; that would duplicate the wordmark.
  */
-export function Logo({
-  size = "md",
-  variant = "default",
-  withWordmark = true,
-  className,
-}: LogoProps) {
-  const { w, h, text } = SIZE_PX[size];
-  const wordmarkColor =
-    variant === "sidebar" ? "text-sidebar-foreground" : "text-foreground";
-
+export function Logo({ size = "md", className }: LogoProps) {
+  const { w, h } = SIZE_PX[size];
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <Image
-        src="/logo.svg"
-        alt={`${APP_NAME} logo`}
-        width={w}
-        height={h}
-        priority
-        className="shrink-0"
-      />
-      {withWordmark ? (
-        <span className={cn("font-semibold tracking-tight", text, wordmarkColor)}>
-          {APP_NAME}
-        </span>
-      ) : null}
-    </div>
+    <Image
+      src="/logo.svg"
+      alt="SkinDesk"
+      width={w}
+      height={h}
+      priority
+      className={cn("shrink-0", className)}
+    />
   );
 }
