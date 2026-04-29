@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboardIcon, SettingsIcon } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 import { NavUser } from "@/components/nav-user";
 import { Logo } from "@/components/shared/logo";
@@ -26,7 +27,11 @@ const nav = [
   { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
 ] as const;
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  initialUser: User;
+};
+
+export function AppSidebar({ initialUser, ...props }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -63,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser initialUser={initialUser} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

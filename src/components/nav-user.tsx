@@ -1,12 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-  BadgeCheckIcon,
   ChevronsUpDownIcon,
   LogOutIcon,
   SettingsIcon,
 } from "lucide-react";
 import Link from "next/link";
+import type { User } from "@supabase/supabase-js";
 
 import { signOutAction } from "@/actions/auth.actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -19,15 +20,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/use-auth";
 import { ROUTES } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
 
 function initials(value: string): string {
   return value
@@ -39,41 +39,24 @@ function initials(value: string): string {
     .toUpperCase();
 }
 
-export function NavUser() {
+interface NavUserProps {
+  initialUser: User;
+}
+
+export function NavUser({ initialUser }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const { user, loading } = useAuth();
+  // Server-resolved user is the source of truth on first paint, so no skeleton.
+  // We subscribe to auth changes only to react when the user signs out from
+  // another tab; the layout-level redirect handles the no-user case after that.
+  const [user, setUser] = useState<User>(initialUser);
 
-  if (loading) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <div className="flex items-center gap-2 px-2 py-1.5">
-            <Skeleton className="size-8 rounded-full" />
-            <div className="flex flex-1 flex-col gap-1 group-data-[collapsible=icon]:hidden">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
-
-  if (!user) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip="Iniciar sesión"
-            render={<Link href={ROUTES.login} />}
-          >
-            <BadgeCheckIcon />
-            <span>Iniciar sesión</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
+  useEffect(() => {
+    const supabase = createClient();
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) setUser(session.user);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const fullName =
     (user.user_metadata?.full_name as string | undefined) ??

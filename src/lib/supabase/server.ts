@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
@@ -33,3 +34,16 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * Per-request memoised `auth.getUser()`. Layout, page and any nested Server
+ * Component can call this freely; React `cache()` deduplicates the network
+ * round-trip so /dashboard does ONE Supabase call instead of one per file.
+ */
+export const getCurrentUser = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+});
