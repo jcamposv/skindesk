@@ -22,6 +22,43 @@ export type ActionState<T = unknown> = {
   data?: T;
 };
 
+// ---------------------------------------------------------------------------
+// Roles & permissions
+// ---------------------------------------------------------------------------
+
+/** Mirror of the Postgres enum `public.app_role`. */
+export const APP_ROLES = [
+  "super_admin",
+  "profesional",
+  "asistente",
+  "clienta",
+] as const;
+export type AppRole = (typeof APP_ROLES)[number];
+
+/** Permission keys the asistente JSONB supports. Extend as the domain grows. */
+export const ASISTENTE_PERMISSION_KEYS = [
+  "agenda",
+  "pagos",
+  "clientas",
+  "catalogo",
+] as const;
+export type AsistentePermissionKey = (typeof ASISTENTE_PERMISSION_KEYS)[number];
+export type AsistentePermissionLevel = "view" | "edit" | null;
+
+/**
+ * Shape of `profiles.permissions` for an asistente. Other roles have `{}`.
+ * `null` means the permission is not granted; `'view'` allows read; `'edit'`
+ * allows read + write.
+ */
+export type AsistentePermissions = Record<
+  AsistentePermissionKey,
+  AsistentePermissionLevel
+>;
+
+// ---------------------------------------------------------------------------
+// Auth methods (email + password and magic link enabled in this scaffold).
+// ---------------------------------------------------------------------------
+
 export type AuthMethod = "password" | "magic-link";
 
 export type AuthConfig = {

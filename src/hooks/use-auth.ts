@@ -25,15 +25,10 @@ export function useAuth() {
   });
 
   useEffect(() => {
-    let active = true;
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (!active) return;
-      setState((s) => ({ ...s, user: data.user ?? null, loading: false }));
-    });
-
+    // onAuthStateChange fires INITIAL_SESSION synchronously on mount, so we
+    // don't need a separate getUser() call (which races with the listener
+    // and can leave loading:true → false → false flicker).
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!active) return;
       setState({
         user: session?.user ?? null,
         session: session ?? null,
@@ -42,7 +37,6 @@ export function useAuth() {
     });
 
     return () => {
-      active = false;
       sub.subscription.unsubscribe();
     };
   }, [supabase]);

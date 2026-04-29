@@ -31,6 +31,48 @@ npm run build
 
 Habilitado: **Email + Password** y **Magic Link** (configurado en `src/types/supabase.ts → AUTH_CONFIG`). El callback de OAuth/Magic Link vive en `src/app/(auth)/auth/callback/route.ts`.
 
+### Roles & multi-tenant
+
+| Rol | Tenant | Resumen |
+|-----|--------|---------|
+| `super_admin` | none | Staff de SkinDesk. Acceso global. |
+| `profesional` | owner | Cosmetóloga (paga la suscripción). Crea su tenant al firmar up. |
+| `asistente` | member | Equipo de la cosmetóloga. Permisos granulares en `profiles.permissions` (jsonb). |
+| `clienta` | member | Cliente final. Solo ve su propia info. |
+
+Helpers SQL (SECURITY DEFINER, callables desde RLS):
+`current_role()`, `current_tenant_id()`, `is_super_admin()`, `has_asistente_permission(key, level)`.
+
+Trigger `handle_new_user()` mirror-ea `auth.users → public.profiles` y crea el tenant si el usuario hace self-signup como `profesional`. Para invitar a `asistente`/`clienta`, el profesional manda `tenant_id`, `role` y `full_name` en `raw_user_meta_data` al `auth.admin.createUser()`.
+
+### Migrations & seeds
+
+```sh
+# Migrations al remoto (sin tocar data)
+supabase db push
+
+# Seeds al remoto (no destructivo, idempotente — corre todo supabase/seeds/*.sql)
+npm run db:seed
+
+# Regenerar tipos después de cada migración
+npm run db:types
+
+# Local (Docker): stack completo + reset destructivo + seeds + types
+supabase start
+supabase db reset           # corre migrations + supabase/seed.sql (que incluye seeds/*)
+```
+
+**Estructura de seeds:**
+- `supabase/seeds/*.sql` — archivos numerados (`00_users_and_tenants.sql`, `10_clientas.sql`, …). Se corren en orden alfabético.
+- `supabase/seed.sql` — wrapper con `\ir` para que `supabase db reset` los incluya. Cuando agregues un seed nuevo, sumá una línea `\ir seeds/<archivo>.sql`.
+- Los seeds deben ser **idempotentes** (`on conflict do nothing`, `update ... where id = ...`) para que `npm run db:seed` se pueda re-correr sin romper.
+
+**Pre-requisitos para `npm run db:seed`:**
+- `psql` instalado (`brew install libpq && brew link --force libpq`).
+- Variable `SUPABASE_DB_URL` en `.env.local` (Dashboard → Project Settings → Database → Connection string URI).
+
+Seed inicial crea **1 usuario por rol** + 1 tenant. Credenciales en `supabase/seeds/00_users_and_tenants.sql` (todas con password `SkinDesk123!`).
+
 ## Estructura
 
 ```
