@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { SubscriptionBanner } from "@/components/subscription-banner";
 import {
   SidebarInset,
   SidebarProvider,
@@ -22,10 +23,16 @@ export default async function StaffLayout({
     redirect(dashboardForRole("clienta"));
   }
 
+  // Super_admin has no tenant/plan, so don't surface the gate. Profesional
+  // and asistente use their tenant's cached subscription_status.
+  const subscriptionStatus =
+    session.profile.role === "super_admin" ? null : session.tenant?.subscription_status ?? null;
+
   return (
     <SidebarProvider>
       <AppSidebar initialUser={session.user} role={session.profile.role} />
       <SidebarInset>
+        <SubscriptionBanner status={subscriptionStatus} />
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator

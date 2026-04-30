@@ -1,0 +1,80 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { ROUTES } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+
+/**
+ * Handles the **implicit-flow** auth callback. `auth.admin.generateLink`
+ * (used for welcome / magic-link / recovery emails we dispatch via Resend)
+ * returns action_links that redirect with `#access_token=…&refresh_token=…`
+ * in the URL fragment instead of `?code=…`. The fragment never reaches the
+ * server, so this client island reads it, calls `setSession`, and routes.
+ *
+ * Destination logic mirrors the PKCE path so both flows behave the same:
+ *  - Honour explicit `?next=…` (recovery emails pass `/auth/setup` here so
+ *    the user is forced to choose a new password regardless of state).
+ *  - Otherwise bounce through `/dashboard`, which gates on password_set +
+ *    role.
+ */
+export function ImplicitCallback() {
+  const router = useRouter();
+  const search = useSearchParams();
+  const next = search.get("next");
+  const [errored, setErrored] = useState(false);
+  // React Strict Mode runs effects twice in dev; the second run would
+  // duplicate `router.replace` and (briefly) double-process the tokens.
+  // A ref guard makes the callback idempotent.
+  const ranRef = useRef(false);
+
+  useEffect(() => {
+    if (ranRef.current) return;
+    ranRef.current = true;
+
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+
+    // Strip the tokens from the URL bar before doing anything else — even
+    // a few hundred ms of `#access_token=…` in the address bar is enough
+    // for a copy-paste, browser history sync, or extension to capture them.
+    // After this the URL is the bare /auth/callback path; the tokens still
+    // live in our local `accessToken`/`refreshToken` vars.
+    if (typeof window !== "undefined") {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+
+    if (!accessToken || !refreshToken) {
+      setErrored(true);
+      router.replace(`${ROUTES.login}?error=auth_callback`);
+      return;
+    }
+
+    const supabase = createClient();
+    supabase.auth
+      .setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(({ error }) => {
+        if (error) {
+          setErrored(true);
+          router.replace(`${ROUTES.login}?error=auth_callback`);
+          return;
+        }
+        router.replace(next ?? ROUTES.dashboard);
+      });
+  }, [router, next]);
+
+  return (
+    <div className="flex min-h-svh items-center justify-center px-6 text-center text-sm text-muted-foreground">
+      {errored ? "Hubo un problema, te llevamos al login…" : "Redirigiendo…"}
+    </div>
+  );
+}

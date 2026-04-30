@@ -7,6 +7,10 @@ export const ROUTES = {
   login: "/login",
   register: "/register",
   authCallback: "/auth/callback",
+  /** Self-service password recovery (sends a Supabase reset email). */
+  forgotPassword: "/forgot-password",
+  /** Post-magic-link / post-recovery page where the user sets a password. */
+  authSetup: "/auth/setup",
   /** Server-side router that redirects to the role-specific dashboard. */
   dashboard: "/dashboard",
   /** Role-specific landing pages. */
@@ -21,7 +25,12 @@ export const PUBLIC_ROUTES: readonly string[] = [
   ROUTES.home,
   ROUTES.login,
   ROUTES.register,
+  ROUTES.forgotPassword,
   ROUTES.authCallback,
+  // Stripe Checkout entry + return URL: the user has no Supabase session
+  // until the webhook creates her account post-payment.
+  "/checkout",
+  "/checkout/success",
 ];
 
 import type { AppRole } from "@/types/supabase";

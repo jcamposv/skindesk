@@ -25,9 +25,9 @@ export default function LoginPage() {
           <Button
             variant="outline"
             size="sm"
-            render={<Link href={ROUTES.register} />}
+            render={<Link href={ROUTES.home} />}
           >
-            Crear cuenta
+            Ver planes
           </Button>
         </header>
 

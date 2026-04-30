@@ -3,8 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { ROUTES } from "@/lib/constants";
-import { createClient } from "@/lib/supabase/server";
+import { magicLinkHtml } from "@/components/emails/magic-link";
+import { passwordResetHtml } from "@/components/emails/password-reset";
+import { dashboardForRole, ROUTES } from "@/lib/constants";
+import { EMAIL_FROM, resend } from "@/lib/resend";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient, getCurrentSession } from "@/lib/supabase/server";
 import {
   loginSchema,
   magicLinkSchema,
@@ -38,16 +42,52 @@ export async function signInAction(
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
-    if (error) return { success: false, message: error.message };
+    if (error) {
+      // Profesionales onboarded via Stripe checkout never set a password —
+      // they activate via magic link. A raw "Invalid login credentials"
+      // tells them nothing actionable; this hint points at both recovery
+      // paths so they can self-serve.
+      const isInvalidCreds =
+        error.code === "invalid_credentials" ||
+        error.message.toLowerCase().includes("invalid login");
+      return {
+        success: false,
+        message: isInvalidCreds
+          ? "Email o contraseña incorrectos. Si te registraste recientemente todavía no tenés contraseña — usá el magic link o restablecela."
+          : error.message,
+      };
+    }
   } catch (err) {
     return { success: false, message: (err as Error).message };
   }
 
   revalidatePath("/", "layout");
-  redirect(ROUTES.dashboard);
+
+  // Skip the /dashboard hop: read role + password_set right after sign-in
+  // and jump straight to the role-specific URL (or /auth/setup). This is
+  // the same logic the auth callback runs for magic-link logins.
+  const session = await getCurrentSession();
+  if (!session) redirect(ROUTES.dashboard);
+  if (!session.profile.password_set) redirect(ROUTES.authSetup);
+  redirect(dashboardForRole(session.profile.role));
 }
 
-/** Magic-link sign in via email OTP. */
+/**
+ * Magic-link sign in. Bypasses Supabase's default email path and dispatches
+ * via Resend with our branded template — same shell as the welcome email.
+ *
+ * Two anti-abuse properties:
+ *  - Returns the same generic message regardless of whether the email is
+ *    registered. Prevents enumeration of which addresses have an account.
+ *  - Doesn't auto-create users (Supabase's signInWithOtp default would).
+ *    Only previously-registered profesionales can request a magic link.
+ *
+ * TODO(rate-limit): `admin.generateLink` bypasses Supabase's per-email
+ * throttle that `signInWithOtp` had built in. Before going public, gate
+ * this action with a sliding-window limiter (Upstash Redis or a
+ * Postgres-backed table) — e.g. 3 req/min per email + 10 req/min per IP —
+ * to prevent Resend cost / inbox-flooding abuse.
+ */
 export async function signInWithMagicLinkAction(
   _prev: ActionState | null,
   formData: FormData,
@@ -61,19 +101,39 @@ export async function signInWithMagicLinkAction(
     };
   }
 
+  const genericSuccess: ActionState = {
+    success: true,
+    message: "Si tu email está registrado, te enviamos un enlace de acceso.",
+  };
+
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithOtp({
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.generateLink({
+      type: "magiclink",
       email: parsed.data.email,
-      options: { emailRedirectTo: `${getAppUrl()}${ROUTES.authCallback}` },
+      options: { redirectTo: `${getAppUrl()}${ROUTES.authCallback}` },
     });
-    if (error) return { success: false, message: error.message };
-    return {
-      success: true,
-      message: "Revisa tu bandeja, te enviamos un enlace mágico.",
-    };
+    if (error || !data?.properties?.action_link) {
+      // Most common cause: user not found. Don't leak existence.
+      return genericSuccess;
+    }
+
+    const { error: mailErr } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: parsed.data.email,
+      subject: "Tu enlace de acceso a SkinDesk",
+      html: magicLinkHtml({
+        magicLink: data.properties.action_link,
+        appUrl: getAppUrl(),
+      }),
+    });
+    if (mailErr) {
+      console.error("[magic-link] resend failed:", mailErr.message);
+    }
+    return genericSuccess;
   } catch (err) {
-    return { success: false, message: (err as Error).message };
+    console.error("[magic-link] unexpected error:", err);
+    return genericSuccess;
   }
 }
 
@@ -124,7 +184,13 @@ export async function signOutAction(): Promise<void> {
   redirect(ROUTES.login);
 }
 
-/** Send password reset email. */
+/**
+ * Send password reset email. Same Resend + branded template path as the
+ * magic-link action, with the same anti-enumeration response.
+ *
+ * TODO(rate-limit): see signInWithMagicLinkAction — both actions share the
+ * same abuse vector and should ship behind the same limiter.
+ */
 export async function resetPasswordAction(
   _prev: ActionState | null,
   formData: FormData,
@@ -140,16 +206,44 @@ export async function resetPasswordAction(
     };
   }
 
+  // Same anti-enumeration pattern as the magic-link action: always return
+  // the same message whether or not the email is registered.
+  const genericSuccess: ActionState = {
+    success: true,
+    message: "Si tu email está registrado, te enviamos un enlace para restablecer tu contraseña.",
+  };
+
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(
-      parsed.data.email,
-      { redirectTo: `${getAppUrl()}${ROUTES.authCallback}?next=/settings` },
-    );
-    if (error) return { success: false, message: error.message };
-    return { success: true, message: "Revisa tu email para restablecer." };
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email: parsed.data.email,
+      options: {
+        redirectTo: `${getAppUrl()}${ROUTES.authCallback}?next=${encodeURIComponent(
+          ROUTES.authSetup,
+        )}`,
+      },
+    });
+    if (error || !data?.properties?.action_link) {
+      return genericSuccess;
+    }
+
+    const { error: mailErr } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: parsed.data.email,
+      subject: "Restablecé tu contraseña de SkinDesk",
+      html: passwordResetHtml({
+        resetLink: data.properties.action_link,
+        appUrl: getAppUrl(),
+      }),
+    });
+    if (mailErr) {
+      console.error("[password-reset] resend failed:", mailErr.message);
+    }
+    return genericSuccess;
   } catch (err) {
-    return { success: false, message: (err as Error).message };
+    console.error("[password-reset] unexpected error:", err);
+    return genericSuccess;
   }
 }
 
@@ -176,6 +270,21 @@ export async function updatePasswordAction(
       password: parsed.data.password,
     });
     if (error) return { success: false, message: error.message };
+
+    // Flip profile.password_set so /auth/callback stops bouncing this user
+    // back to /auth/setup on every magic-link login. RLS allows self-update
+    // on this column (the anti-escalation trigger only blocks role,
+    // tenant_id and permissions changes).
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ password_set: true })
+        .eq("id", user.id);
+    }
+
     return { success: true, message: "Contraseña actualizada." };
   } catch (err) {
     return { success: false, message: (err as Error).message };

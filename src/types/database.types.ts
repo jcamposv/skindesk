@@ -46,6 +46,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          password_set: boolean
           permissions: Json
           phone: string | null
           role: Database["public"]["Enums"]["app_role"]
@@ -58,6 +59,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          password_set?: boolean
           permissions?: Json
           phone?: string | null
           role: Database["public"]["Enums"]["app_role"]
@@ -70,6 +72,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          password_set?: boolean
           permissions?: Json
           phone?: string | null
           role?: Database["public"]["Enums"]["app_role"]
@@ -86,13 +89,76 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan: Database["public"]["Enums"]["plan_slug"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          tenant_id: string
+          trial_end: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan: Database["public"]["Enums"]["plan_slug"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          tenant_id: string
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["plan_slug"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string
+          stripe_price_id?: string
+          stripe_subscription_id?: string
+          tenant_id?: string
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           created_at: string
           id: string
           name: string
           owner_id: string
+          plan: Database["public"]["Enums"]["plan_slug"] | null
           slug: string
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
           updated_at: string
         }
         Insert: {
@@ -100,7 +166,11 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
+          plan?: Database["public"]["Enums"]["plan_slug"] | null
           slug: string
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
           updated_at?: string
         }
         Update: {
@@ -108,7 +178,11 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
+          plan?: Database["public"]["Enums"]["plan_slug"] | null
           slug?: string
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
           updated_at?: string
         }
         Relationships: []
@@ -122,6 +196,15 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
+      plan_slug: "basico" | "pro" | "clinica"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "incomplete"
+        | "incomplete_expired"
+        | "unpaid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -703,6 +786,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
+      plan_slug: ["basico", "pro", "clinica"],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "incomplete",
+        "incomplete_expired",
+        "unpaid",
+      ],
     },
   },
   storage: {

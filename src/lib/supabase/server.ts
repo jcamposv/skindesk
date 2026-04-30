@@ -49,10 +49,12 @@ export const getCurrentUser = cache(async () => {
 });
 
 /**
- * Per-request memoised `auth.getUser()` + `profiles` row. The role/tenant_id
- * live in `public.profiles`, not in the JWT, so we fetch them once per request
- * here. Returns `null` when there's no session, otherwise an object with both
- * the auth user and the profile.
+ * Per-request memoised `auth.getUser()` + `profiles` row + the user's
+ * `tenants` row when applicable. Single helper, three round-trips per
+ * request, deduped across every Server Component that needs auth context.
+ *
+ * `tenant` is null for super_admin (no tenant) and for any profile whose
+ * tenant FK isn't set yet.
  */
 export const getCurrentSession = cache(async () => {
   const supabase = await createClient();
@@ -63,10 +65,34 @@ export const getCurrentSession = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, tenant_id, full_name, email, phone, avatar_url, permissions")
+    .select(
+      "id, role, tenant_id, full_name, email, phone, avatar_url, permissions, password_set",
+    )
     .eq("id", user.id)
     .single();
 
   if (!profile) return null;
-  return { user, profile };
+
+  // Tenant is only relevant for non-super_admin users. The trigger keeps
+  // `tenants.plan` and `tenants.subscription_status` in sync with the
+  // `subscriptions` row, so reading from `tenants` is enough for layout
+  // gates.
+  let tenant: {
+    id: string;
+    name: string;
+    plan: Database["public"]["Enums"]["plan_slug"] | null;
+    subscription_status:
+      | Database["public"]["Enums"]["subscription_status"]
+      | null;
+  } | null = null;
+  if (profile.tenant_id) {
+    const { data } = await supabase
+      .from("tenants")
+      .select("id, name, plan, subscription_status")
+      .eq("id", profile.tenant_id)
+      .single();
+    tenant = data;
+  }
+
+  return { user, profile, tenant };
 });

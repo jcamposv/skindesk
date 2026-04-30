@@ -5,6 +5,18 @@ export const loginSchema = z.object({
   password: z.string().min(8, "Mínimo 8 caracteres"),
 });
 
+/**
+ * Schema for the unified login form. Email is the only required field;
+ * password may be empty (then the user is expected to use the magic-link
+ * button instead). The strict server actions still validate against
+ * `loginSchema` / `magicLinkSchema` so this laxer client schema doesn't
+ * weaken security.
+ */
+export const loginCombinedSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string(),
+});
+
 export const magicLinkSchema = z.object({
   email: z.string().email("Email inválido"),
 });
@@ -46,6 +58,7 @@ export const updatePasswordSchema = z
   });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginCombinedInput = z.infer<typeof loginCombinedSchema>;
 export type MagicLinkInput = z.infer<typeof magicLinkSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
