@@ -457,7 +457,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn("flex w-full min-w-0 flex-col gap-0", className)}
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
       {...props}
     />
   )
@@ -468,7 +468,18 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
     <li
       data-slot="sidebar-menu-item"
       data-sidebar="menu-item"
-      className={cn("group/menu-item relative", className)}
+      className={cn(
+        "group/menu-item relative",
+        // Active indicator: a 3px Artemis (--accent) bar at the left edge,
+        // shown only when the inner SidebarMenuButton has data-active.
+        // Lives on the <li> (not the button) so it isn't clipped by the
+        // button's overflow-hidden.
+        "has-data-active:before:absolute has-data-active:before:left-0 has-data-active:before:top-1/2 has-data-active:before:h-6 has-data-active:before:w-[3px] has-data-active:before:-translate-y-1/2 has-data-active:before:rounded-r-full has-data-active:before:bg-accent has-data-active:before:content-['']",
+        // Hide the bar in the icon-only collapsed sidebar — the pill alone
+        // is enough at that size and the bar would feel cramped.
+        "group-data-[collapsible=icon]/sidebar-wrapper:has-data-active:before:hidden",
+        className,
+      )}
       {...props}
     />
   )
@@ -484,7 +495,7 @@ const sidebarMenuButtonVariants = cva(
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
-        default: "h-8 text-sm",
+        default: "h-10 px-3 text-sm",
         sm: "h-7 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
       },

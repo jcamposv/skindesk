@@ -7,20 +7,24 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { ROUTES } from "@/lib/constants";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { ROUTES, dashboardForRole } from "@/lib/constants";
+import { getCurrentSession } from "@/lib/supabase/server";
 
-export default async function DashboardLayout({
+export default async function StaffLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
-  if (!user) redirect(ROUTES.login);
+  const session = await getCurrentSession();
+  if (!session) redirect(ROUTES.login);
+  // Bounce clientas out of staff routes — they belong on /clienta.
+  if (session.profile.role === "clienta") {
+    redirect(dashboardForRole("clienta"));
+  }
 
   return (
     <SidebarProvider>
-      <AppSidebar initialUser={user} />
+      <AppSidebar initialUser={session.user} role={session.profile.role} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />

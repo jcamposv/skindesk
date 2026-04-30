@@ -3,7 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboardIcon, SettingsIcon } from "lucide-react";
+import {
+  LayoutDashboardIcon,
+  SettingsIcon,
+  ShieldCheckIcon,
+} from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 import { NavUser } from "@/components/nav-user";
@@ -21,24 +25,51 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { ROUTES } from "@/lib/constants";
+import type { AppRole } from "@/types/supabase";
 
-const nav = [
-  { title: "Dashboard", href: ROUTES.dashboard, icon: LayoutDashboardIcon },
-  { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
-] as const;
+type NavItem = {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+// Per-role nav config. Asistente reuses the profesional layout for now; we
+// will filter individual items by `has_asistente_permission` once the
+// dependent domain pages exist.
+const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
+  super_admin: [
+    { title: "Panel global", href: ROUTES.superAdmin, icon: ShieldCheckIcon },
+    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+  ],
+  profesional: [
+    { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+  ],
+  asistente: [
+    { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+  ],
+};
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   initialUser: User;
+  /** Drives nav-item filtering. Clienta has its own mobile layout. */
+  role: Exclude<AppRole, "clienta">;
 };
 
-export function AppSidebar({ initialUser, ...props }: AppSidebarProps) {
+export function AppSidebar({ initialUser, role, ...props }: AppSidebarProps) {
   const pathname = usePathname();
+  const nav = NAV_BY_ROLE[role];
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <div className="flex items-center justify-start rounded-lg bg-white/90 px-2 py-1.5 shadow-sm ring-1 ring-white/30 group-data-[collapsible=icon]:justify-center">
-          <Logo size="sm" className="h-7 w-auto" />
+      <SidebarHeader className="px-3 py-0 group-data-[collapsible=icon]:px-0">
+        <div className="flex items-center justify-start group-data-[collapsible=icon]:justify-center">
+          <Logo
+            variant="white"
+            size="lg"
+            className="h-28 w-auto group-data-[collapsible=icon]:h-8"
+          />
         </div>
       </SidebarHeader>
       <SidebarContent>

@@ -47,3 +47,26 @@ export const getCurrentUser = cache(async () => {
   } = await supabase.auth.getUser();
   return user;
 });
+
+/**
+ * Per-request memoised `auth.getUser()` + `profiles` row. The role/tenant_id
+ * live in `public.profiles`, not in the JWT, so we fetch them once per request
+ * here. Returns `null` when there's no session, otherwise an object with both
+ * the auth user and the profile.
+ */
+export const getCurrentSession = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, role, tenant_id, full_name, email, phone, avatar_url, permissions")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) return null;
+  return { user, profile };
+});

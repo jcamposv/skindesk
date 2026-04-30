@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronsUpDownIcon,
   LogOutIcon,
   SettingsIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -27,6 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useSignOut } from "@/hooks/use-sign-out";
 import { ROUTES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 
@@ -46,8 +45,7 @@ interface NavUserProps {
 
 export function NavUser({ initialUser }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const router = useRouter();
-  const [signingOut, startSignOut] = useTransition();
+  const { signOut, signingOut } = useSignOut();
   // Server-resolved user is the source of truth on first paint, so no skeleton.
   // We subscribe to auth changes only to react when the user signs out from
   // another tab; the layout-level redirect handles the no-user case after that.
@@ -60,19 +58,6 @@ export function NavUser({ initialUser }: NavUserProps) {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
-
-  function handleSignOut() {
-    startSignOut(async () => {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-      router.replace(ROUTES.login);
-      router.refresh();
-    });
-  }
 
   const fullName =
     (user.user_metadata?.full_name as string | undefined) ??
@@ -128,10 +113,7 @@ export function NavUser({ initialUser }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              disabled={signingOut}
-              onClick={handleSignOut}
-            >
+            <DropdownMenuItem disabled={signingOut} onClick={signOut}>
               <LogOutIcon />
               {signingOut ? "Cerrando…" : "Cerrar sesión"}
             </DropdownMenuItem>
