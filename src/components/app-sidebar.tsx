@@ -63,12 +63,17 @@ export function AppSidebar({ initialUser, role, ...props }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="px-3 py-0 group-data-[collapsible=icon]:px-0">
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-4 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-3">
         <div className="flex items-center justify-start group-data-[collapsible=icon]:justify-center">
           <Logo
             variant="white"
-            size="lg"
-            className="h-28 w-auto group-data-[collapsible=icon]:h-8"
+            size="md"
+            className="h-11 w-auto group-data-[collapsible=icon]:hidden"
+          />
+          <Logo
+            variant="icon-white"
+            size="md"
+            className="hidden h-8 w-auto group-data-[collapsible=icon]:block"
           />
         </div>
       </SidebarHeader>

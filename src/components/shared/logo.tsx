@@ -3,16 +3,19 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type LogoSize = "sm" | "md" | "lg" | "xl";
-type LogoVariant = "color" | "white";
+type LogoVariant = "color" | "white" | "icon-white";
 
 /**
  * Each variant is a horizontal lockup tinted for the surface it sits on:
- *  - color: icon + wordmark in brand colors (111×42, ~2.64:1) for light bg.
- *  - white: icon-in-brand + wordmark-in-white (389×157, ~2.48:1) for dark bg.
+ *  - color: icon + wordmark in brand colors (419.77×156.6, ~2.68:1) for light bg.
+ *  - white: icon-in-brand + wordmark-in-white (419.77×156.6, ~2.68:1) for dark bg.
+ *  - icon-white: icon-only mark for dark bg (140.82×156.6, ~0.9:1) — used in
+ *    the collapsed sidebar so the wordmark doesn't get squeezed unreadably.
  */
 const VARIANT: Record<LogoVariant, { src: string; aspect: number }> = {
-  color: { src: "/logo.svg", aspect: 111 / 42 },
-  white: { src: "/logo-white.svg", aspect: 388.62 / 156.6 },
+  color: { src: "/logo.svg", aspect: 419.77 / 156.6 },
+  white: { src: "/logo-white.svg", aspect: 419.77 / 156.6 },
+  "icon-white": { src: "/logo-white-icon.svg", aspect: 140.82 / 156.6 },
 };
 
 const HEIGHT_PX: Record<LogoSize, number> = {
