@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import {
   AlertCircleIcon,
   ClockIcon,
   InboxIcon,
+  Loader2Icon,
   MailCheckIcon,
 } from "lucide-react";
 
-import { Logo } from "@/components/shared/logo";
+import { AuthShell } from "@/components/shared/auth-shell";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 import { stripe } from "@/lib/stripe";
@@ -53,50 +55,14 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const { session_id } = await searchParams;
   if (!session_id) redirect(ROUTES.home);
 
-  const state = await resolveSessionState(session_id);
-
   return (
-    <main className="flex min-h-svh flex-col">
-      <header className="border-b border-border px-6 py-4 sm:px-10">
-        <Link href={ROUTES.home} aria-label="SkinDesk">
-          <Logo size="md" />
-        </Link>
-      </header>
-
+    <AuthShell>
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center gap-10 px-6 py-12 text-center">
-        {state.kind === "complete" ? (
-          <CompleteState email={state.email} />
-        ) : state.kind === "pending" ? (
-          <PendingState />
-        ) : (
-          <ErrorState />
-        )}
+        <Suspense fallback={<VerifyingState />}>
+          <SessionStateView sessionId={session_id} />
+        </Suspense>
       </div>
-
-      <footer className="border-t border-border px-6 py-6 sm:px-10">
-        <div className="mx-auto flex max-w-md flex-col items-center gap-1 text-center text-xs text-muted-foreground">
-          <div className="space-x-3">
-            <Link
-              href="#"
-              className="underline-offset-4 hover:text-foreground hover:underline"
-            >
-              Términos
-            </Link>
-            <span aria-hidden>·</span>
-            <Link
-              href="#"
-              className="underline-offset-4 hover:text-foreground hover:underline"
-            >
-              Política de privacidad
-            </Link>
-          </div>
-          <p>
-            © {new Date().getFullYear()} SkinDesk. Todos los derechos
-            reservados.
-          </p>
-        </div>
-      </footer>
-    </main>
+    </AuthShell>
   );
 }
 
@@ -188,6 +154,37 @@ function PendingState() {
       >
         Volver al inicio
       </Button>
+    </>
+  );
+}
+
+async function SessionStateView({ sessionId }: { sessionId: string }) {
+  const state = await resolveSessionState(sessionId);
+  if (state.kind === "complete") return <CompleteState email={state.email} />;
+  if (state.kind === "pending") return <PendingState />;
+  return <ErrorState />;
+}
+
+function VerifyingState() {
+  return (
+    <>
+      <div className="flex size-24 items-center justify-center rounded-full bg-muted ring-1 ring-border">
+        <Loader2Icon
+          className="size-11 animate-spin text-muted-foreground"
+          strokeWidth={1.5}
+          aria-hidden
+        />
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <h1 className="text-balance text-4xl font-semibold tracking-tight">
+          Confirmando tu pago…
+        </h1>
+        <p className="text-balance text-base text-muted-foreground">
+          Estamos verificando con Stripe. Esto suele tardar menos de un
+          segundo.
+        </p>
+      </div>
     </>
   );
 }
