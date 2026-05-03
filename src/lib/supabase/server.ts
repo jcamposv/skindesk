@@ -48,55 +48,6 @@ export const getCurrentUser = cache(async () => {
   return user;
 });
 
-interface AmrEntry {
-  method: string;
-  timestamp: number;
-}
-
-interface SupabaseAccessTokenClaims {
-  amr?: AmrEntry[];
-}
-
-function decodeJwtPayload<T>(token: string): T | null {
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
-  try {
-    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
-    return JSON.parse(Buffer.from(padded, "base64").toString("utf8")) as T;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Returns true when the current session was established via a password
- * recovery link within the last `windowMinutes` minutes. We read this from
- * the JWT `amr` claim — Supabase signs that token, so a logged-in attacker
- * who navigates to /auth/setup directly cannot fake a recovery context.
- *
- * Used by /auth/setup as the security gate: a profile with password_set
- * already true is only allowed past the redirect when this returns true.
- */
-export const isRecoveryFresh = cache(async (windowMinutes = 15) => {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session?.access_token) return false;
-
-  const claims = decodeJwtPayload<SupabaseAccessTokenClaims>(
-    session.access_token,
-  );
-  const amr = claims?.amr ?? [];
-  if (amr.length === 0) return false;
-
-  const last = amr[amr.length - 1];
-  if (last.method !== "recovery") return false;
-
-  const ageSeconds = Date.now() / 1000 - last.timestamp;
-  return ageSeconds >= 0 && ageSeconds < windowMinutes * 60;
-});
 
 /**
  * Per-request memoised `auth.getUser()` + `profiles` row + the user's

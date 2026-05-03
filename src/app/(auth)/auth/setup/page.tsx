@@ -4,9 +4,15 @@ import { redirect } from "next/navigation";
 import { SetupPasswordForm } from "@/components/forms/setup-password-form";
 import { AuthShell } from "@/components/shared/auth-shell";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
-import { getCurrentSession, isRecoveryFresh } from "@/lib/supabase/server";
+import { getCurrentSession } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Crear contraseña" };
+
+const RECOVERY_FRESHNESS_MINUTES = 5;
+
+interface PageProps {
+  searchParams: Promise<{ type?: string }>;
+}
 
 /**
  * Reached after the welcome magic link or a password recovery link. The
@@ -21,18 +27,31 @@ export const metadata: Metadata = { title: "Crear contraseña" };
  * attacker would otherwise lock the legit user out without knowing the
  * current password).
  *
- *   - profile.password_set === false  → first-time setup (invite/welcome)
- *   - profile.password_set === true   → only allowed when the JWT `amr`
- *     shows a recovery method consumed within the last 15 min. This is
- *     signed by Supabase; can't be forged by an authenticated session.
+ *   - profile.password_set === false → first-time setup (invite/welcome).
+ *   - profile.password_set === true  → only allowed when BOTH:
+ *       (a) `?type=recovery` is on the URL — forwarded by the implicit
+ *           callback after Supabase set `type=recovery` in the URL fragment,
+ *       (b) the user's `last_sign_in_at` is within the last
+ *           RECOVERY_FRESHNESS_MINUTES.
+ *     The query alone is forgeable; the freshness check makes the pair
+ *     tamper-proof for any session older than the window. A session-hijack
+ *     attacker holding cookies older than the window cannot bypass even by
+ *     adding the query param.
  */
-export default async function AuthSetupPage() {
+export default async function AuthSetupPage({ searchParams }: PageProps) {
   const session = await getCurrentSession();
   if (!session) redirect(ROUTES.login);
 
   if (session.profile.password_set) {
-    const inRecovery = await isRecoveryFresh();
-    if (!inRecovery) redirect(dashboardForRole(session.profile.role));
+    const { type } = await searchParams;
+    const claimsRecovery = type === "recovery";
+    const sessionFresh = isSessionFresh(
+      session.user.last_sign_in_at,
+      RECOVERY_FRESHNESS_MINUTES,
+    );
+    if (!(claimsRecovery && sessionFresh)) {
+      redirect(dashboardForRole(session.profile.role));
+    }
   }
 
   return (
@@ -56,4 +75,13 @@ export default async function AuthSetupPage() {
       </div>
     </AuthShell>
   );
+}
+
+function isSessionFresh(
+  lastSignInAt: string | undefined,
+  windowMinutes: number,
+): boolean {
+  if (!lastSignInAt) return false;
+  const ageMs = Date.now() - new Date(lastSignInAt).getTime();
+  return ageMs >= 0 && ageMs < windowMinutes * 60 * 1000;
 }

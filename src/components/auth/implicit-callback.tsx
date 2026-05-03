@@ -39,6 +39,14 @@ export function ImplicitCallback() {
     const params = new URLSearchParams(hash);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
+    // Supabase puts `type=recovery` in the fragment after consuming a
+    // recovery token (separate from `next`). We forward this as a query
+    // param so /auth/setup can distinguish "user just used a recovery
+    // link" from "user is just logged in trying to wander into the page".
+    // The query alone is forgeable; /auth/setup pairs it with a freshness
+    // check on `last_sign_in_at` to make the combined signal tamper-proof
+    // for any session older than the freshness window.
+    const fragmentType = params.get("type");
 
     // Strip the tokens from the URL bar before doing anything else — even
     // a few hundred ms of `#access_token=…` in the address bar is enough
@@ -68,7 +76,12 @@ export function ImplicitCallback() {
           router.replace(`${ROUTES.login}?error=auth_callback`);
           return;
         }
-        router.replace(next ?? ROUTES.dashboard);
+        const baseTarget = next ?? ROUTES.dashboard;
+        const target =
+          fragmentType === "recovery"
+            ? `${baseTarget}${baseTarget.includes("?") ? "&" : "?"}type=recovery`
+            : baseTarget;
+        router.replace(target);
       });
   }, [router, next]);
 

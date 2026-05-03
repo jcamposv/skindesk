@@ -1,39 +1,30 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { ForgotPasswordForm } from "@/components/forms/forgot-password-form";
-import { Logo } from "@/components/shared/logo";
-import { ROUTES } from "@/lib/constants";
+import { AuthShell } from "@/components/shared/auth-shell";
 
 export const metadata: Metadata = { title: "Configurar contraseña" };
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col gap-8 px-6 py-10">
-      <header className="flex items-center justify-between">
-        <Link href={ROUTES.home}>
-          <Logo size="sm" />
-        </Link>
-        <Link
-          href={ROUTES.login}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Iniciar sesión
-        </Link>
-      </header>
+    <AuthShell>
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-8 px-6 py-12">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Recuperar acceso
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Configurá tu contraseña
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Te enviamos un enlace al email. Sirve para crear tu primera
+            contraseña (si activaste por magic link) o para restablecer una
+            que olvidaste.
+          </p>
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Configurá tu contraseña
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Te enviamos un enlace al email. Sirve para crear tu primera
-          contraseña (si activaste por magic link) o para restablecer una
-          que olvidaste.
-        </p>
+        <ForgotPasswordForm />
       </div>
-
-      <ForgotPasswordForm />
-    </main>
+    </AuthShell>
   );
 }
