@@ -247,7 +247,19 @@ export async function resetPasswordAction(
   }
 }
 
-/** Update password for the current user. */
+/**
+ * Update password for the current user.
+ *
+ * Pairs with Supabase's "Secure password change" project setting (Auth →
+ * Settings → enable). With that flag on, `auth.updateUser({ password })`
+ * requires a freshly-authenticated session; the magic-link sign-in (invite
+ * flow) and the recovery token (forgot-password flow) both count as fresh
+ * re-auth via the JWT `aal`/`amr` claims, so neither flow needs the user to
+ * type a current password. A future /settings/cambiar-password page (where
+ * the user is just casually logged in, not freshly re-authenticated) WILL
+ * need to call `auth.reauthenticate()` first or collect the current
+ * password — Supabase will refuse the update otherwise.
+ */
 export async function updatePasswordAction(
   _prev: ActionState | null,
   formData: FormData,

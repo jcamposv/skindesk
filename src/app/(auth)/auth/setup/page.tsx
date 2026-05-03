@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 
 import { SetupPasswordForm } from "@/components/forms/setup-password-form";
 import { AuthShell } from "@/components/shared/auth-shell";
-import { ROUTES } from "@/lib/constants";
-import { getCurrentUser } from "@/lib/supabase/server";
+import { ROUTES, dashboardForRole } from "@/lib/constants";
+import { getCurrentSession, isRecoveryFresh } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Crear contraseña" };
 
@@ -14,10 +14,26 @@ export const metadata: Metadata = { title: "Crear contraseña" };
  * Component renders the user has a session — we use the form to require a
  * password before letting her into the dashboard. No skip: profesionales
  * land here once and only once during onboarding.
+ *
+ * Two legitimate entry conditions; everything else is bounced to the role
+ * dashboard so an already-set-up user can't navigate here directly and
+ * silently change her password (a session-hijack amplification vector — the
+ * attacker would otherwise lock the legit user out without knowing the
+ * current password).
+ *
+ *   - profile.password_set === false  → first-time setup (invite/welcome)
+ *   - profile.password_set === true   → only allowed when the JWT `amr`
+ *     shows a recovery method consumed within the last 15 min. This is
+ *     signed by Supabase; can't be forged by an authenticated session.
  */
 export default async function AuthSetupPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect(ROUTES.login);
+  const session = await getCurrentSession();
+  if (!session) redirect(ROUTES.login);
+
+  if (session.profile.password_set) {
+    const inRecovery = await isRecoveryFresh();
+    if (!inRecovery) redirect(dashboardForRole(session.profile.role));
+  }
 
   return (
     <AuthShell>

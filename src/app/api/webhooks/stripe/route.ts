@@ -350,13 +350,22 @@ async function ensureProfesionalUser(
   args: { email: string; fullName: string; businessName: string },
 ): Promise<string> {
   // Try to create first — the common case is a brand-new user.
+  // `password_set: false` is read by the handle_new_user trigger (in BOTH
+  // user_metadata and app_metadata for safety: Supabase populates
+  // raw_app_meta_data in stages and the trigger may fire before our explicit
+  // fields land there, while raw_user_meta_data is reliable at INSERT time).
+  // The trigger seeds profiles.password_set = false so the activation flow
+  // lands on /auth/setup. We can't infer "no password" from
+  // `encrypted_password` because Supabase fills that with a random bcrypt
+  // hash even when no password is supplied to admin.createUser.
   const { data: created, error } = await admin.auth.admin.createUser({
     email: args.email,
     email_confirm: true,
-    app_metadata: { role: "profesional" },
+    app_metadata: { role: "profesional", password_set: false },
     user_metadata: {
       full_name: args.fullName,
       business_name: args.businessName,
+      password_set: false,
     },
   });
   if (!error && created.user) return created.user.id;
