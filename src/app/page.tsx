@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { InfoIcon } from "lucide-react";
 
 import { PlanCard } from "@/components/marketing/plan-card";
 import { Logo } from "@/components/shared/logo";
@@ -8,10 +9,17 @@ import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { PLANS } from "@/lib/plans";
 import { getCurrentSession } from "@/lib/supabase/server";
 
-export default async function HomePage() {
+interface PageProps {
+  searchParams: Promise<{ canceled?: string }>;
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
   // Authed users skip the landing entirely — they belong on their dashboard.
   const session = await getCurrentSession();
   if (session) redirect(dashboardForRole(session.profile.role));
+
+  const { canceled } = await searchParams;
+  const showCanceledNotice = canceled === "1";
 
   return (
     <main className="flex min-h-svh flex-col">
@@ -34,6 +42,24 @@ export default async function HomePage() {
           </Button>
         </div>
       </header>
+
+      {showCanceledNotice ? (
+        <div className="border-b border-border/60 bg-muted/40">
+          <div className="mx-auto flex w-full max-w-6xl items-start gap-3 px-6 py-3 md:px-10">
+            <InfoIcon
+              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                Cancelaste el pago.
+              </span>{" "}
+              No te cobramos nada. Si fue sin querer, elegí tu plan abajo y
+              volvé a intentar — tu información no se perdió.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-12 px-6 pt-10 pb-20 md:pt-20">
         <div className="flex flex-col items-center gap-4 text-center">

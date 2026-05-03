@@ -4,6 +4,7 @@ import { useActionState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { AlertCircleIcon } from "lucide-react";
 
 import { createCheckoutSessionAction } from "@/actions/checkout.actions";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,16 @@ export function CheckoutForm({ plan }: CheckoutFormProps) {
           )}
         />
         {state?.message && !state.success ? (
-          <p className="text-sm text-destructive">{state.message}</p>
+          <div
+            role="alert"
+            className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-left"
+          >
+            <AlertCircleIcon
+              className="mt-0.5 size-4 shrink-0 text-destructive"
+              aria-hidden
+            />
+            <p className="text-xs text-destructive">{state.message}</p>
+          </div>
         ) : null}
         <Button type="submit" size="lg" className="h-11" disabled={pending}>
           {pending ? "Redirigiendo a Stripe…" : "Continuar al pago"}
