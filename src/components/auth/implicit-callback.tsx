@@ -47,6 +47,11 @@ export function ImplicitCallback() {
     // check on `last_sign_in_at` to make the combined signal tamper-proof
     // for any session older than the freshness window.
     const fragmentType = params.get("type");
+    // Supabase reports verify failures (expired link, used token, etc.)
+    // in the fragment too — we forward those reasons to /login so the
+    // toast there shows the real cause.
+    const fragmentError = params.get("error") ?? params.get("error_code");
+    const fragmentErrorDescription = params.get("error_description");
 
     // Strip the tokens from the URL bar before doing anything else — even
     // a few hundred ms of `#access_token=…` in the address bar is enough
@@ -61,9 +66,17 @@ export function ImplicitCallback() {
       );
     }
 
+    if (fragmentError) {
+      setErrored(true);
+      router.replace(loginErrorUrl(fragmentError, fragmentErrorDescription));
+      return;
+    }
+
     if (!accessToken || !refreshToken) {
       setErrored(true);
-      router.replace(`${ROUTES.login}?error=auth_callback`);
+      router.replace(
+        loginErrorUrl("missing_tokens", "El enlace no incluye tokens válidos."),
+      );
       return;
     }
 
@@ -73,7 +86,7 @@ export function ImplicitCallback() {
       .then(({ error }) => {
         if (error) {
           setErrored(true);
-          router.replace(`${ROUTES.login}?error=auth_callback`);
+          router.replace(loginErrorUrl("set_session_failed", error.message));
           return;
         }
         const baseTarget = next ?? ROUTES.dashboard;
@@ -90,4 +103,10 @@ export function ImplicitCallback() {
       {errored ? "Hubo un problema, te llevamos al login…" : "Redirigiendo…"}
     </div>
   );
+}
+
+function loginErrorUrl(code: string, description: string | null | undefined): string {
+  const qs = new URLSearchParams({ error: code });
+  if (description) qs.set("description", description);
+  return `${ROUTES.login}?${qs.toString()}`;
 }

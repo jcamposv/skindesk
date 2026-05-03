@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
+import { LoginErrorToast } from "@/components/auth/login-error-toast";
 import { AuthHero } from "@/components/shared/auth-hero";
 import { LoginForm } from "@/components/forms/login-form";
 import { Logo } from "@/components/shared/logo";
@@ -13,6 +15,9 @@ export const metadata: Metadata = { title: "Iniciar sesión" };
 export default function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
+      <Suspense fallback={null}>
+        <LoginErrorToast />
+      </Suspense>
       <AuthHero
         headline="Cuida tu piel con datos, no con suposiciones."
         subline="Recomendaciones personalizadas, análisis de productos y rutinas adaptadas a tu tipo de piel — todo en un solo lugar."
