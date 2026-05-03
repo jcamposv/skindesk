@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { Logo } from "@/components/shared/logo";
+
 interface AuthHeroProps {
   /** Big tagline rendered toward the bottom of the panel. */
   headline: string;
@@ -9,6 +11,8 @@ interface AuthHeroProps {
   imageSrc?: string;
   /** Alt text for the hero image. */
   imageAlt?: string;
+  /** CSS `object-position` for the hero image. Default "center 35%". */
+  imagePosition?: string;
 }
 
 /**
@@ -23,6 +27,7 @@ export function AuthHero({
   subline,
   imageSrc = "/login-hero1.jpg",
   imageAlt = "",
+  imagePosition = "center 35%",
 }: AuthHeroProps) {
   return (
     <aside className="relative hidden overflow-hidden bg-sidebar lg:flex">
@@ -32,7 +37,8 @@ export function AuthHero({
         fill
         priority
         sizes="50vw"
-        className="object-cover object-[center_35%]"
+        className="object-cover"
+        style={{ objectPosition: imagePosition }}
       />
       {/* Light top scrim — anchors the white logomark without darkening the photo */}
       <div
@@ -46,14 +52,7 @@ export function AuthHero({
       />
 
       <div className="relative z-10 flex h-full w-full flex-col items-start justify-between p-12">
-        <Image
-          src="/logo.svg"
-          alt="SkinDesk"
-          width={220}
-          height={84}
-          priority
-          className="h-16 w-auto [filter:brightness(0)_invert(1)]"
-        />
+        <Logo variant="white" size="xl" />
 
         <div className="max-w-2xl space-y-4">
           <h2 className="text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-white">
