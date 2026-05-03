@@ -1,52 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   BadgeCheckIcon,
   BanknoteIcon,
   Building2Icon,
   UsersIcon,
-  type LucideIcon,
 } from "lucide-react";
 
+import { DashboardHero } from "@/components/shared/dashboard-hero";
+import { StatCard, type StatCardProps } from "@/components/shared/stat-card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { PLAN_BY_SLUG, type PlanSlug } from "@/lib/plans";
-import { cn } from "@/lib/utils";
 import { createClient, getCurrentSession } from "@/lib/supabase/server";
-
-export const metadata: Metadata = { title: "Panel global · Super admin" };
-
-/**
- * Visual tokens per stat. Card backgrounds use the brand palette
- * (sage/aquatone, balsam green, artemis honey, dusty rose) so each card
- * reads as a distinct concern at a glance. The icon chip is always white
- * over the colored card for contrast — the chip itself uses the same brand
- * color for the glyph so the icon "echoes" the card.
- */
-const STAT_TONES = {
-  balsam: {
-    card: "bg-[#5C6E6C] text-white",
-    chipText: "text-[#5C6E6C]",
-    linkHover: "hover:text-white",
-  },
-  aquatone: {
-    card: "bg-[#A6B7AA] text-white",
-    chipText: "text-[#5C6E6C]",
-    linkHover: "hover:text-white",
-  },
-  artemis: {
-    card: "bg-[#D2A96A] text-white",
-    chipText: "text-[#8A6A38]",
-    linkHover: "hover:text-white",
-  },
-  dustyRose: {
-    card: "bg-[#C58F8A] text-white",
-    chipText: "text-[#8A4F4A]",
-    linkHover: "hover:text-white",
-  },
-} as const;
-
-type ToneKey = keyof typeof STAT_TONES;
 
 export default async function SuperAdminPage() {
   const session = await getCurrentSession();
@@ -90,14 +55,7 @@ export default async function SuperAdminPage() {
   const activeCount = activeSubs.count ?? 0;
   const trialingCount = trialingSubs.count ?? 0;
 
-  const stats: Array<{
-    label: string;
-    value: string;
-    icon: LucideIcon;
-    tone: ToneKey;
-    description: string;
-    meta?: string;
-  }> = [
+  const stats: StatCardProps[] = [
     {
       label: "Tenants",
       value: NUMBER_FORMAT.format(tenants.count ?? 0),
@@ -135,76 +93,23 @@ export default async function SuperAdminPage() {
     },
   ];
 
+  const fullName =
+    session.profile.full_name ??
+    (session.user.user_metadata?.full_name as string | undefined) ??
+    session.user.email?.split("@")[0] ??
+    "ahí";
+
   return (
     <div className="grid gap-8">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Panel global</h2>
-        <p className="text-sm text-muted-foreground">
-          Gestión de tenants, usuarios y métricas a nivel plataforma.
-        </p>
-      </div>
+      <DashboardHero
+        name={fullName}
+        subtitle="Acá tenés un resumen de la plataforma hoy."
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
-    </div>
-  );
-}
-
-interface StatCardProps {
-  label: string;
-  value: string;
-  icon: LucideIcon;
-  tone: ToneKey;
-  description: string;
-  /** Optional secondary annotation rendered under the headline value. */
-  meta?: string;
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  tone,
-  description,
-  meta,
-}: StatCardProps) {
-  const t = STAT_TONES[tone];
-  return (
-    <div
-      className={cn(
-        "relative flex flex-col gap-4 rounded-2xl p-5 shadow-sm transition-shadow hover:shadow-md",
-        t.card,
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <span
-          className={cn(
-            "flex size-11 items-center justify-center rounded-full bg-white/95",
-            t.chipText,
-          )}
-        >
-          <Icon className="size-5" aria-hidden />
-        </span>
-        <div className="flex flex-col items-end text-right">
-          <p className="text-xs font-medium uppercase tracking-wider opacity-80">
-            {label}
-          </p>
-          <p
-            className="mt-1 text-3xl font-semibold leading-none tracking-tight tabular-nums"
-            aria-label={`${value} ${label}`}
-          >
-            {value}
-          </p>
-          {meta ? (
-            <p className="mt-1.5 text-[11px] font-medium tabular-nums opacity-80">
-              {meta}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      <p className="text-xs leading-relaxed opacity-85">{description}</p>
     </div>
   );
 }
