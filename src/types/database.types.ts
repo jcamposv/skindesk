@@ -150,7 +150,9 @@ export type Database = {
       }
       tenants: {
         Row: {
+          cancel_at_period_end: boolean
           created_at: string
+          current_period_end: string | null
           id: string
           name: string
           owner_id: string
@@ -162,7 +164,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           created_at?: string
+          current_period_end?: string | null
           id?: string
           name: string
           owner_id: string
@@ -174,7 +178,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           created_at?: string
+          current_period_end?: string | null
           id?: string
           name?: string
           owner_id?: string

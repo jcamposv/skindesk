@@ -75,9 +75,10 @@ export const getCurrentSession = cache(async () => {
   if (!profile) return null;
 
   // Tenant is only relevant for non-super_admin users. The trigger keeps
-  // `tenants.plan` and `tenants.subscription_status` in sync with the
-  // `subscriptions` row, so reading from `tenants` is enough for layout
-  // gates.
+  // `tenants.plan`, `subscription_status`, `cancel_at_period_end` and
+  // `current_period_end` in sync with the `subscriptions` row, so reading
+  // from `tenants` is enough for layout gates and the cancel-pending
+  // banner.
   let tenant: {
     id: string;
     name: string;
@@ -85,11 +86,15 @@ export const getCurrentSession = cache(async () => {
     subscription_status:
       | Database["public"]["Enums"]["subscription_status"]
       | null;
+    cancel_at_period_end: boolean;
+    current_period_end: string | null;
   } | null = null;
   if (profile.tenant_id) {
     const { data } = await supabase
       .from("tenants")
-      .select("id, name, plan, subscription_status")
+      .select(
+        "id, name, plan, subscription_status, cancel_at_period_end, current_period_end",
+      )
       .eq("id", profile.tenant_id)
       .single();
     tenant = data;

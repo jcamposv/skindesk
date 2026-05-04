@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { createBillingPortalSessionAction } from "@/actions/billing.actions";
+import { SubscriptionToggleDialog } from "@/components/billing/cancel-subscription-dialog";
+import { PortalReturnRefresh } from "@/components/billing/portal-return-refresh";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +30,18 @@ const ROLE_LABEL = {
 } as const;
 
 type Status = Database["public"]["Enums"]["subscription_status"];
+
+const HARD_GATE_STATUSES: ReadonlySet<Status> = new Set<Status>([
+  "canceled",
+  "unpaid",
+  "incomplete_expired",
+]);
+
+const DATE_FORMAT = new Intl.DateTimeFormat("es-AR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
 
 const STATUS_LABEL: Record<Status, string> = {
   trialing: "En prueba",
@@ -62,17 +77,32 @@ export default async function SettingsPage() {
     ? PLAN_BY_SLUG[session.tenant.plan]
     : null;
   const status = session.tenant?.subscription_status ?? null;
+  const cancelAtPeriodEnd = session.tenant?.cancel_at_period_end ?? false;
+  const currentPeriodEnd = session.tenant?.current_period_end ?? null;
+  const isHardGated = status ? HARD_GATE_STATUSES.has(status) : false;
   // Asistente sees the plan but can't manage billing — only the profesional
   // who owns the tenant should reach the portal. Super_admin has no tenant.
   const canManageBilling =
     session.profile.role === "profesional" && Boolean(session.tenant);
 
+  const periodEndLabel =
+    currentPeriodEnd && (cancelAtPeriodEnd || isHardGated)
+      ? DATE_FORMAT.format(new Date(currentPeriodEnd))
+      : null;
+
   return (
     <div className="grid gap-4">
+      {/* Auto-refresh after the user returns from the Stripe Billing
+          Portal — closes the gap between Stripe's redirect and the webhook. */}
+      <Suspense fallback={null}>
+        <PortalReturnRefresh />
+      </Suspense>
       <div>
         <h2 className="text-2xl font-semibold tracking-tight">Ajustes</h2>
         <p className="text-sm text-muted-foreground">
-          Gestiona tu cuenta y preferencias.
+          {isHardGated
+            ? "Reactivá tu suscripción para volver a usar SkinDesk."
+            : "Gestiona tu cuenta y preferencias."}
         </p>
       </div>
 
@@ -120,9 +150,29 @@ export default async function SettingsPage() {
                 <span className="text-muted-foreground">—</span>
               )}
             </div>
+            {periodEndLabel ? (
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{cancelAtPeriodEnd ? "Termina el" : "Vencimiento"}</span>
+                <span className="font-medium tabular-nums text-foreground/80">
+                  {periodEndLabel}
+                </span>
+              </div>
+            ) : null}
           </CardContent>
           {canManageBilling ? (
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-3">
+              {/*
+                Reactivate is the primary action when a cancel is already
+                scheduled — surfaces it above "manage" so the path back is
+                obvious. Otherwise the manage portal is primary and the
+                cancel-dialog is a secondary destructive option.
+              */}
+              {cancelAtPeriodEnd && status && !HARD_GATE_STATUSES.has(status) ? (
+                <SubscriptionToggleDialog
+                  variant="reactivate"
+                  periodEnd={currentPeriodEnd}
+                />
+              ) : null}
               <form action={createBillingPortalSessionAction} className="w-full">
                 <Button
                   type="submit"
@@ -133,6 +183,16 @@ export default async function SettingsPage() {
                   Gestionar suscripción
                 </Button>
               </form>
+              {/* Cancel only makes sense for healthy subscriptions that
+                  aren't already winding down. */}
+              {status &&
+              !HARD_GATE_STATUSES.has(status) &&
+              !cancelAtPeriodEnd ? (
+                <SubscriptionToggleDialog
+                  variant="cancel"
+                  periodEnd={currentPeriodEnd}
+                />
+              ) : null}
             </CardFooter>
           ) : (
             <CardFooter>

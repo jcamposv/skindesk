@@ -10,6 +10,12 @@ import type { Database } from "@/types/database.types";
  *  - Authenticated users on /login or /register → /dashboard
  */
 export async function updateSession(request: NextRequest) {
+  // Expose the request path to Server Components via a header so layouts
+  // can gate on the current route (e.g. the staff hard-gate redirect skips
+  // when the user is already on /settings). Setting the header on
+  // `request.headers` BEFORE constructing the response forwards it.
+  request.headers.set("x-pathname", request.nextUrl.pathname);
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
