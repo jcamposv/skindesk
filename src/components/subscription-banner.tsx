@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { AlertTriangleIcon, CalendarClockIcon } from "lucide-react";
+import { CalendarClockIcon } from "lucide-react";
 
+import { Banner, BannerLink } from "@/components/shared/banner";
 import { ROUTES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import type { Database } from "@/types/database.types";
 
 type Status = Database["public"]["Enums"]["subscription_status"];
@@ -50,23 +49,21 @@ const DATE_FORMAT = new Intl.DateTimeFormat("es-AR", {
 /**
  * Renders one of three states:
  *  - **null**: healthy + no scheduled cancellation. Nothing rendered.
- *  - **notice (honey)**: trial/active winding down (`cancel_at_period_end`).
- *    Soft tone, end-date copy, points the user to /settings to undo it.
- *  - **destructive (copper/red)**: past_due / incomplete / canceled / etc.
- *    Hard tone, points to /settings → Stripe portal.
+ *  - **warning**: trial/active winding down (`cancel_at_period_end`).
+ *    Honey tone, end-date copy, points the user to /settings to undo.
+ *  - **destructive**: past_due / incomplete / canceled / etc. Points to
+ *    /settings → Stripe portal.
  *
- * The hard-gate statuses (canceled / unpaid / incomplete_expired) reach
- * here only when the user is already on /settings (the layout redirects
- * everywhere else), so the banner doubles as the explanation on that page.
+ * Built on the shared `<Banner>` primitive so layout/spacing stays in
+ * sync with any future banner consumer (success messages, system
+ * notices, etc.).
  */
 export function SubscriptionBanner({
   status,
   cancelAtPeriodEnd,
   currentPeriodEnd,
 }: SubscriptionBannerProps) {
-  // 1. Cancel-pending notice for trial/active. Higher priority than the
-  //    "healthy → no banner" branch because we want the user to see it
-  //    even though `status` itself is still trialing/active.
+  // 1. Cancel-pending notice for trial/active.
   if (status && HEALTHY_STATUS.has(status) && cancelAtPeriodEnd) {
     const dateLabel = currentPeriodEnd
       ? DATE_FORMAT.format(new Date(currentPeriodEnd))
@@ -76,12 +73,13 @@ export function SubscriptionBanner({
       : "Tu plan está programado para cancelarse. Reactivalo para mantener acceso.";
 
     return (
-      <BannerShell
-        tone="notice"
-        icon={<CalendarClockIcon className="mt-0.5 size-4 shrink-0" aria-hidden />}
-        headline={headline}
-        cta="Reactivar plan"
-      />
+      <Banner
+        tone="warning"
+        icon={CalendarClockIcon}
+        action={<BannerLink href={ROUTES.settings}>Reactivar plan</BannerLink>}
+      >
+        {headline}
+      </Banner>
     );
   }
 
@@ -95,43 +93,11 @@ export function SubscriptionBanner({
   };
 
   return (
-    <BannerShell
+    <Banner
       tone="destructive"
-      icon={<AlertTriangleIcon className="mt-0.5 size-4 shrink-0" aria-hidden />}
-      headline={copy.headline}
-      cta={copy.cta}
-    />
-  );
-}
-
-interface BannerShellProps {
-  tone: "notice" | "destructive";
-  icon: React.ReactNode;
-  headline: string;
-  cta: string;
-}
-
-function BannerShell({ tone, icon, headline, cta }: BannerShellProps) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 border-b px-4 py-2 text-sm sm:flex-row sm:items-center sm:justify-between",
-        tone === "destructive" &&
-          "border-destructive/20 bg-destructive/10 text-destructive",
-        tone === "notice" &&
-          "border-[#EFD7C7] bg-[#FBF5EA] text-[#8A6A38]",
-      )}
+      action={<BannerLink href={ROUTES.settings}>{copy.cta}</BannerLink>}
     >
-      <div className="flex items-start gap-2">
-        {icon}
-        <p>{headline}</p>
-      </div>
-      <Link
-        href={ROUTES.settings}
-        className="self-start font-medium underline-offset-4 hover:underline sm:self-auto"
-      >
-        {cta} →
-      </Link>
-    </div>
+      {copy.headline}
+    </Banner>
   );
 }

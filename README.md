@@ -103,3 +103,69 @@ Paleta SkinDesk en `src/app/globals.css` (oklch):
 El sidebar usa `--sidebar = primary`. Foreground se calcula por contraste (blanco sobre sage oscuro).
 
 Logo en `public/logo.svg`. El componente `<Logo />` (`src/components/shared/logo.tsx`) maneja `size` y `variant`.
+
+## UI feedback: Banner vs Toast
+
+Dos primitivos para comunicarle algo al usuario, con casos de uso diferentes.
+
+### Banner — `src/components/shared/banner.tsx`
+
+Mensaje **persistente** que se queda visible hasta que el estado subyacente cambie. Server-renderable, sin JS al cliente salvo lo que metas en el slot de `action`.
+
+```tsx
+import { Banner, BannerLink } from "@/components/shared/banner";
+
+<Banner
+  tone="warning"
+  action={<BannerLink href="/settings">Reactivar plan</BannerLink>}
+>
+  Tu plan termina el 17 de mayo. Reactivalo para mantener acceso.
+</Banner>
+```
+
+**Tonos disponibles:**
+
+| Tono | Cuándo usarlo | Color |
+|---|---|---|
+| `success` | Confirmación positiva persistente. "Tu cuenta se verificó." | sage soft |
+| `info` | Contexto neutral. "Tu prueba expira en 5 días." | cool gray |
+| `warning` | Necesita atención pero no es crítico. "Tu plan termina el X." | artemis honey |
+| `destructive` | Falla / bloqueo / acción urgente. "Pago rechazado." | warm copper |
+
+**Props:**
+
+- `tone` — uno de los 4 tonos. **No usar booleans** (`isError`, `success` separadas) — single enum.
+- `icon?` — override del icono default por tono (`CheckCircle2`, `Info`, `AlertTriangle`).
+- `action?` — `ReactNode` opcional, se alinea derecha. Usá `<BannerLink>` para el caso típico de link con flecha.
+- `children` — el cuerpo del mensaje.
+
+`<BannerLink>` hereda el color del tono automáticamente (no hay que pintarlo distinto en cada banner).
+
+### Toast — sonner (`@/components/ui/sonner.tsx` ya montado en `app/layout.tsx`)
+
+Mensaje **efímero** que aparece y se va solo después de unos segundos. Bueno para feedback de acciones.
+
+```tsx
+import { toast } from "sonner";
+
+toast.success("Suscripción cancelada", {
+  description: "Mantenés acceso hasta el 17 de mayo.",
+});
+toast.error("No pudimos guardar tu cambio.");
+```
+
+### Cómo decidir
+
+| Caso | Componente |
+|---|---|
+| Estado del sistema que el usuario debe ver hasta resolverlo (suscripción canceling, payment past_due, mantenimiento programado) | **Banner** |
+| Confirmación tras una acción puntual (cambio guardado, fila eliminada, login OK) | **Toast** |
+| Resultado exitoso de un Server Action donde la nueva data ya se renderiza en pantalla | **Toast** |
+| Aviso ongoing que requiere accionar para resolverse | **Banner** |
+| Anuncio de feature nuevo o tip contextual fijo en un dashboard | **Banner** (`tone="info"` o `success`) |
+
+**Regla rápida:** si refrescar la página debe seguir mostrando el mensaje → Banner. Si es feedback de "lo que acabo de hacer" → Toast.
+
+### Subscription banner (caso real)
+
+`src/components/subscription-banner.tsx` consume `<Banner>` con la lógica específica del estado de suscripción (`tone="warning"` para cancel-pending, `tone="destructive"` para past_due / canceled). Sirve de referencia de cómo combinar el primitivo con lógica de dominio.
