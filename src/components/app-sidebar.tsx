@@ -7,6 +7,7 @@ import {
   LayoutDashboardIcon,
   SettingsIcon,
   ShieldCheckIcon,
+  UsersIcon,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -43,10 +44,12 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
   ],
   profesional: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
   asistente: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
 };

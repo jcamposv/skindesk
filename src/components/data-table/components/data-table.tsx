@@ -165,7 +165,14 @@ export function DataTable<TData>({
                     </TableCell>
                   ))}
                   {rowActions?.length ? (
-                    <TableCell className="text-right">
+                    <TableCell
+                      className="text-right"
+                      // Stop propagation so clicking the kebab opens the
+                      // dropdown instead of triggering `onRowClick`. The
+                      // actions cell must not behave like the rest of the
+                      // row.
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <DataTableRowActions
                         row={row.original}
                         actions={rowActions}

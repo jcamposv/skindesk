@@ -19,6 +19,8 @@ export const ROUTES = {
   clienta: "/clienta",
   /** Shared staff settings (super_admin + profesional + asistente). */
   settings: "/settings",
+  /** Clientes module — list / detail / create. profesional + asistente. */
+  clientes: "/clientes",
 } as const;
 
 export const PUBLIC_ROUTES: readonly string[] = [

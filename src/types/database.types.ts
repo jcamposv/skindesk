@@ -39,6 +39,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      clientes: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          civil_status: string | null
+          created_at: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          id: string
+          last_appointment_at: string | null
+          next_appointment_at: string | null
+          notes: string | null
+          occupation: string | null
+          profile_id: string
+          referral_source: string | null
+          services_active: Json
+          status: Database["public"]["Enums"]["cliente_status"]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          civil_status?: string | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          last_appointment_at?: string | null
+          next_appointment_at?: string | null
+          notes?: string | null
+          occupation?: string | null
+          profile_id: string
+          referral_source?: string | null
+          services_active?: Json
+          status?: Database["public"]["Enums"]["cliente_status"]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          civil_status?: string | null
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          last_appointment_at?: string | null
+          next_appointment_at?: string | null
+          notes?: string | null
+          occupation?: string | null
+          profile_id?: string
+          referral_source?: string | null
+          services_active?: Json
+          status?: Database["public"]["Enums"]["cliente_status"]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -202,6 +277,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
+      cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       plan_slug: "basico" | "pro" | "clinica"
       subscription_status:
         | "trialing"
@@ -792,6 +868,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
+      cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       plan_slug: ["basico", "pro", "clinica"],
       subscription_status: [
         "trialing",
