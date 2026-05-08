@@ -270,7 +270,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      clientes_status_counts: {
+        Row: {
+          count: number | null
+          status: Database["public"]["Enums"]["cliente_status"] | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

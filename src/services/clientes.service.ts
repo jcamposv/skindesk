@@ -1,7 +1,9 @@
 import "server-only";
 
+import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database.types";
 import type { ClienteStatus } from "@/schemas/clientes.schema";
 
@@ -41,7 +43,11 @@ export type ClienteDetail = ClienteListRow & {
   updated_at: string;
 };
 
-/** Server-paginated list. RLS scopes rows to caller's tenant. */
+/**
+ * Server-paginated list. RLS scopes rows to caller's tenant. Hits the
+ * `clientes_tenant_status_created_idx` composite index for the
+ * tenant + status + ORDER BY created_at DESC pattern.
+ */
 export async function listClientes(
   supabase: DB,
   options: {
@@ -89,35 +95,46 @@ export async function listClientes(
   };
 }
 
-/** Fetch one cliente by id. RLS handles authorization. */
-export async function getClienteById(
-  supabase: DB,
-  id: string,
-): Promise<ClienteDetail | null> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .select(
-      `id, status, birth_date, services_active, last_appointment_at, next_appointment_at, created_at, updated_at,
-       address, occupation, civil_status, emergency_contact_name, emergency_contact_phone, referral_source, notes, tenant_id,
-       profile:profiles!inner(id, full_name, email, phone, avatar_url)`,
-    )
-    .eq("id", id)
-    .maybeSingle();
+/**
+ * Fetch one cliente by id. RLS handles authorization.
+ *
+ * Wrapped in React `cache()` so multiple callers in the same request (e.g.
+ * `generateMetadata` + the page itself) share a single DB round-trip.
+ * The id alone is the cache key — the supabase client is created internally
+ * so it doesn't fragment the cache.
+ */
+export const getClienteById = cache(
+  async (id: string): Promise<ClienteDetail | null> => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("clientes")
+      .select(
+        `id, status, birth_date, services_active, last_appointment_at, next_appointment_at, created_at, updated_at,
+         address, occupation, civil_status, emergency_contact_name, emergency_contact_phone, referral_source, notes, tenant_id,
+         profile:profiles!inner(id, full_name, email, phone, avatar_url)`,
+      )
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error(error.message);
-  return data as unknown as ClienteDetail | null;
-}
+    if (error) throw new Error(error.message);
+    return data as unknown as ClienteDetail | null;
+  },
+);
 
 /**
  * Aggregate counts per status for the filter chips on the list page.
- * One round-trip; RLS scopes the rows.
+ *
+ * Hits the `public.clientes_status_counts` view (Postgres GROUP BY in SQL,
+ * `security_invoker=true` so RLS applies). One round-trip with at most 4
+ * rows transferred — replaces the previous JS-side aggregation that pulled
+ * one row per clienta just to count statuses.
  */
 export async function getClienteStatusCounts(
   supabase: DB,
 ): Promise<Record<ClienteStatus, number> & { total: number }> {
   const { data, error } = await supabase
-    .from("clientes")
-    .select("status");
+    .from("clientes_status_counts")
+    .select("status, count");
 
   if (error) throw new Error(error.message);
 
@@ -127,6 +144,12 @@ export async function getClienteStatusCounts(
     activa: 0,
     inactiva: 0,
   };
-  for (const row of data ?? []) counts[row.status as ClienteStatus]++;
-  return { ...counts, total: (data ?? []).length };
+  let total = 0;
+  for (const row of data ?? []) {
+    if (row.status && row.count != null) {
+      counts[row.status] = row.count;
+      total += row.count;
+    }
+  }
+  return { ...counts, total };
 }

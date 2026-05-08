@@ -198,20 +198,27 @@ export async function createClientaAction(
       warning =
         "Clienta creada, pero no pudimos generar el enlace de invitación.";
     } else {
-      const { data: mailData, error: mailErr } = await resend.emails.send({
-        from: EMAIL_FROM,
-        to: parsed.data.email,
-        subject: `${session.profile.full_name ?? "Tu cosmetóloga"} te invitó a SkinDesk`,
-        html: clienteInviteHtml({
-          clientaName: parsed.data.fullName,
-          invitedByName:
-            session.tenant?.name ??
-            session.profile.full_name ??
-            "Tu cosmetóloga",
-          inviteLink: linkData.properties.action_link,
-          appUrl: getAppUrl(),
-        }),
-      });
+      const { data: mailData, error: mailErr } = await resend.emails.send(
+        {
+          from: EMAIL_FROM,
+          to: parsed.data.email,
+          subject: `${session.profile.full_name ?? "Tu cosmetóloga"} te invitó a SkinDesk`,
+          html: clienteInviteHtml({
+            clientaName: parsed.data.fullName,
+            invitedByName:
+              session.tenant?.name ??
+              session.profile.full_name ??
+              "Tu cosmetóloga",
+            inviteLink: linkData.properties.action_link,
+            appUrl: getAppUrl(),
+          }),
+        },
+        // Idempotency key: profileId is unique per clienta and the create
+        // flow only ever runs ONCE for a given profile (re-running with the
+        // same email would have failed at createUser). If the SDK retries
+        // a 5xx response, Resend dedupes within 24h.
+        { idempotencyKey: `clienta-invite/${profileId}` },
+      );
       if (mailErr) {
         // Log the full error so the cause is visible (Resend returns
         // structured info: { name, message, statusCode } — name and
@@ -326,4 +333,138 @@ export async function updateClientaAction(
   revalidatePath(ROUTES.clientes);
 
   return { success: true, message: "Cambios guardados." };
+}
+
+/**
+ * Resend the SkinDesk-branded invite to an existing clienta.
+ *
+ * Use cases: original email never arrived, clienta lost it, the recovery link
+ * expired, Resend transient failure on first send, etc. The action is
+ * idempotent — every call generates a fresh recovery link (the previous one
+ * keeps working until either is used or expires, whichever comes first).
+ *
+ * Always uses `type: "recovery"` regardless of `password_set`:
+ *  - If the clienta never set a password → routes through /auth/setup, same
+ *    as the first-time flow.
+ *  - If she already set one → recovery lets her reset it. The cosmetóloga
+ *    is the one triggering this from the kebab menu, so "you've been sent
+ *    a link to set/reset your password" is the right model.
+ */
+export async function resendClientaInviteAction(
+  clienteId: string,
+): Promise<ActionState> {
+  const session = await getCurrentSession();
+  if (!session) {
+    return { success: false, message: "No autenticado." };
+  }
+
+  const callerRole = session.profile.role;
+  const allowed =
+    callerRole === "profesional" ||
+    (callerRole === "asistente" &&
+      (session.profile.permissions as Record<string, string | null>)
+        ?.clientas === "edit");
+
+  if (!allowed) {
+    return {
+      success: false,
+      message: "No tenés permisos para reenviar invitaciones.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data: cliente, error: readErr } = await supabase
+    .from("clientes")
+    .select(
+      "id, profile:profiles!inner(id, full_name, email)",
+    )
+    .eq("id", clienteId)
+    .maybeSingle();
+
+  if (readErr || !cliente) {
+    return { success: false, message: "Clienta no encontrada." };
+  }
+
+  // Supabase's generated types model `profile` here as a tuple even though
+  // the FK is unique; cast to a single profile shape.
+  const profile = (
+    Array.isArray(cliente.profile) ? cliente.profile[0] : cliente.profile
+  ) as { id: string; full_name: string | null; email: string } | null;
+
+  if (!profile?.email) {
+    return {
+      success: false,
+      message: "Esta clienta no tiene email asociado.",
+    };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: linkData, error: linkErr } =
+    await admin.auth.admin.generateLink({
+      type: "recovery",
+      email: profile.email,
+      options: {
+        redirectTo: `${getAppUrl()}${ROUTES.authCallback}?next=${encodeURIComponent(
+          ROUTES.authSetup,
+        )}`,
+      },
+    });
+
+  if (linkErr || !linkData?.properties?.action_link) {
+    console.error(
+      "[clienta-resend] generateLink failed:",
+      linkErr ? JSON.stringify(linkErr) : "no action_link",
+    );
+    return {
+      success: false,
+      message: "No pudimos generar el enlace de invitación.",
+    };
+  }
+
+  // Idempotency key: each *intentional* resend click is a distinct event,
+  // so we use a per-call UUID. If the SDK retries a 5xx within the same
+  // call, the key stays — Resend dedupes. Two clicks 5 min apart get two
+  // different UUIDs and both send (which is the user's intent).
+  const idempotencyKey = `clienta-resend/${crypto.randomUUID()}`;
+
+  const { data: mailData, error: mailErr } = await resend.emails.send(
+    {
+      from: EMAIL_FROM,
+      to: profile.email,
+      subject: `${session.profile.full_name ?? "Tu cosmetóloga"} te reenvió tu invitación a SkinDesk`,
+      html: clienteInviteHtml({
+        clientaName: profile.full_name ?? "",
+        invitedByName:
+          session.tenant?.name ??
+          session.profile.full_name ??
+          "Tu cosmetóloga",
+        inviteLink: linkData.properties.action_link,
+        appUrl: getAppUrl(),
+      }),
+    },
+    { idempotencyKey },
+  );
+
+  if (mailErr) {
+    console.error("[clienta-resend] resend failed:", {
+      name: mailErr.name,
+      message: mailErr.message,
+      ...(mailErr as Record<string, unknown>),
+    });
+    return {
+      success: false,
+      message: `No se pudo enviar el email: ${mailErr.message}`,
+    };
+  }
+
+  console.info(
+    "[clienta-resend] sent ok, id:",
+    mailData?.id ?? "(no id)",
+  );
+
+  return {
+    success: true,
+    message: `Invitación reenviada a ${profile.email}.`,
+  };
 }

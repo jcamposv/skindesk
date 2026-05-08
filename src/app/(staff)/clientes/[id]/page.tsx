@@ -8,7 +8,7 @@ import {
   type TabKey,
 } from "@/components/clientes/cliente-detail-tabs-config";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
-import { createClient, getCurrentSession } from "@/lib/supabase/server";
+import { getCurrentSession } from "@/lib/supabase/server";
 import { getClienteById } from "@/services/clientes.service";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +22,9 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const supabase = await createClient();
-  const cliente = await getClienteById(supabase, id).catch(() => null);
+  // `getClienteById` is wrapped in React.cache() — this call and the page
+  // body call below share a single DB round-trip per request.
+  const cliente = await getClienteById(id).catch(() => null);
   const name = cliente?.profile.full_name ?? "Clienta";
   return { title: `${name} · Clientes` };
 }
@@ -55,8 +56,7 @@ export default async function ClienteDetailPage({
     redirect(dashboardForRole(session.profile.role));
   }
 
-  const supabase = await createClient();
-  const cliente = await getClienteById(supabase, id);
+  const cliente = await getClienteById(id);
   if (!cliente) notFound();
 
   return (

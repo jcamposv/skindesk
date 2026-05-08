@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   EyeIcon,
   CalendarPlusIcon,
-  UserCogIcon,
+  MailCheckIcon,
   UsersIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
+import { resendClientaInviteAction } from "@/actions/clientes.actions";
 import { DataTable } from "@/components/data-table";
 import type { FilterConfig, RowAction } from "@/components/data-table";
 import { ClienteAvatar } from "@/components/clientes/cliente-avatar";
@@ -106,6 +108,7 @@ const STATUS_FILTERS: FilterConfig = {
 
 export function ClientesTable({ rows, total }: ClientesTableProps) {
   const router = useRouter();
+  const [resending, startResend] = useTransition();
 
   const columns = useMemo<ColumnDef<ClienteListRow, unknown>[]>(
     () => [
@@ -174,10 +177,31 @@ export function ClientesTable({ rows, total }: ClientesTableProps) {
         onClick: (r) => router.push(`${ROUTES.clientes}/${r.id}`),
       },
       {
-        id: "edit",
-        label: "Editar datos",
-        icon: UserCogIcon,
-        onClick: (r) => router.push(`${ROUTES.clientes}/${r.id}?tab=datos`),
+        id: "resend-invite",
+        label: "Reenviar invitación",
+        icon: MailCheckIcon,
+        disabled: resending,
+        onClick: (r) => {
+          // Optimistic toast pattern — show "Enviando…" immediately, then
+          // resolve to success/error when the action returns. This avoids the
+          // dropdown closing into a silent void on a 1-2s network round-trip.
+          const id = toast.loading(
+            `Enviando invitación a ${r.profile.email}…`,
+          );
+          startResend(async () => {
+            const result = await resendClientaInviteAction(r.id);
+            if (result.success) {
+              toast.success(result.message ?? "Invitación reenviada.", {
+                id,
+              });
+            } else {
+              toast.error(
+                result.message ?? "No se pudo reenviar la invitación.",
+                { id },
+              );
+            }
+          });
+        },
       },
       {
         id: "appointment",
@@ -189,7 +213,7 @@ export function ClientesTable({ rows, total }: ClientesTableProps) {
         disabled: true,
       },
     ],
-    [router],
+    [router, resending],
   );
 
   return (
