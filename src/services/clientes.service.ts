@@ -28,6 +28,7 @@ export type ClienteListRow = {
     email: string;
     phone: string | null;
     avatar_url: string | null;
+    avatar_path: string | null;
   };
 };
 
@@ -65,7 +66,7 @@ export async function listClientes(
     .from("clientes")
     .select(
       `id, status, birth_date, services_active, last_appointment_at, next_appointment_at, created_at,
-       profile:profiles!inner(id, full_name, email, phone, avatar_url)`,
+       profile:profiles!inner(id, full_name, email, phone, avatar_url, avatar_path)`,
       { count: "exact" },
     )
     .order("created_at", { ascending: false })
@@ -111,7 +112,7 @@ export const getClienteById = cache(
       .select(
         `id, status, birth_date, services_active, last_appointment_at, next_appointment_at, created_at, updated_at,
          address, occupation, civil_status, emergency_contact_name, emergency_contact_phone, referral_source, notes, tenant_id,
-         profile:profiles!inner(id, full_name, email, phone, avatar_url)`,
+         profile:profiles!inner(id, full_name, email, phone, avatar_url, avatar_path)`,
       )
       .eq("id", id)
       .maybeSingle();

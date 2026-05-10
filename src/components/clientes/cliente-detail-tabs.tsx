@@ -5,23 +5,22 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   CameraIcon,
   ChevronDownIcon,
-  ClipboardListIcon,
   CreditCardIcon,
-  FileTextIcon,
   FolderOpenIcon,
   HistoryIcon,
-  LeafIcon,
-  TargetIcon,
   WandSparklesIcon,
 } from "lucide-react";
 
 import {
   isTabKey,
+  TAB_GROUPS,
   TABS,
   type TabKey,
 } from "@/components/clientes/cliente-detail-tabs-config";
 import { DatosPersonalesForm } from "@/components/clientes/datos-personales-form";
 import { EmptyTab } from "@/components/clientes/empty-tab";
+import { EvaluacionTab } from "@/components/clientes/evaluacion-tab";
+import { ObjetivosTab } from "@/components/clientes/objetivos-tab";
 import {
   Sheet,
   SheetContent,
@@ -31,9 +30,11 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type { ClienteDetail } from "@/services/clientes.service";
+import type { Evaluacion } from "@/types/evaluacion";
 
 interface ClienteDetailTabsProps {
   cliente: ClienteDetail;
+  evaluacion: Evaluacion | null;
   initialTab?: TabKey;
 }
 
@@ -56,6 +57,7 @@ interface ClienteDetailTabsProps {
  */
 export function ClienteDetailTabs({
   cliente,
+  evaluacion,
   initialTab,
 }: ClienteDetailTabsProps) {
   const router = useRouter();
@@ -122,17 +124,31 @@ export function ClienteDetailTabs({
           role="tablist"
           className="rounded-2xl border bg-[#FBF9F4]/50 p-2"
         >
-          <ul className="flex flex-col gap-0.5">
-            {TABS.map((tab) => (
-              <li key={tab.key}>
-                <RailButton
-                  tab={tab}
-                  isActive={tab.key === active}
-                  onClick={() => handleChange(tab.key)}
-                />
-              </li>
+          <div className="flex flex-col gap-3">
+            {TAB_GROUPS.map((group, gi) => (
+              <div key={group.label} className="flex flex-col gap-0.5">
+                <p
+                  className={cn(
+                    "px-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70",
+                    gi === 0 ? "pt-1" : "pt-2",
+                  )}
+                >
+                  {group.label}
+                </p>
+                <ul className="flex flex-col gap-0.5">
+                  {group.tabs.map((tab) => (
+                    <li key={tab.key}>
+                      <RailButton
+                        tab={tab}
+                        isActive={tab.key === active}
+                        onClick={() => handleChange(tab.key)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </nav>
       </aside>
 
@@ -144,44 +160,11 @@ export function ClienteDetailTabs({
         className="min-w-0"
       >
         {active === "datos" ? <DatosPersonalesForm cliente={cliente} /> : null}
-        {active === "anamnesis" ? (
-          <EmptyTab
-            icon={ClipboardListIcon}
-            title="Anamnesis"
-            description="La historia clínica completa de tu clienta — antecedentes médicos, alergias, medicación actual, embarazos, intervenciones previas y todo lo que necesitás antes de un tratamiento."
-            preview={[
-              "Antecedentes médicos y alergias",
-              "Medicación actual y suplementos",
-              "Tratamientos estéticos previos",
-              "Contraindicaciones y banderas rojas",
-            ]}
-          />
-        ) : null}
-        {active === "habitos" ? (
-          <EmptyTab
-            icon={LeafIcon}
-            title="Hábitos"
-            description="Rutina diaria de skincare, alimentación, sueño, exposición solar, consumo de agua y todo lo que influye en la salud de la piel."
-            preview={[
-              "Rutina actual de skincare",
-              "Hidratación, alimentación y sueño",
-              "Exposición solar y uso de SPF",
-              "Estrés, hormonas y ciclo menstrual",
-            ]}
-          />
+        {active === "evaluacion" ? (
+          <EvaluacionTab cliente={cliente} initialEvaluacion={evaluacion} />
         ) : null}
         {active === "objetivos" ? (
-          <EmptyTab
-            icon={TargetIcon}
-            title="Objetivos estéticos"
-            description="Valoración inicial, expectativas, áreas a tratar y objetivos del plan estético — la base para diseñar la propuesta personalizada."
-            preview={[
-              "Áreas de interés y prioridades",
-              "Expectativas y objetivos a 3-6 meses",
-              "Fototipo, tipo de piel y diagnóstico",
-              "Plan estético sugerido",
-            ]}
-          />
+          <ObjetivosTab cliente={cliente} evaluacion={evaluacion} />
         ) : null}
         {active === "rutinas" ? (
           <EmptyTab
@@ -224,14 +207,14 @@ export function ClienteDetailTabs({
         ) : null}
         {active === "archivos" ? (
           <EmptyTab
-            icon={FileTextIcon}
+            icon={FolderOpenIcon}
             title="Archivos"
-            description="Consentimientos firmados, laboratorios, recetas, PDFs y cualquier documento clínico relevante — todo en un solo lugar y siempre encriptado."
+            description="Documentos firmados, consentimientos, recetas y otros archivos clínicos asociados a la clienta."
             preview={[
-              "Consentimientos informados",
-              "Estudios y laboratorios",
-              "Recetas y prescripciones médicas",
-              "Otros documentos PDF",
+              "Consentimientos firmados",
+              "Recetas y derivaciones",
+              "Resultados de laboratorio",
+              "Archivos compartidos por la clienta",
             ]}
           />
         ) : null}
@@ -322,21 +305,30 @@ function MobileTabPicker({
         <SheetHeader className="border-b px-5 pt-5 pb-4">
           <SheetTitle className="text-base">Secciones de la clienta</SheetTitle>
         </SheetHeader>
-        <ul
+        <div
           role="tablist"
           aria-orientation="vertical"
           className="flex-1 overflow-y-auto px-2 py-2"
         >
-          {tabs.map((tab) => (
-            <li key={tab.key}>
-              <RailButton
-                tab={tab}
-                isActive={tab.key === active}
-                onClick={() => onChange(tab.key)}
-              />
-            </li>
+          {TAB_GROUPS.map((group, gi) => (
+            <div key={group.label} className={gi === 0 ? "" : "pt-3"}>
+              <p className="px-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                {group.label}
+              </p>
+              <ul className="flex flex-col gap-0.5">
+                {group.tabs.map((tab) => (
+                  <li key={tab.key}>
+                    <RailButton
+                      tab={tab}
+                      isActive={tab.key === active}
+                      onClick={() => onChange(tab.key)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </SheetContent>
     </Sheet>
   );
@@ -364,9 +356,9 @@ function PillButton({ tab, isActive, onClick }: TabButtonProps) {
       tabIndex={0}
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30 focus-visible:ring-offset-2",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/30 focus-visible:ring-offset-2",
         isActive
-          ? "border-[#5C6E6C]/30 bg-[#F4F1EC] font-medium text-[#5C6E6C] shadow-[inset_0_-1px_0_rgba(92,110,108,0.08)]"
+          ? "border-[#BB7154]/30 bg-[#F6E0D6] font-medium text-[#8C4A30] shadow-[inset_0_-1px_0_rgba(187,113,84,0.1)]"
           : "border-border/60 bg-card text-muted-foreground hover:border-foreground/20 hover:bg-[#F4F1EC]/50 hover:text-foreground",
       )}
     >
@@ -397,25 +389,25 @@ function RailButton({ tab, isActive, onClick }: TabButtonProps) {
       tabIndex={0}
       onClick={onClick}
       className={cn(
-        "group/rail relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30",
+        "group/rail relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/30",
         isActive
-          ? "bg-card font-medium text-[#5C6E6C] shadow-sm"
+          ? "bg-card font-medium text-[#8C4A30] shadow-sm"
           : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
       )}
     >
-      {/* Left accent stripe — same balsam tone as the underline used to be. */}
+      {/* Left accent stripe in copper — primary brand action color. */}
       <span
         aria-hidden
         className={cn(
           "absolute left-0 top-2 bottom-2 w-1 rounded-r-full transition-opacity",
-          isActive ? "bg-[#5C6E6C] opacity-100" : "opacity-0",
+          isActive ? "bg-[#BB7154] opacity-100" : "opacity-0",
         )}
       />
       <span
         className={cn(
           "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors",
           isActive
-            ? "bg-[#F4F1EC] text-[#BB7154]"
+            ? "bg-[#F6E0D6] text-[#BB7154]"
             : "text-muted-foreground/80 group-hover/rail:bg-[#F4F1EC]/40",
         )}
       >

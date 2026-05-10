@@ -34,9 +34,15 @@ export const CREATE_CLIENTA_FORM_ID = "create-cliente-form";
 
 interface CreateClientaFormProps {
   /** Called after a successful create so the parent can close the Sheet. */
-  onSuccess?: () => void;
+  onSuccess?: (result: { clienteId?: string }) => void;
   /** Lifted submission state so the Sheet footer button can disable itself. */
   onPendingChange?: (pending: boolean) => void;
+  /**
+   * If false, the form does NOT navigate to the new clienta's detail page on
+   * success. Use when the parent wants to keep the user on the current screen
+   * (e.g. the Evaluaciones wizard inline-creating a clienta).
+   */
+  redirectOnSuccess?: boolean;
 }
 
 const FORM_DEFAULTS: CreateClientaInput = {
@@ -55,6 +61,7 @@ const FORM_DEFAULTS: CreateClientaInput = {
 export function CreateClientaForm({
   onSuccess,
   onPendingChange,
+  redirectOnSuccess = true,
 }: CreateClientaFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -92,10 +99,14 @@ export function CreateClientaForm({
       }
 
       toast.success(result.message ?? "Clienta creada.");
-      onSuccess?.();
       const id = result.data?.clienteId;
-      if (id) router.push(`${ROUTES.clientes}/${id}`);
-      else router.refresh();
+      onSuccess?.({ clienteId: id });
+      if (redirectOnSuccess) {
+        if (id) router.push(`${ROUTES.clientes}/${id}`);
+        else router.refresh();
+      } else {
+        router.refresh();
+      }
     });
   }
 

@@ -114,8 +114,107 @@ export type Database = {
           },
         ]
       }
+      evaluaciones: {
+        Row: {
+          anamnesis: Json
+          cliente_id: string
+          consentimiento_aceptado: boolean
+          created_at: string
+          created_by: string
+          datos: Json
+          diagnostico: Json
+          fecha: string
+          firma_data_url: string | null
+          firma_signed_at: string | null
+          firmante_nombre: string | null
+          habitos: Json
+          id: string
+          last_editor_id: string
+          plan: Json
+          status: Database["public"]["Enums"]["evaluacion_status"]
+          tenant_id: string
+          ultimo_step: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          anamnesis?: Json
+          cliente_id: string
+          consentimiento_aceptado?: boolean
+          created_at?: string
+          created_by: string
+          datos?: Json
+          diagnostico?: Json
+          fecha?: string
+          firma_data_url?: string | null
+          firma_signed_at?: string | null
+          firmante_nombre?: string | null
+          habitos?: Json
+          id?: string
+          last_editor_id: string
+          plan?: Json
+          status?: Database["public"]["Enums"]["evaluacion_status"]
+          tenant_id: string
+          ultimo_step?: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          anamnesis?: Json
+          cliente_id?: string
+          consentimiento_aceptado?: boolean
+          created_at?: string
+          created_by?: string
+          datos?: Json
+          diagnostico?: Json
+          fecha?: string
+          firma_data_url?: string | null
+          firma_signed_at?: string | null
+          firmante_nombre?: string | null
+          habitos?: Json
+          id?: string
+          last_editor_id?: string
+          plan?: Json
+          status?: Database["public"]["Enums"]["evaluacion_status"]
+          tenant_id?: string
+          ultimo_step?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluaciones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: true
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evaluaciones_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evaluaciones_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evaluaciones_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          avatar_path: string | null
           avatar_url: string | null
           created_at: string
           email: string
@@ -129,6 +228,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_path?: string | null
           avatar_url?: string | null
           created_at?: string
           email: string
@@ -142,6 +242,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_path?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string
@@ -293,6 +394,7 @@ export type Database = {
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
+      evaluacion_status: "borrador" | "completada"
       plan_slug: "basico" | "pro" | "clinica"
       subscription_status:
         | "trialing"
@@ -884,6 +986,7 @@ export const Constants = {
     Enums: {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
+      evaluacion_status: ["borrador", "completada"],
       plan_slug: ["basico", "pro", "clinica"],
       subscription_status: [
         "trialing",

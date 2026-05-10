@@ -10,6 +10,7 @@ import {
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
 import { getClienteById } from "@/services/clientes.service";
+import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
 
 export const dynamic = "force-dynamic";
 
@@ -56,18 +57,23 @@ export default async function ClienteDetailPage({
     redirect(dashboardForRole(session.profile.role));
   }
 
-  const cliente = await getClienteById(id);
+  // Both queries are independent — `getEvaluacionForCliente` only needs
+  // the URL id (which equals cliente.id when the cliente exists; RLS will
+  // return null otherwise). Promise.all saves ~50ms vs awaiting in series.
+  const [cliente, evaluacion] = await Promise.all([
+    getClienteById(id),
+    getEvaluacionForCliente(id),
+  ]);
   if (!cliente) notFound();
 
   return (
-    // `min-w-0` is critical: without it, any descendant that exceeds the
-    // viewport (long names, the tab bar, etc.) would push this grid wider
-    // than the staff layout's content area and create page-level horizontal
-    // scroll. Containing the overflow at the page root keeps everything
-    // responsive without per-component patches.
-    <div className="grid min-w-0 gap-6">
-      <ClienteDetailHeader cliente={cliente} />
-      <ClienteDetailTabs cliente={cliente} initialTab={parseTab(sp.tab)} />
+    <div className="grid min-w-0 gap-4">
+      <ClienteDetailHeader cliente={cliente} evaluacion={evaluacion} />
+      <ClienteDetailTabs
+        cliente={cliente}
+        evaluacion={evaluacion}
+        initialTab={parseTab(sp.tab)}
+      />
     </div>
   );
 }

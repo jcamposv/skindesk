@@ -1,12 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  CheckIcon,
   HeartHandshakeIcon,
   MapPinIcon,
   PhoneIcon,
@@ -15,7 +14,9 @@ import {
 } from "lucide-react";
 
 import { updateClientaAction } from "@/actions/clientes.actions";
-import { Button } from "@/components/ui/button";
+import { useAutosave } from "@/components/evaluaciones/use-autosave";
+import { AutosaveIndicator } from "@/components/shared/autosave-indicator";
+import { SectionCard } from "@/components/shared/section-card";
 import {
   Form,
   FormControl,
@@ -46,7 +47,6 @@ interface DatosPersonalesFormProps {
 
 export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
 
   const form = useForm<UpdateClientaInput>({
     resolver: zodResolver(updateClientaSchema),
@@ -65,8 +65,10 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
     },
   });
 
-  function onSubmit(values: UpdateClientaInput) {
-    startTransition(async () => {
+  const autosave = useAutosave<UpdateClientaInput>({
+    form,
+    enabled: cliente.id,
+    onSave: async (values) => {
       const fd = new FormData();
       for (const [k, v] of Object.entries(values)) {
         if (v != null) fd.append(k, String(v));
@@ -86,22 +88,44 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
             }
           }
         }
-        return;
+        // Throw so useAutosave keeps the form in `dirty` state.
+        throw new Error("save_failed");
       }
 
-      toast.success("Cambios guardados.");
-      form.reset(values); // mark form as pristine again
+      // We deliberately don't call `form.reset(values)` here — it would
+      // dispatch a `reset` event on the watch subscription and trigger
+      // another autosave, looping. The autosave hook tracks its own dirty
+      // state independent of `formState.isDirty`.
       router.refresh();
-    });
-  }
+    },
+  });
 
-  const isDirty = form.formState.isDirty;
+  // Block tab close while there are unsaved or in-flight changes.
+  useEffect(() => {
+    const isPending = autosave.status === "dirty" || autosave.status === "saving";
+    if (!isPending) return;
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [autosave.status]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5">
+      <form className="grid gap-5">
+        {/* Sticky bar mirroring Evaluación: status + manual save fallback. */}
+        <div className="sticky top-0 z-20 -mx-4 flex justify-end border-b border-border/60 bg-background/85 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+          <AutosaveIndicator
+            status={autosave.status}
+            lastSavedAt={autosave.lastSavedAt}
+            onSaveNow={autosave.saveNow}
+          />
+        </div>
+
         {/* Identidad */}
-        <Card icon={UserIcon} title="Identidad">
+        <SectionCard icon={UserIcon} title="Identidad">
           <FormField
             control={form.control}
             name="fullName"
@@ -220,10 +244,10 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
               </FormItem>
             )}
           />
-        </Card>
+        </SectionCard>
 
         {/* Domicilio */}
-        <Card icon={MapPinIcon} title="Domicilio">
+        <SectionCard icon={MapPinIcon} title="Domicilio">
           <FormField
             control={form.control}
             name="address"
@@ -241,10 +265,10 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
               </FormItem>
             )}
           />
-        </Card>
+        </SectionCard>
 
         {/* Emergencia */}
-        <Card icon={PhoneIcon} title="Contacto de emergencia">
+        <SectionCard icon={PhoneIcon} title="Contacto de emergencia">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
@@ -273,10 +297,10 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
               )}
             />
           </div>
-        </Card>
+        </SectionCard>
 
         {/* Origen */}
-        <Card icon={HeartHandshakeIcon} title="Origen">
+        <SectionCard icon={HeartHandshakeIcon} title="Origen">
           <FormField
             control={form.control}
             name="referralSource"
@@ -294,10 +318,10 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
               </FormItem>
             )}
           />
-        </Card>
+        </SectionCard>
 
         {/* Notas */}
-        <Card icon={StickyNoteIcon} title="Notas internas">
+        <SectionCard icon={StickyNoteIcon} title="Notas internas">
           <FormField
             control={form.control}
             name="notes"
@@ -316,57 +340,9 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
               </FormItem>
             )}
           />
-        </Card>
-
-        {/* Sticky save bar */}
-        <div className="sticky bottom-0 -mx-1 flex items-center justify-end gap-3 rounded-2xl border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
-          <p className="mr-auto text-xs text-muted-foreground">
-            {isDirty
-              ? "Tenés cambios sin guardar"
-              : "Sin cambios pendientes"}
-          </p>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={!isDirty || pending}
-            onClick={() => form.reset()}
-          >
-            Descartar
-          </Button>
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!isDirty || pending}
-            className="gap-1.5"
-          >
-            <CheckIcon className="size-4" />
-            {pending ? "Guardando…" : "Guardar cambios"}
-          </Button>
-        </div>
+        </SectionCard>
       </form>
     </Form>
   );
 }
 
-interface CardProps {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  children: React.ReactNode;
-}
-
-function Card({ icon: Icon, title, children }: CardProps) {
-  return (
-    <section className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
-      <header className="mb-5 flex items-center gap-2">
-        <span className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Icon className="size-3.5" />
-        </span>
-        <h3 className="font-heading text-sm font-medium tracking-tight">
-          {title}
-        </h3>
-      </header>
-      <div className="grid gap-4">{children}</div>
-    </section>
-  );
-}

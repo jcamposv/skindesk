@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { PlusIcon, SparklesIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -18,15 +18,36 @@ import {
   CreateClientaForm,
 } from "./create-cliente-form";
 
+interface AddClientaSheetProps {
+  /**
+   * Custom trigger element. Defaults to a primary "Agregar clienta" button.
+   * Useful for embedding the sheet inside other flows (e.g. the Evaluaciones
+   * wizard) where the trigger should look different. Must be a single
+   * React element — base-ui's SheetTrigger requires it for ref forwarding.
+   */
+  trigger?: ReactElement;
+  /**
+   * If true, after a successful create the user is **not** navigated away to
+   * `/clientes/[id]` — instead the sheet closes and the caller's `onCreated`
+   * fires with the new id so the parent screen stays on context.
+   */
+  keepOnCurrentScreen?: boolean;
+  /**
+   * Fires after a successful create. Receives the new clienta's id when
+   * available. The sheet closes automatically.
+   */
+  onCreated?: (clienteId?: string) => void;
+}
+
 /**
  * Right-side sheet to add a new clienta. Three-region layout: header (fixed),
  * scrollable form body, footer with the submit button (always visible).
- *
- * The submit button lives in the footer (NOT inside the form) and targets the
- * form via the `form` HTML attribute. Submission state is lifted from
- * CreateClientaForm via `onPendingChange`.
  */
-export function AddClientaSheet() {
+export function AddClientaSheet({
+  trigger,
+  keepOnCurrentScreen,
+  onCreated,
+}: AddClientaSheetProps = {}) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
 
@@ -34,10 +55,12 @@ export function AddClientaSheet() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <Button size="lg" className="gap-1.5">
-            <PlusIcon className="size-4" />
-            Agregar clienta
-          </Button>
+          trigger ?? (
+            <Button size="lg" className="gap-1.5">
+              <PlusIcon className="size-4" />
+              Agregar clienta
+            </Button>
+          )
         }
       />
       <SheetContent
@@ -60,7 +83,11 @@ export function AddClientaSheet() {
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
           <CreateClientaForm
-            onSuccess={() => setOpen(false)}
+            redirectOnSuccess={!keepOnCurrentScreen}
+            onSuccess={(result) => {
+              setOpen(false);
+              onCreated?.(result.clienteId);
+            }}
             onPendingChange={setPending}
           />
         </div>
