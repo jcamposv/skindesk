@@ -265,6 +265,235 @@ export type Database = {
           },
         ]
       }
+      servicios: {
+        Row: {
+          catalog_key: string
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          frequency: Database["public"]["Enums"]["frequency_key"]
+          id: string
+          is_post_op: boolean
+          laser_diagnosis: Json | null
+          last_editor_id: string | null
+          name: string
+          next_appointment: string | null
+          notes: string | null
+          package_amount: number | null
+          professional_id: string | null
+          professional_label: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          start_date: string
+          status: Database["public"]["Enums"]["service_status"]
+          tags: string[]
+          tenant_id: string
+          total_sessions: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          catalog_key: string
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          frequency?: Database["public"]["Enums"]["frequency_key"]
+          id?: string
+          is_post_op?: boolean
+          laser_diagnosis?: Json | null
+          last_editor_id?: string | null
+          name: string
+          next_appointment?: string | null
+          notes?: string | null
+          package_amount?: number | null
+          professional_id?: string | null
+          professional_label?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          start_date: string
+          status?: Database["public"]["Enums"]["service_status"]
+          tags?: string[]
+          tenant_id: string
+          total_sessions?: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          catalog_key?: string
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          frequency?: Database["public"]["Enums"]["frequency_key"]
+          id?: string
+          is_post_op?: boolean
+          laser_diagnosis?: Json | null
+          last_editor_id?: string | null
+          name?: string
+          next_appointment?: string | null
+          notes?: string | null
+          package_amount?: number | null
+          professional_id?: string | null
+          professional_label?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          start_date?: string
+          status?: Database["public"]["Enums"]["service_status"]
+          tags?: string[]
+          tenant_id?: string
+          total_sessions?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servicios_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servicios_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servicios_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servicios_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "servicios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sesiones: {
+        Row: {
+          after_paths: string[]
+          before_paths: string[]
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          duration_min: number
+          id: string
+          last_editor_id: string | null
+          next_suggestion: string | null
+          notes: string | null
+          payload: Json
+          professional_id: string | null
+          professional_label: string | null
+          recommendations: string | null
+          servicio_id: string
+          session_date: string
+          session_number: number
+          status: Database["public"]["Enums"]["session_status"]
+          tenant_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          after_paths?: string[]
+          before_paths?: string[]
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          duration_min?: number
+          id?: string
+          last_editor_id?: string | null
+          next_suggestion?: string | null
+          notes?: string | null
+          payload: Json
+          professional_id?: string | null
+          professional_label?: string | null
+          recommendations?: string | null
+          servicio_id: string
+          session_date: string
+          session_number: number
+          status?: Database["public"]["Enums"]["session_status"]
+          tenant_id: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          after_paths?: string[]
+          before_paths?: string[]
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          duration_min?: number
+          id?: string
+          last_editor_id?: string | null
+          next_suggestion?: string | null
+          notes?: string | null
+          payload?: Json
+          professional_id?: string | null
+          professional_label?: string | null
+          recommendations?: string | null
+          servicio_id?: string
+          session_date?: string
+          session_number?: number
+          status?: Database["public"]["Enums"]["session_status"]
+          tenant_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sesiones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_servicio_id_fkey"
+            columns: ["servicio_id"]
+            isOneToOne: false
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -395,7 +624,11 @@ export type Database = {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       evaluacion_status: "borrador" | "completada"
+      frequency_key: "semanal" | "quincenal" | "mensual" | "personalizada"
       plan_slug: "basico" | "pro" | "clinica"
+      service_status: "active" | "paused" | "completed" | "cancelled"
+      service_type: "facial" | "corporal" | "laser" | "other"
+      session_status: "completed" | "pending" | "scheduled"
       subscription_status:
         | "trialing"
         | "active"
@@ -987,7 +1220,11 @@ export const Constants = {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       evaluacion_status: ["borrador", "completada"],
+      frequency_key: ["semanal", "quincenal", "mensual", "personalizada"],
       plan_slug: ["basico", "pro", "clinica"],
+      service_status: ["active", "paused", "completed", "cancelled"],
+      service_type: ["facial", "corporal", "laser", "other"],
+      session_status: ["completed", "pending", "scheduled"],
       subscription_status: [
         "trialing",
         "active",

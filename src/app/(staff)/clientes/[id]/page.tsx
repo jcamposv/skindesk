@@ -11,6 +11,8 @@ import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
 import { getClienteById } from "@/services/clientes.service";
 import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
+import { getServiciosForCliente } from "@/services/servicios.service";
+import { getStaffForTenant } from "@/services/staff.service";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +62,11 @@ export default async function ClienteDetailPage({
   // Both queries are independent — `getEvaluacionForCliente` only needs
   // the URL id (which equals cliente.id when the cliente exists; RLS will
   // return null otherwise). Promise.all saves ~50ms vs awaiting in series.
-  const [cliente, evaluacion] = await Promise.all([
+  const [cliente, evaluacion, servicios, staff] = await Promise.all([
     getClienteById(id),
     getEvaluacionForCliente(id),
+    getServiciosForCliente(id),
+    getStaffForTenant(session.profile.tenant_id ?? ""),
   ]);
   if (!cliente) notFound();
 
@@ -72,6 +76,12 @@ export default async function ClienteDetailPage({
       <ClienteDetailTabs
         cliente={cliente}
         evaluacion={evaluacion}
+        servicios={servicios}
+        staff={staff}
+        currentProfesional={{
+          professionalId: session.profile.id,
+          professionalLabel: "",
+        }}
         initialTab={parseTab(sp.tab)}
       />
     </div>

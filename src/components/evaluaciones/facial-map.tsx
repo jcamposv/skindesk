@@ -142,7 +142,7 @@ function FacialMapImpl({ value, onChange, mode, className }: FacialMapProps) {
             {/* Photo */}
             <g clipPath={`url(#${uid}-photo-clip)`}>
               <image
-                href="/evaluaciones/face-base.jpg"
+                href="/evaluaciones/face-base.png"
                 x={PHOTO_X}
                 y="0"
                 width={PHOTO_W}

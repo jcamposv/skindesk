@@ -21,6 +21,7 @@ import { DatosPersonalesForm } from "@/components/clientes/datos-personales-form
 import { EmptyTab } from "@/components/clientes/empty-tab";
 import { EvaluacionTab } from "@/components/clientes/evaluacion-tab";
 import { ObjetivosTab } from "@/components/clientes/objetivos-tab";
+import { ServiciosTab } from "@/components/clientes/servicios/servicios-tab";
 import {
   Sheet,
   SheetContent,
@@ -30,11 +31,17 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type { ClienteDetail } from "@/services/clientes.service";
+import type { StaffMember } from "@/services/staff.service";
+import type { ProfesionalValue } from "@/components/clientes/servicios/profesional-select";
+import type { AssignedService } from "@/components/clientes/servicios/types";
 import type { Evaluacion } from "@/types/evaluacion";
 
 interface ClienteDetailTabsProps {
   cliente: ClienteDetail;
   evaluacion: Evaluacion | null;
+  servicios: AssignedService[];
+  staff: StaffMember[];
+  currentProfesional: ProfesionalValue;
   initialTab?: TabKey;
 }
 
@@ -58,6 +65,9 @@ interface ClienteDetailTabsProps {
 export function ClienteDetailTabs({
   cliente,
   evaluacion,
+  servicios,
+  staff,
+  currentProfesional,
   initialTab,
 }: ClienteDetailTabsProps) {
   const router = useRouter();
@@ -193,16 +203,11 @@ export function ClienteDetailTabs({
           />
         ) : null}
         {active === "servicios" ? (
-          <EmptyTab
-            icon={FolderOpenIcon}
-            title="Mis servicios"
-            description="Servicios contratados, sesiones consumidas vs. restantes, fechas de aplicación y notas por sesión."
-            preview={[
-              "Paquetes contratados y vigencia",
-              "Sesiones realizadas vs. restantes",
-              "Notas técnicas por sesión",
-              "Próxima sesión programada",
-            ]}
+          <ServiciosTab
+            cliente={cliente}
+            initialServices={servicios}
+            staff={staff}
+            currentProfesional={currentProfesional}
           />
         ) : null}
         {active === "archivos" ? (
