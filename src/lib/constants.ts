@@ -25,6 +25,8 @@ export const ROUTES = {
   agenda: "/profesional/agenda",
   /** Pagos — global ledger across every clienta. profesional + asistente. */
   pagos: "/pagos",
+  /** Catálogo de productos — repositorio personal del profesional. */
+  productos: "/productos",
 } as const;
 
 export const PUBLIC_ROUTES: readonly string[] = [

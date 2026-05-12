@@ -61,6 +61,7 @@ Next candidates:
 2. Inventario module — unlocks 1 widget.
 3. Bundle 5 — servicios atomicity + perf cleanup (RPC for create, list
    projection, pagination, index on `(servicio_id, status)`).
+4. Bundle 8 — Equipo / asistentes (invite + permissions UI). See §M.8.
 
 ---
 
@@ -302,6 +303,75 @@ All 18 items from the citas review, grouped by execution batch.
 - [ ] Refactor `useCitaMutations` to a single `mutate(opts)` shape (cosmetic; current 3-handler API is clearer for callers).
 - [ ] Drop `security definer` from the audit trigger entirely (C7 already hardens it; full drop requires passing `created_by` from the action — bigger surgery).
 
+### §M.8 — Bundle 8: Equipo / Asistentes — **pending**
+
+Hoy no existe ningún flow para invitar asistentes ni asignarles permisos.
+Los permission keys (`agenda`, `pagos`, `clientas`, `catalogo`) están
+declarados en `src/types/supabase.ts` y todas las RLS + server actions
+ya los chequean, pero el JSONB `profiles.permissions` se setea manualmente
+vía SQL.
+
+Cuando un profesional quiera tener una asistente real, esto es lo que
+falta:
+
+**A · Invitación de asistente**
+- [ ] Server action `inviteAsistenteAction(email, fullName)` análoga a
+  `createClientaAction`: crea auth user con `role: 'asistente'` +
+  `tenant_id`, fuerza `password_set: false`, manda magic link.
+- [ ] Branded email "Te invitaron a unirte a SkinDesk como asistente"
+  (template nuevo, mismo formato que `clienta-invite.tsx`).
+
+**B · Listado del equipo**
+- [ ] Página `/settings/equipo` (solo profesional + super_admin).
+- [ ] DataTable de asistentes del tenant: nombre, email, fecha de alta,
+  permisos resumidos como chips ("Agenda: editar", "Catálogo: ver",
+  etc), última actividad.
+- [ ] Server-side via `listAsistentes` en `src/services/staff.service.ts`
+  (ya existe el service, falta extender).
+
+**C · Form de permisos**
+- [ ] Sheet/Dialog "Editar permisos" abierto desde el menú kebab de
+  cada fila.
+- [ ] 4 grupos de radio (Sin acceso / Solo ver / Editar), uno por
+  permission key declarado en `ASISTENTE_PERMISSION_KEYS`.
+- [ ] Server action `updateAsistentePermissionsAction(profileId, perms)`
+  que actualiza `profiles.permissions` + sincroniza
+  `auth.users.app_metadata.permissions` (vía admin client) para que el
+  JWT refleje el cambio sin re-login.
+- [ ] RHF + zod schema con enum literal `["view", "edit"] | null`.
+
+**D · Revocación**
+- [ ] Acción "Desactivar asistente" — flip a `permissions = {}` (RLS
+  ya cierra todos los accesos) + sign-out forzado vía
+  `admin.auth.admin.signOut(userId, 'global')`.
+- [ ] Acción "Eliminar asistente" — borra el auth user (cascade limpia
+  profile). Warning si tiene rows asociados (citas creadas, pagos
+  registrados — solo aviso, no bloqueo, porque RLS no impide la baja).
+
+**E · Refresco de JWT cuando cambian los permisos**
+- [ ] El JWT cachea `app_metadata.permissions` por su TTL (default 1h).
+  Cuando el profesional cambia un permiso, la asistente sigue con la
+  versión vieja hasta que su sesión refresque. Dos opciones:
+  - Forzar `signOut(userId, 'global')` desde la action (drástico, la
+    deslogea).
+  - O permitir que `private.has_asistente_permission` lea de
+    `profiles.permissions` (la DB) en vez de `auth.jwt()` (el token).
+    **Hoy ya lee de profiles** (chequeado: el helper en
+    `private_schema_and_signup_hardening.sql` hace `select permissions
+    from public.profiles where id = auth.uid()`), así que el cambio es
+    instantáneo a nivel RLS — pero la app layer que mira
+    `session.profile.permissions` también lee de `profiles`, no del
+    JWT. ✅ No hay que hacer nada para el refresh.
+
+**Notas:**
+- El permiso `catalogo` ya está wireado end-to-end (RLS sobre
+  `productos`, storage policies, action gate). El bundle solo trae la
+  UI para asignarlo.
+- Hoy, hasta que esto exista, el profesional tiene acceso total al
+  catálogo siempre (no necesita ningún permiso — el rol `profesional`
+  en RLS le abre todo). El permiso `catalogo` solo aplica para
+  asistentes.
+
 ### Deferred (review §L items 14+)
 Documented; revisit after a real tenant has >20 active clientas with >10
 services each.
@@ -316,3 +386,7 @@ _None right now._
   Stripe stays only for the profesional's SkinDesk subscription.
 - 2026-05-11 — Order L1-L4 inside Bundle 1: L4 → L2 → L1 → L3
   (smallest blast radius first).
+- 2026-05-12 — Permiso `catalogo` agregado a `ASISTENTE_PERMISSION_KEYS`
+  y wireado en RLS + action gate del módulo de productos. La UI para
+  asignarlo (§M.8) queda pendiente — vive sin urgencia porque no hay
+  flow de invitación de asistentes todavía.

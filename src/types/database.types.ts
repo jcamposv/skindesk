@@ -678,6 +678,109 @@ export type Database = {
         }
         Relationships: []
       }
+      productos: {
+        Row: {
+          absorption_time: string | null
+          additional_tags: string[]
+          application_instruction: string | null
+          archived_at: string | null
+          brand: string | null
+          category: Database["public"]["Enums"]["producto_categoria"]
+          clinical_notes: string | null
+          conflicting_ingredients: string[]
+          created_at: string
+          custom_skin_types: string[]
+          frequency: string | null
+          id: string
+          ingredients_inci: string | null
+          main_ingredients: string[]
+          main_ingredients_text: string
+          name: string
+          photo_path: string | null
+          precautions: string | null
+          professional_id: string | null
+          routines_usage_count: number
+          skin_types: string[]
+          suggested_amount: string | null
+          tenant_id: string
+          time_of_day: Database["public"]["Enums"]["producto_tiempo_dia"] | null
+          updated_at: string
+        }
+        Insert: {
+          absorption_time?: string | null
+          additional_tags?: string[]
+          application_instruction?: string | null
+          archived_at?: string | null
+          brand?: string | null
+          category: Database["public"]["Enums"]["producto_categoria"]
+          clinical_notes?: string | null
+          conflicting_ingredients?: string[]
+          created_at?: string
+          custom_skin_types?: string[]
+          frequency?: string | null
+          id?: string
+          ingredients_inci?: string | null
+          main_ingredients?: string[]
+          main_ingredients_text?: string
+          name: string
+          photo_path?: string | null
+          precautions?: string | null
+          professional_id?: string | null
+          routines_usage_count?: number
+          skin_types?: string[]
+          suggested_amount?: string | null
+          tenant_id: string
+          time_of_day?:
+            | Database["public"]["Enums"]["producto_tiempo_dia"]
+            | null
+          updated_at?: string
+        }
+        Update: {
+          absorption_time?: string | null
+          additional_tags?: string[]
+          application_instruction?: string | null
+          archived_at?: string | null
+          brand?: string | null
+          category?: Database["public"]["Enums"]["producto_categoria"]
+          clinical_notes?: string | null
+          conflicting_ingredients?: string[]
+          created_at?: string
+          custom_skin_types?: string[]
+          frequency?: string | null
+          id?: string
+          ingredients_inci?: string | null
+          main_ingredients?: string[]
+          main_ingredients_text?: string
+          name?: string
+          photo_path?: string | null
+          precautions?: string | null
+          professional_id?: string | null
+          routines_usage_count?: number
+          skin_types?: string[]
+          suggested_amount?: string | null
+          tenant_id?: string
+          time_of_day?:
+            | Database["public"]["Enums"]["producto_tiempo_dia"]
+            | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productos_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "productos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -1151,7 +1254,17 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      productos_stats: {
+        Args: never
+        Returns: {
+          categories: number
+          recent: number
+          total: number
+          used: number
+        }[]
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
@@ -1167,6 +1280,23 @@ export type Database = {
       payment_method: "efectivo" | "transferencia" | "tarjeta" | "codi" | "otro"
       payment_status: "pending" | "partial" | "paid" | "cancelled"
       plan_slug: "basico" | "pro" | "clinica"
+      producto_categoria:
+        | "limpiador"
+        | "tonico"
+        | "serum"
+        | "hidratante"
+        | "spf"
+        | "contorno_ojos"
+        | "mascarilla"
+        | "exfoliante"
+        | "regenerante"
+        | "desmaquillante"
+        | "agua_micelar"
+        | "tratamiento_especifico"
+        | "ampolleta"
+        | "bruma"
+        | "balsamo_labios"
+      producto_tiempo_dia: "am_pm" | "am" | "pm"
       service_status: "active" | "paused" | "completed" | "cancelled"
       service_type: "facial" | "corporal" | "laser" | "other"
       session_status: "completed" | "pending" | "scheduled"
@@ -1772,6 +1902,24 @@ export const Constants = {
       payment_method: ["efectivo", "transferencia", "tarjeta", "codi", "otro"],
       payment_status: ["pending", "partial", "paid", "cancelled"],
       plan_slug: ["basico", "pro", "clinica"],
+      producto_categoria: [
+        "limpiador",
+        "tonico",
+        "serum",
+        "hidratante",
+        "spf",
+        "contorno_ojos",
+        "mascarilla",
+        "exfoliante",
+        "regenerante",
+        "desmaquillante",
+        "agua_micelar",
+        "tratamiento_especifico",
+        "ampolleta",
+        "bruma",
+        "balsamo_labios",
+      ],
+      producto_tiempo_dia: ["am_pm", "am", "pm"],
       service_status: ["active", "paused", "completed", "cancelled"],
       service_type: ["facial", "corporal", "laser", "other"],
       session_status: ["completed", "pending", "scheduled"],
