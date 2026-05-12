@@ -52,6 +52,18 @@ const MESSAGES = {
   showMore: (count: number) => `+${count} más`,
 } as const;
 
+// Compact "8 am" / "12 pm" gutter labels — Google Calendar style. The CSS
+// rule `.rbc-time-gutter { text-transform: lowercase }` finishes the look.
+const CALENDAR_FORMATS = {
+  timeGutterFormat: "h a",
+  // Header in WEEK view: "lun 11" (lowercase weekday + day-of-month).
+  dayFormat: "EEE d",
+  // Header in DAY view: "lunes 11 may".
+  dayHeaderFormat: "EEEE d MMM",
+  // Month-view date cells (we keep day-of-month only — week-of-year is noise).
+  dateFormat: "d",
+} as const;
+
 // Visual coding per status — matches the rest of the app's palette.
 // Light card background (the event body), darker pill (status chip on top),
 // stronger left rail (status accent).
@@ -267,7 +279,7 @@ export function AgendaCalendar({
 
       <div
         className={cn(
-          "rbc-shell rounded-xl border border-border/60 bg-card p-2",
+          "rbc-shell rounded-xl bg-card p-2",
           byResource && "rbc-shell-resources",
           isPending && "pointer-events-none opacity-70",
         )}
@@ -277,6 +289,7 @@ export function AgendaCalendar({
           localizer={localizer}
           culture="es"
           messages={MESSAGES}
+          formats={CALENDAR_FORMATS}
           events={events}
           view={view}
           onView={setView}
