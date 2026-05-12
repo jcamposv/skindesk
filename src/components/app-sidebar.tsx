@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarIcon,
+  CreditCardIcon,
   LayoutDashboardIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -47,12 +48,14 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
     { title: "Agenda", href: ROUTES.agenda, icon: CalendarIcon },
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
+    { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
   asistente: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
     { title: "Agenda", href: ROUTES.agenda, icon: CalendarIcon },
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
+    { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
 };

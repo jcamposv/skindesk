@@ -9,6 +9,7 @@ import {
   CircleDashedIcon,
   CreditCardIcon,
   PlusIcon,
+  SmartphoneIcon,
   Trash2Icon,
   type LucideIcon,
 } from "lucide-react";
@@ -37,6 +38,7 @@ const METHOD_ICON: Record<PaymentMethod, LucideIcon> = {
   efectivo: BanknoteIcon,
   transferencia: ArrowLeftRightIcon,
   tarjeta: CreditCardIcon,
+  codi: SmartphoneIcon,
   otro: CircleDashedIcon,
 };
 

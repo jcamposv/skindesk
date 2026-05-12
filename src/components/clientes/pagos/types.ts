@@ -39,6 +39,7 @@ export const METHOD_LABEL: Record<PaymentMethod, string> = {
   efectivo: "Efectivo",
   transferencia: "Transferencia",
   tarjeta: "Tarjeta",
+  codi: "CoDi",
   otro: "Otro",
 };
 
@@ -46,6 +47,7 @@ export const STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Pendiente",
   partial: "Parcial",
   paid: "Pagado",
+  cancelled: "Cancelado",
 };
 
 export const STATUS_VISUAL: Record<
@@ -63,5 +65,9 @@ export const STATUS_VISUAL: Record<
   paid: {
     tone: "border-[#5C6E6C]/40 bg-[#E7ECEA]/60 text-[#4F605C]",
     dot: "bg-[#5C6E6C]",
+  },
+  cancelled: {
+    tone: "border-destructive/30 bg-destructive/10 text-destructive line-through decoration-destructive/40",
+    dot: "bg-destructive/70",
   },
 };

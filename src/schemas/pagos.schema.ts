@@ -13,11 +13,17 @@ export const paymentMethodEnum = z.enum([
   "efectivo",
   "transferencia",
   "tarjeta",
+  "codi",
   "otro",
 ]);
 export type PaymentMethod = z.infer<typeof paymentMethodEnum>;
 
-export const paymentStatusEnum = z.enum(["pending", "partial", "paid"]);
+export const paymentStatusEnum = z.enum([
+  "pending",
+  "partial",
+  "paid",
+  "cancelled",
+]);
 export type PaymentStatus = z.infer<typeof paymentStatusEnum>;
 
 // Manual ledger only — no clienta-future receipts. Reject `paid_at` strings
@@ -51,3 +57,13 @@ export const paymentRegisterSchema = z
   .strict();
 
 export type PaymentRegisterInput = z.infer<typeof paymentRegisterSchema>;
+
+export const paymentVoidSchema = z
+  .object({
+    reason: z
+      .string()
+      .min(3, "Indicá el motivo (mínimo 3 caracteres)")
+      .max(500),
+  })
+  .strict();
+export type PaymentVoidInput = z.infer<typeof paymentVoidSchema>;

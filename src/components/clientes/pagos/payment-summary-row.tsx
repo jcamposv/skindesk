@@ -9,6 +9,10 @@ import {
 
 import { cn } from "@/lib/utils";
 
+import { formatCurrency } from "./format";
+
+export { formatCurrency };
+
 interface PaymentSummaryRowProps {
   totalAmount: number;
   paidAmount: number;
@@ -85,10 +89,3 @@ function StatTile({
   );
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}

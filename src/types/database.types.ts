@@ -512,9 +512,13 @@ export type Database = {
           paid_at: string
           payment_plan_id: string
           servicio_id: string
+          sesion_id: string | null
           tenant_id: string
           updated_at: string
           version: number
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
         }
         Insert: {
           amount: number
@@ -529,9 +533,13 @@ export type Database = {
           paid_at: string
           payment_plan_id: string
           servicio_id: string
+          sesion_id?: string | null
           tenant_id: string
           updated_at?: string
           version?: number
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
         }
         Update: {
           amount?: number
@@ -546,9 +554,13 @@ export type Database = {
           paid_at?: string
           payment_plan_id?: string
           servicio_id?: string
+          sesion_id?: string | null
           tenant_id?: string
           updated_at?: string
           version?: number
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
         }
         Relationships: [
           {
@@ -587,13 +599,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_transactions_sesion_id_fkey"
+            columns: ["sesion_id"]
+            isOneToOne: false
+            referencedRelation: "sesiones"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_transactions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_transactions_voided_by_fkey"
+            columns: ["voided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      payment_transactions_history: {
+        Row: {
+          amount: number | null
+          changed_at: string
+          changed_by: string | null
+          concept: string | null
+          history_id: number
+          method: Database["public"]["Enums"]["payment_method"] | null
+          next_version: number | null
+          notes: string | null
+          op: string
+          paid_at: string | null
+          prev_version: number | null
+          tenant_id: string
+          tx_id: string
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        Insert: {
+          amount?: number | null
+          changed_at?: string
+          changed_by?: string | null
+          concept?: string | null
+          history_id?: number
+          method?: Database["public"]["Enums"]["payment_method"] | null
+          next_version?: number | null
+          notes?: string | null
+          op: string
+          paid_at?: string | null
+          prev_version?: number | null
+          tenant_id: string
+          tx_id: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Update: {
+          amount?: number | null
+          changed_at?: string
+          changed_by?: string | null
+          concept?: string | null
+          history_id?: number
+          method?: Database["public"]["Enums"]["payment_method"] | null
+          next_version?: number | null
+          notes?: string | null
+          op?: string
+          paid_at?: string | null
+          prev_version?: number | null
+          tenant_id?: string
+          tx_id?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1008,6 +1091,22 @@ export type Database = {
           },
         ]
       }
+      payment_plans_pending_balance: {
+        Row: {
+          pending_balance: number | null
+          plans_with_balance: number | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_plans_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
@@ -1023,8 +1122,8 @@ export type Database = {
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       evaluacion_status: "borrador" | "completada"
       frequency_key: "semanal" | "quincenal" | "mensual" | "personalizada"
-      payment_method: "efectivo" | "transferencia" | "tarjeta" | "otro"
-      payment_status: "pending" | "partial" | "paid"
+      payment_method: "efectivo" | "transferencia" | "tarjeta" | "codi" | "otro"
+      payment_status: "pending" | "partial" | "paid" | "cancelled"
       plan_slug: "basico" | "pro" | "clinica"
       service_status: "active" | "paused" | "completed" | "cancelled"
       service_type: "facial" | "corporal" | "laser" | "other"
@@ -1628,8 +1727,8 @@ export const Constants = {
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       evaluacion_status: ["borrador", "completada"],
       frequency_key: ["semanal", "quincenal", "mensual", "personalizada"],
-      payment_method: ["efectivo", "transferencia", "tarjeta", "otro"],
-      payment_status: ["pending", "partial", "paid"],
+      payment_method: ["efectivo", "transferencia", "tarjeta", "codi", "otro"],
+      payment_status: ["pending", "partial", "paid", "cancelled"],
       plan_slug: ["basico", "pro", "clinica"],
       service_status: ["active", "paused", "completed", "cancelled"],
       service_type: ["facial", "corporal", "laser", "other"],
