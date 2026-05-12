@@ -206,8 +206,9 @@ export function ServiciosTab({
           </div>
           <Button
             type="button"
+            variant="cta"
             onClick={() => setAdding(true)}
-            className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146] focus-visible:ring-[#BB7154]/40"
+            className="gap-1.5"
           >
             <PlusIcon className="size-4" />
             Agregar servicio
@@ -527,9 +528,10 @@ function EmptyState({
         ) : null}
         <Button
           type="button"
+          variant="cta"
           size="sm"
           onClick={onAdd}
-          className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146]"
+          className="gap-1.5"
         >
           <PlusIcon className="size-4" />
           Agregar servicio

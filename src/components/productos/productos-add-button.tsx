@@ -41,7 +41,7 @@ export function ProductosAddButton({ tenantId }: ProductosAddButtonProps) {
 
   return (
     <>
-      <Button size="lg" className="gap-1.5" onClick={handleOpen}>
+      <Button variant="cta" size="lg" className="gap-1.5" onClick={handleOpen}>
         <PlusIcon className="size-4" />
         Agregar producto
       </Button>

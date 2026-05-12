@@ -58,12 +58,10 @@ export function NuevaCitaButton({
     <>
       <Button
         type="button"
+        variant="cta"
         size="default"
         onClick={openCreate}
-        className={
-          className ??
-          "gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146] focus-visible:ring-[#BB7154]/40"
-        }
+        className={className ?? "gap-1.5"}
       >
         <CalendarPlusIcon className="size-4" />
         {label}

@@ -310,8 +310,9 @@ function EmptyTabState() {
       <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
+          variant="cta"
           size="sm"
-          className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146]"
+          className="gap-1.5"
           disabled
         >
           <PlusIcon className="size-4" />

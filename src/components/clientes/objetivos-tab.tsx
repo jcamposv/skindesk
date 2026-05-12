@@ -95,9 +95,10 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
         </div>
         <Button
           type="button"
+          variant="cta"
           size="default"
           onClick={() => setEditing(true)}
-          className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146] focus-visible:ring-[#BB7154]/40"
+          className="gap-1.5"
         >
           {hasPlan ? (
             <>

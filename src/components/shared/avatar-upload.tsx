@@ -449,10 +449,11 @@ function UploadDialog({
             </DialogClose>
             <Button
               type="button"
+              variant="cta"
               size="sm"
               onClick={handleUpload}
               disabled={!file || uploading}
-              className="gap-1.5 bg-[#BB7154] text-white hover:bg-[#A56146] focus-visible:ring-[#BB7154]/40"
+              className="gap-1.5"
             >
               {uploading ? (
                 <Loader2Icon className="size-4 animate-spin" />

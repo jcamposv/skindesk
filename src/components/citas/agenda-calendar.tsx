@@ -258,6 +258,7 @@ export function AgendaCalendar({
           </Button>
           <Button
             type="button"
+            variant="cta"
             size="sm"
             onClick={() => {
               const now = new Date();
@@ -270,7 +271,7 @@ export function AgendaCalendar({
                 },
               });
             }}
-            className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146]"
+            className="gap-1.5"
           >
             + Agendar
           </Button>

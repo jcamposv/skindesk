@@ -68,7 +68,7 @@ export function ProductoSheet({
       {!isControlled ? (
         <SheetTrigger
           render={
-            <Button size="lg" className="gap-1.5">
+            <Button variant="cta" size="lg" className="gap-1.5">
               <PlusIcon className="size-4" />
               Agregar producto
             </Button>

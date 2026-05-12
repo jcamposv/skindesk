@@ -112,6 +112,7 @@ export function ProductosPageClient({
           {canEdit ? (
             <Button
               onClick={() => setAddOpen(true)}
+              variant="cta"
               size="lg"
               className="mt-4 gap-1.5"
             >

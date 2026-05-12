@@ -237,10 +237,11 @@ function AddServiceBody({
               </div>
               <Button
                 type="button"
+                variant="cta"
                 size="sm"
                 onClick={() => setStep((s) => (s + 1) as 2 | 3)}
                 disabled={!canAdvancePicker}
-                className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146]"
+                className="gap-1.5"
               >
                 Continuar
                 <ArrowRightIcon className="size-3.5" />

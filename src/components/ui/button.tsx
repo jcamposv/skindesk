@@ -9,6 +9,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        // Standard "create / add" CTA. Uses the SkinDesk artemis honey
+        // accent — the most vivid color in the palette. Reserved for the
+        // primary positive action on a page ("Agregar producto", "Agregar
+        // clienta", "Nueva cita", "Registrar pago"). See AGENTS.md for
+        // when to use this vs `default`.
+        cta:
+          "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 hover:shadow focus-visible:ring-accent/40",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
