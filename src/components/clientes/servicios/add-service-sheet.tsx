@@ -187,7 +187,7 @@ function AddServiceBody({
         />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 [grid-template-rows:minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="hidden border-r bg-[#FBF9F4]/60 lg:flex lg:flex-col">
           <VerticalRail step={step} serviceType={serviceType} item={catalogItem} />
         </aside>
@@ -205,7 +205,7 @@ function AddServiceBody({
             onSave={onSave}
           />
         ) : (
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-col">
             <div className="min-w-0 flex-1 overflow-y-auto px-5 py-5 lg:px-7 lg:py-6">
               {step === 1 ? (
                 <Step1Type value={serviceType} onChange={handleTypeChange} />
@@ -307,7 +307,7 @@ function Step3FormShell({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onValid)}
-        className="flex min-w-0 flex-col"
+        className="flex min-h-0 min-w-0 flex-col"
       >
         <div className="min-w-0 flex-1 overflow-y-auto px-5 py-5 lg:px-7 lg:py-6">
           <div className="grid gap-5">

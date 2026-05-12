@@ -11,6 +11,7 @@ import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
 import { getClienteById } from "@/services/clientes.service";
 import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
+import { getPaymentPlansForCliente } from "@/services/pagos.service";
 import { getServiciosForCliente } from "@/services/servicios.service";
 import { getStaffForTenant } from "@/services/staff.service";
 
@@ -62,12 +63,14 @@ export default async function ClienteDetailPage({
   // Both queries are independent — `getEvaluacionForCliente` only needs
   // the URL id (which equals cliente.id when the cliente exists; RLS will
   // return null otherwise). Promise.all saves ~50ms vs awaiting in series.
-  const [cliente, evaluacion, servicios, staff] = await Promise.all([
-    getClienteById(id),
-    getEvaluacionForCliente(id),
-    getServiciosForCliente(id),
-    getStaffForTenant(session.profile.tenant_id ?? ""),
-  ]);
+  const [cliente, evaluacion, servicios, staff, paymentPlans] =
+    await Promise.all([
+      getClienteById(id),
+      getEvaluacionForCliente(id),
+      getServiciosForCliente(id),
+      getStaffForTenant(session.profile.tenant_id ?? ""),
+      getPaymentPlansForCliente(id),
+    ]);
   if (!cliente) notFound();
 
   return (
@@ -78,6 +81,9 @@ export default async function ClienteDetailPage({
         evaluacion={evaluacion}
         servicios={servicios}
         staff={staff}
+        // `paymentPlans` is a Map keyed by servicioId; the client component
+        // needs a plain object since Maps don't survive RSC serialization.
+        initialPaymentPlans={Object.fromEntries(paymentPlans)}
         currentProfesional={{
           professionalId: session.profile.id,
           professionalLabel: "",

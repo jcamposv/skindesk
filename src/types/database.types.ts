@@ -212,6 +212,187 @@ export type Database = {
           },
         ]
       }
+      payment_plans: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          last_editor_id: string | null
+          notes: string | null
+          paid_amount: number
+          servicio_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          tenant_id: string
+          total_amount: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_editor_id?: string | null
+          notes?: string | null
+          paid_amount?: number
+          servicio_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          tenant_id: string
+          total_amount?: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_editor_id?: string | null
+          notes?: string | null
+          paid_amount?: number
+          servicio_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          tenant_id?: string
+          total_amount?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_plans_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_servicio_id_fkey"
+            columns: ["servicio_id"]
+            isOneToOne: true
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          cliente_id: string
+          concept: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          last_editor_id: string | null
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_at: string
+          payment_plan_id: string
+          servicio_id: string
+          tenant_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          amount: number
+          cliente_id: string
+          concept?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_editor_id?: string | null
+          method: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_at: string
+          payment_plan_id: string
+          servicio_id: string
+          tenant_id: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          amount?: number
+          cliente_id?: string
+          concept?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_editor_id?: string | null
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_at?: string
+          payment_plan_id?: string
+          servicio_id?: string
+          tenant_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_payment_plan_id_fkey"
+            columns: ["payment_plan_id"]
+            isOneToOne: false
+            referencedRelation: "payment_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_servicio_id_fkey"
+            columns: ["servicio_id"]
+            isOneToOne: false
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -625,6 +806,8 @@ export type Database = {
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       evaluacion_status: "borrador" | "completada"
       frequency_key: "semanal" | "quincenal" | "mensual" | "personalizada"
+      payment_method: "efectivo" | "transferencia" | "tarjeta" | "otro"
+      payment_status: "pending" | "partial" | "paid"
       plan_slug: "basico" | "pro" | "clinica"
       service_status: "active" | "paused" | "completed" | "cancelled"
       service_type: "facial" | "corporal" | "laser" | "other"
@@ -1221,6 +1404,8 @@ export const Constants = {
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       evaluacion_status: ["borrador", "completada"],
       frequency_key: ["semanal", "quincenal", "mensual", "personalizada"],
+      payment_method: ["efectivo", "transferencia", "tarjeta", "otro"],
+      payment_status: ["pending", "partial", "paid"],
       plan_slug: ["basico", "pro", "clinica"],
       service_status: ["active", "paused", "completed", "cancelled"],
       service_type: ["facial", "corporal", "laser", "other"],

@@ -9,15 +9,54 @@ Source: technical review delivered 2026-05-11 (sections A–M).
 ---
 
 ## Current focus
-**Bundles 1 + 2 closed.** Forms now drive on React Hook Form +
-zodResolver; the schema is dispatched per service type, per-field errors
-surface via `<FormMessage>`. UI/UX unchanged.
+**Bundles 1 + 2 + 4 closed end-to-end.** Servicios runs on RHF + zod;
+Pagos has its own migration + RLS + auto-plan trigger + recompute
+trigger; UI consumes server data.
 
-**Bundle 3 (Templates) dropped** — templates belong to the rutinas
-module, not servicios. Catalog stays hardcoded in `catalog.ts`.
+**Dashboard profesional** (`/profesional`) now reads from real tenant
+data for 5 of 9 widgets:
+- ✅ Clientes Activos (count from `clientes`)
+- ✅ Ingresos del Mes (sum from `payment_transactions`)
+- ✅ Revenue chart 6 meses (bucketed transactions)
+- ✅ Tratamientos populares (top servicios by completed sesiones count)
+- ✅ Clientes nuevos (recently created clientes + relative time)
+- 🟡 Citas Hoy / Próximas citas — Demo badge (needs `citas` table)
+- 🟡 Productos Bajos — Demo badge (needs `inventory` table)
+- 🟡 Tareas pendientes — Demo badge (needs `tasks` table)
 
-Next up: **Bundle 4 — Payments (manual ledger)** (review §M.5). Manual
-payment registration only; no Stripe on the clienta side.
+Aggregator service: `src/services/dashboard.service.ts`. All getters
+RLS-scoped, wrapped in `React.cache`, batched via `Promise.all` in the
+page.
+
+**Perf pack landed 2026-05-12** (post pagos+dashboard review):
+- Migración `20260512013147_perf_indexes_pagos_dashboard.sql` aplicada:
+  `payment_transactions (tenant_id, paid_at desc)` and
+  `sesiones (tenant_id, status)`.
+- `getActiveClientesCount` → `count: 'estimated'`.
+- `paymentRegisterSchema` rechaza `paid_at` futura (margen de 7 días
+  para timezone/clock skew).
+- `src/lib/supabase/select-helpers.ts` con `unwrapNested<T>()` y
+  aplicado en `dashboard.service.ts`.
+- Dashboard bucketing pasa a usar
+  `America/Argentina/Buenos_Aires` para la frontera de "mes actual"
+  (`Intl.DateTimeFormat` en TZ). TODO futuro: scopar la TZ por tenant.
+
+Deliberadamente diferidos (esperar volumen real):
+- RPCs (`register_payment`, `dashboard_aggregates`) — fold en 1
+  round-trip; útil >2k tx/tenant.
+- Aggregation en SQL (GROUP BY) para revenue por mes y top treatments
+  — útil >10k tx o >5k sesiones.
+- Refactor de RLS a policies con OR — resuelve advisor "multiple
+  permissive policies" globalmente.
+- `unstable_cache` en dashboard — incompatible con la UX actual de
+  "veo mi pago al instante"; revisitar si hace falta cuando aparezca
+  fricción.
+
+Next candidates:
+1. Agenda / `citas` module — unlocks 2 dashboard widgets + an own tab.
+2. Inventario module — unlocks 1 widget.
+3. Bundle 5 — servicios atomicity + perf cleanup (RPC for create, list
+   projection, pagination, index on `(servicio_id, status)`).
 
 ---
 
@@ -165,12 +204,46 @@ the **rutinas** module, not servicios. The hardcoded `catalog.ts` const
 stays — it's the canonical list of service types for this module.
 - [x] ~~L7 · `service_templates` table~~ — not building.
 
-### §M.5 — Bundle 4: Payments (planned · manual ledger only, no Stripe)
-- [ ] L8 · `payment_plans` (1:1 with `servicios`) +
-  `payment_transactions` (N:1) tables + RLS.
-- [ ] Manual-payment registration UI inside the service card.
-  Fields: amount, method (efectivo / transferencia / tarjeta offline / otro),
-  date, concept, notes.
+### §M.5 — Bundle 4: Payments (manual ledger only, no Stripe)
+
+- [x] **Mock UI** — done 2026-05-12 · in `src/components/clientes/pagos/`
+  - `types.ts`, `mock-data.ts` (deterministic seed), `pagos-tab.tsx`,
+    `payment-summary-row.tsx`, `service-payment-card.tsx`,
+    `register-payment-dialog.tsx` (RHF + zod).
+  - Wired into `cliente-detail-tabs.tsx` replacing the EmptyTab
+    placeholder. Mock state is component-local; toasts + add/delete
+    transactions work end-to-end visually.
+  - **No cron / no fechas estimadas de cuota** per user instruction.
+  - Also fixed a layout bug in the AddServiceSheet wizard step 3:
+    `grid-template-rows` defaulted to `auto`, which made the form
+    overflow the dialog without scrolling. Switched the grid to
+    `[grid-template-rows:minmax(0,1fr)]` and added `min-h-0` to the
+    cell flex containers.
+
+- [x] **Backend** — done 2026-05-12
+  - Migration `20260512011421_pagos_module.sql` applied to cloud:
+    - Enums `payment_method` + `payment_status`.
+    - Tables `payment_plans` (UNIQUE servicio_id, 1:1) +
+      `payment_transactions` (N:1).
+    - Triggers: `updated_at`, sync (tenant + cliente from parent),
+      audit+version, **recompute** (AFTER INSERT/UPDATE/DELETE on
+      tx, refreshes `paid_amount` + `status` on the plan), and
+      **`servicios_create_payment_plan`** (AFTER INSERT on servicios
+      auto-creates the 1:1 plan).
+    - Backfilled plans for existing servicios.
+    - RLS: 4 policies per table (super_admin / profesional /
+      asistente_select / clienta_self_select), `(select …)` cached
+      helpers per supabase-postgres-best-practices.
+  - `src/schemas/pagos.schema.ts` — `paymentRegisterSchema`, enum
+    types `PaymentMethod` + `PaymentStatus`.
+  - `src/services/pagos.service.ts` — `getPaymentPlansForCliente`
+    (Map keyed by servicioId, two batched reads, React.cache).
+  - `src/actions/pagos.actions.ts` — `registerPaymentAction`,
+    `deletePaymentAction`. ActionState + `mapPgError`.
+  - `pagos-tab.tsx` now reads `initialPlans` from the page server
+    fetch; mutations go through actions + `router.refresh()`. Mock
+    state and `mock-data.ts` deleted.
+  - Typecheck + lint + build green.
 
 ### §M.6 — Bundle 5: Atomicity + perf (planned)
 - [ ] L9 · Replace compensating delete with

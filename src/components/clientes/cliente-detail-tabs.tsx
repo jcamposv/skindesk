@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   CameraIcon,
   ChevronDownIcon,
-  CreditCardIcon,
   FolderOpenIcon,
   HistoryIcon,
   WandSparklesIcon,
@@ -21,6 +20,7 @@ import { DatosPersonalesForm } from "@/components/clientes/datos-personales-form
 import { EmptyTab } from "@/components/clientes/empty-tab";
 import { EvaluacionTab } from "@/components/clientes/evaluacion-tab";
 import { ObjetivosTab } from "@/components/clientes/objetivos-tab";
+import { PagosTab } from "@/components/clientes/pagos/pagos-tab";
 import { ServiciosTab } from "@/components/clientes/servicios/servicios-tab";
 import {
   Sheet,
@@ -34,6 +34,7 @@ import type { ClienteDetail } from "@/services/clientes.service";
 import type { StaffMember } from "@/services/staff.service";
 import type { ProfesionalValue } from "@/components/clientes/servicios/profesional-select";
 import type { AssignedService } from "@/components/clientes/servicios/types";
+import type { PaymentPlanSummary } from "@/services/pagos.service";
 import type { Evaluacion } from "@/types/evaluacion";
 
 interface ClienteDetailTabsProps {
@@ -41,6 +42,8 @@ interface ClienteDetailTabsProps {
   evaluacion: Evaluacion | null;
   servicios: AssignedService[];
   staff: StaffMember[];
+  /** Plain object keyed by servicioId (the page serialized the Map). */
+  initialPaymentPlans: Record<string, PaymentPlanSummary>;
   currentProfesional: ProfesionalValue;
   initialTab?: TabKey;
 }
@@ -67,6 +70,7 @@ export function ClienteDetailTabs({
   evaluacion,
   servicios,
   staff,
+  initialPaymentPlans,
   currentProfesional,
   initialTab,
 }: ClienteDetailTabsProps) {
@@ -190,16 +194,9 @@ export function ClienteDetailTabs({
           />
         ) : null}
         {active === "pagos" ? (
-          <EmptyTab
-            icon={CreditCardIcon}
-            title="Plan de pagos"
-            description="Pagos realizados, saldo pendiente, próximos vencimientos y resumen financiero del paquete o las sesiones contratadas."
-            preview={[
-              "Saldo y próximos vencimientos",
-              "Pagos realizados con comprobantes",
-              "Cuotas, paquetes y sesiones",
-              "Estado de cobro por sesión",
-            ]}
+          <PagosTab
+            services={servicios}
+            initialPlans={initialPaymentPlans}
           />
         ) : null}
         {active === "servicios" ? (
