@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { createClient, getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import {
   paymentMethodEnum,
   paymentStatusEnum,
@@ -72,7 +73,13 @@ function csvField(value: string | number | null | undefined): string {
   return s;
 }
 
-function rowToCsv(row: PaymentListRow): string {
+// `moneda` is the same ISO code for every row (the tenant operates in
+// one currency at a time — no per-tx amount currency yet). Stamping it
+// on every line keeps the file self-describing for downstream importers
+// that don't read the filename. The currency also lands in the
+// `Content-Disposition` filename, so a quick glance at the download is
+// enough to identify the export's monetary base.
+function rowToCsv(row: PaymentListRow, currencyCode: string): string {
   return [
     row.paidAt,
     row.cliente.fullName,
@@ -81,6 +88,7 @@ function rowToCsv(row: PaymentListRow): string {
     row.sesion ? row.sesion.sessionNumber : "",
     row.concept,
     row.amount,
+    currencyCode,
     METHOD_LABEL[row.method],
     row.plan ? STATUS_LABEL[row.plan.status] : "",
     row.plan?.totalAmount ?? "",
@@ -101,6 +109,7 @@ const HEADERS = [
   "sesion",
   "concepto",
   "monto",
+  "moneda",
   "metodo",
   "estado_plan",
   "total_paquete",
@@ -143,19 +152,27 @@ export async function GET(request: Request) {
   const dateTo = pickDate(url.searchParams.get("dateTo"));
 
   const supabase = await createClient();
-  const { rows } = await listPaymentTransactions(supabase, {
-    page: 1,
-    pageSize: MAX_ROWS,
-    search,
-    status,
-    method,
-    serviceType,
-    dateFrom,
-    dateTo,
-  });
+  const [{ rows }, tenantConfig] = await Promise.all([
+    listPaymentTransactions(supabase, {
+      page: 1,
+      pageSize: MAX_ROWS,
+      search,
+      status,
+      method,
+      serviceType,
+      dateFrom,
+      dateTo,
+    }),
+    getTenantConfig(),
+  ]);
 
-  const body = [HEADERS, ...rows.map(rowToCsv)].join("\n");
-  const filename = `pagos-${new Date().toISOString().slice(0, 10)}.csv`;
+  const body = [
+    HEADERS,
+    ...rows.map((r) => rowToCsv(r, tenantConfig.currency)),
+  ].join("\n");
+  const filename = `pagos-${tenantConfig.currency}-${new Date()
+    .toISOString()
+    .slice(0, 10)}.csv`;
 
   return new NextResponse(body, {
     status: 200,

@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
+import { DEFAULT_CURRENCY_CODE } from "@/lib/currency";
 import { createClient, getCurrentSession } from "@/lib/supabase/server";
 
 /**
@@ -23,12 +24,15 @@ export interface TenantConfig {
   businessHoursStart: number;
   /** Latest hour (0-23, float). Exclusive — events must END at or before this. */
   businessHoursEnd: number;
+  /** ISO-4217 code the business operates in (MXN default for the MX market). */
+  currency: string;
 }
 
 export const DEFAULT_TENANT_CONFIG: TenantConfig = {
   timezone: "America/Argentina/Buenos_Aires",
   businessHoursStart: 9,
   businessHoursEnd: 20,
+  currency: DEFAULT_CURRENCY_CODE,
 };
 
 /**
@@ -43,7 +47,7 @@ export const getTenantConfig = cache(async (): Promise<TenantConfig> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tenants")
-    .select("timezone, business_hours_start, business_hours_end")
+    .select("timezone, business_hours_start, business_hours_end, currency")
     .eq("id", session.profile.tenant_id)
     .maybeSingle();
   if (error || !data) return DEFAULT_TENANT_CONFIG;
@@ -54,6 +58,7 @@ export const getTenantConfig = cache(async (): Promise<TenantConfig> => {
       DEFAULT_TENANT_CONFIG.businessHoursStart,
     businessHoursEnd: parseTime(data.business_hours_end) ??
       DEFAULT_TENANT_CONFIG.businessHoursEnd,
+    currency: data.currency ?? DEFAULT_TENANT_CONFIG.currency,
   };
 });
 

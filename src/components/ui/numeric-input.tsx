@@ -3,6 +3,7 @@
 import * as React from "react";
 import { NumericFormat, type NumericFormatProps } from "react-number-format";
 
+import { getNumberSeparators } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 
 /**
@@ -109,13 +110,23 @@ interface CurrencyInputProps
   prefix?: string;
   /** Decimal precision — defaults to 2 (cents). Pass 0 to mask integers. */
   decimalScale?: number;
+  /** BCP-47 locale that drives thousand/decimal separators (e.g. `es-MX`
+   *  → `1.234,56`, `en-US` → `1,234.56`). Defaults to `es-AR` to match
+   *  the historical behaviour for unsuspecting call sites — every new
+   *  business-money form should pass `useMoney().descriptor.locale`. */
+  locale?: string;
   className?: string;
 }
 
 /**
- * Currency-masked input. Renders `$ 1.234,56` while the user types
- * (AR-style thousands `.` + decimals `,`), but emits a plain JS number to
- * the form. Clearing the field emits `null`, never `NaN`.
+ * Currency-masked input. Renders the amount using the locale's number
+ * separators while the user types, but emits a plain JS number to the
+ * form. Clearing the field emits `null`, never `NaN`.
+ *
+ * Pass `locale={descriptor.locale}` (from `useMoney()`) so the visual
+ * matches what the tenant expects:
+ *   · `es-MX` / `es-AR`: `$ 1.234,56`
+ *   · `en-US`:           `$ 1,234.56`
  *
  * Use this instead of `<input type="number">` for any monetary value.
  */
@@ -124,9 +135,11 @@ export function CurrencyInput({
   onChange,
   prefix = "$ ",
   decimalScale = 2,
+  locale = "es-AR",
   className,
   ...rest
 }: CurrencyInputProps) {
+  const { thousand, decimal } = getNumberSeparators(locale);
   return (
     <NumericFormat
       value={value ?? ""}
@@ -136,9 +149,8 @@ export function CurrencyInput({
       }}
       allowNegative={false}
       decimalScale={decimalScale}
-      // AR locale: `.` for thousands, `,` for decimals.
-      thousandSeparator="."
-      decimalSeparator=","
+      thousandSeparator={thousand}
+      decimalSeparator={decimal}
       // Don't pad to 2 decimals while typing — only on blur via the
       // browser's normal display. Setting `fixedDecimalScale` would force
       // ".00" on every keystroke which fights the user.

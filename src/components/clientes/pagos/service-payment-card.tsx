@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { SERVICE_VISUAL } from "@/components/clientes/servicios/service-type-visual";
 import type { AssignedService } from "@/components/clientes/servicios/types";
 
-import { formatCurrency } from "./payment-summary-row";
+import { useMoney } from "@/components/providers/currency-provider";
 import {
   METHOD_LABEL,
   STATUS_LABEL,
@@ -55,6 +55,7 @@ export function ServicePaymentCard({
   onRegister,
   onDeleteTransaction,
 }: ServicePaymentCardProps) {
+  const { format, formatExact } = useMoney();
   const visual = SERVICE_VISUAL[service.serviceType];
   const Icon = visual.icon;
   const statusVisual = STATUS_VISUAL[plan.status];
@@ -96,7 +97,7 @@ export function ServicePaymentCard({
             <p className="text-[11px] text-muted-foreground">
               {service.totalSessions}{" "}
               {service.totalSessions === 1 ? "sesión" : "sesiones"} ·{" "}
-              {formatCurrency(plan.totalAmount)} paquete
+              {format(plan.totalAmount)} paquete
             </p>
           </div>
         </div>
@@ -111,17 +112,18 @@ export function ServicePaymentCard({
         </span>
       </header>
 
-      {/* Money row — total / paid / balance */}
+      {/* Money row — total / paid / balance. These are the per-service
+          breakdown the profesional reconciles against; show exact cents. */}
       <div className="grid grid-cols-3 gap-2 rounded-xl border border-dashed bg-card/40 px-3 py-2.5">
-        <MoneyCell label="Total" value={formatCurrency(plan.totalAmount)} />
+        <MoneyCell label="Total" value={formatExact(plan.totalAmount)} />
         <MoneyCell
           label="Cobrado"
-          value={formatCurrency(plan.paidAmount)}
+          value={formatExact(plan.paidAmount)}
           accent={isPaid ? "text-[#4F605C]" : "text-foreground"}
         />
         <MoneyCell
           label="Saldo"
-          value={formatCurrency(plan.balance)}
+          value={formatExact(plan.balance)}
           accent={
             plan.balance <= 0
               ? "text-[#4F605C]"
@@ -166,7 +168,7 @@ export function ServicePaymentCard({
                       {formatDateShort(tx.paidAt)}
                     </span>
                     <span className="font-semibold text-foreground">
-                      {formatCurrency(tx.amount)}
+                      {formatExact(tx.amount)}
                     </span>
                     <span className="inline-flex items-center gap-1 text-muted-foreground">
                       <MethodIcon className="size-3.5" />

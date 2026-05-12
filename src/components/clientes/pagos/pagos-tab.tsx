@@ -16,7 +16,9 @@ import type { AssignedService } from "@/components/clientes/servicios/types";
 import type { PaymentPlanSummary } from "@/services/pagos.service";
 import type { PaymentRegisterInput } from "@/schemas/pagos.schema";
 
-import { PaymentSummaryRow, formatCurrency } from "./payment-summary-row";
+import { useMoney } from "@/components/providers/currency-provider";
+
+import { PaymentSummaryRow } from "./payment-summary-row";
 import { ServicePaymentCard } from "./service-payment-card";
 import { RegisterPaymentDialog } from "./register-payment-dialog";
 import { METHOD_LABEL } from "./types";
@@ -43,6 +45,7 @@ type FilterKey = "all" | "withBalance" | "paid";
  */
 export function PagosTab({ services, initialPlans }: PagosTabProps) {
   const router = useRouter();
+  const { format: formatMoney } = useMoney();
   const [filter, setFilter] = useState<FilterKey>("all");
   const [registerForId, setRegisterForId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -119,7 +122,7 @@ export function PagosTab({ services, initialPlans }: PagosTabProps) {
         const svcName =
           services.find((s) => s.id === servicioId)?.name ?? "Servicio";
         toast.success(`Pago registrado · ${svcName}`, {
-          description: `${formatCurrency(input.amount)} · ${METHOD_LABEL[input.method]}`,
+          description: `${formatMoney(input.amount)} · ${METHOD_LABEL[input.method]}`,
         });
         router.refresh();
         resolve();

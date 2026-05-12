@@ -7,11 +7,8 @@ import {
   WalletIcon,
 } from "lucide-react";
 
+import { useMoney } from "@/components/providers/currency-provider";
 import { cn } from "@/lib/utils";
-
-import { formatCurrency } from "./format";
-
-export { formatCurrency };
 
 interface PaymentSummaryRowProps {
   totalAmount: number;
@@ -26,24 +23,25 @@ export function PaymentSummaryRow({
   balance,
   unpaidServiceCount,
 }: PaymentSummaryRowProps) {
+  const { format } = useMoney();
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <StatTile
         icon={CircleDollarSignIcon}
         label="Total facturado"
-        value={formatCurrency(totalAmount)}
+        value={format(totalAmount)}
         tone="bg-[#F4F1EC] text-[#8C4A30]"
       />
       <StatTile
         icon={TrendingUpIcon}
         label="Cobrado"
-        value={formatCurrency(paidAmount)}
+        value={format(paidAmount)}
         tone="bg-[#E7ECEA] text-[#4F605C]"
       />
       <StatTile
         icon={WalletIcon}
         label="Saldo pendiente"
-        value={formatCurrency(balance)}
+        value={format(balance)}
         tone="bg-[#F8EFD7] text-[#7C5E1F]"
       />
       <StatTile

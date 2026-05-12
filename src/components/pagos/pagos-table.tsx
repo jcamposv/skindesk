@@ -18,7 +18,7 @@ import {
 import { DataTable } from "@/components/data-table";
 import type { FilterConfig, RowAction } from "@/components/data-table";
 import { SortableHeader } from "@/components/pagos/sortable-header";
-import { formatCurrency } from "@/components/clientes/pagos/format";
+import { useMoney } from "@/components/providers/currency-provider";
 import {
   METHOD_LABEL,
   STATUS_LABEL,
@@ -164,6 +164,10 @@ export function PagosTable({
   total: number;
 }) {
   const router = useRouter();
+  // Per-row amounts in a ledger should show cents — rounding $1234.56 to
+  // $1235 quietly drops conciliation accuracy. Aggregate tiles above the
+  // table still use `format` (0 digits) because they're for glance.
+  const { formatExact } = useMoney();
 
   const columns = useMemo<ColumnDef<PaymentListRow, unknown>[]>(
     () => [
@@ -221,7 +225,7 @@ export function PagosTable({
         header: () => <SortableHeader sortKey="amount" label="Monto" />,
         cell: ({ row }) => (
           <span className="font-semibold tabular-nums text-foreground">
-            {formatCurrency(row.original.amount)}
+            {formatExact(row.original.amount)}
           </span>
         ),
       },
@@ -254,7 +258,7 @@ export function PagosTable({
                   : "text-[#4F605C]",
               )}
             >
-              {formatCurrency(balance)}
+              {formatExact(balance)}
             </span>
           );
         },
@@ -269,7 +273,10 @@ export function PagosTable({
         ),
       },
     ],
-    [],
+    // `format` is memoised by `useMoney` and only changes when the
+    // tenant currency does, so this dependency stays stable across
+    // normal re-renders but follows a currency switch in real time.
+    [formatExact],
   );
 
   const rowActions = useMemo<RowAction<PaymentListRow>[]>(

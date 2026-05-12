@@ -20,6 +20,7 @@ import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatCard, type StatCardProps } from "@/components/shared/stat-card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { formatMoney, getCurrencySymbol } from "@/lib/currency";
 import { getTenantConfig } from "@/lib/tenant-config";
 import { getCitasHoyCount, getProximasCitas } from "@/services/citas.service";
 import {
@@ -34,11 +35,6 @@ export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 const NUMBER_FORMAT = new Intl.NumberFormat("es-AR");
-const USD_FORMAT = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
 
 // Widgets that still use seed data — keep until their backing tables ship.
 // Each one is tagged so it's obvious during reviews and easy to grep.
@@ -150,7 +146,7 @@ export default async function ProfesionalDashboardPage() {
     },
     {
       label: "Ingresos del Mes",
-      value: USD_FORMAT.format(monthlyRevenue),
+      value: formatMoney(monthlyRevenue, tenantConfig.currency),
       icon: DollarSignIcon,
       tone: "artemis",
       link: { href: "/profesional/reportes", label: "Ver reportes" },
@@ -188,7 +184,10 @@ export default async function ProfesionalDashboardPage() {
           action={<PeriodSelector value="Últimos 6 meses" />}
           className="lg:col-span-2"
         >
-          <RevenueChart data={revenueByMonth} />
+          <RevenueChart
+            data={revenueByMonth}
+            currencySymbol={getCurrencySymbol(tenantConfig.currency)}
+          />
         </DashboardSection>
 
         <DashboardSection

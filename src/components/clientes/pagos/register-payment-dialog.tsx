@@ -24,7 +24,7 @@ import {
 } from "@/schemas/pagos.schema";
 import type { AssignedService } from "@/components/clientes/servicios/types";
 
-import { formatCurrency } from "./payment-summary-row";
+import { useMoney } from "@/components/providers/currency-provider";
 import {
   METHOD_LABEL,
   type PaymentMethod,
@@ -108,6 +108,7 @@ function RegisterPaymentBody({
   ) => void | Promise<void>;
   saving: boolean;
 }) {
+  const { formatExact, symbol, descriptor } = useMoney();
   // Loose generic — zod's `.default()` makes input/output diverge and the
   // resolver type stops aligning. Schema enforces shape at runtime; the
   // values cast in `onValid` brings the well-formed shape back.
@@ -146,9 +147,9 @@ function RegisterPaymentBody({
             <p className="truncate text-[12px] text-muted-foreground">
               Saldo pendiente:{" "}
               <span className="font-semibold text-foreground">
-                {formatCurrency(plan.balance)}
+                {formatExact(plan.balance)}
               </span>{" "}
-              · paquete {formatCurrency(plan.totalAmount)}
+              · paquete {formatExact(plan.totalAmount)}
             </p>
           </div>
           <button
@@ -173,7 +174,9 @@ function RegisterPaymentBody({
                 <CurrencyInput
                   value={(field.value as number) ?? null}
                   onChange={(n) => field.onChange(n ?? 0)}
-                  placeholder="$ 0,00"
+                  prefix={`${symbol} `}
+                  locale={descriptor.locale}
+                  placeholder={`${symbol} 0${descriptor.locale.startsWith("en") ? ".00" : ",00"}`}
                   className="h-10"
                 />
                 <FormMessage />

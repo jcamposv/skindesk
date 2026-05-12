@@ -8,6 +8,7 @@ import { PagosSummary } from "@/components/pagos/pagos-summary";
 import { PagosTable } from "@/components/pagos/pagos-table";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { createClient, getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import {
   paymentMethodEnum,
   paymentStatusEnum,
@@ -121,7 +122,7 @@ export default async function PagosPage({ searchParams }: PageProps) {
   };
 
   const supabase = await createClient();
-  const [list, summary] = await Promise.all([
+  const [list, summary, tenantConfig] = await Promise.all([
     listPaymentTransactions(supabase, {
       page,
       pageSize,
@@ -130,6 +131,7 @@ export default async function PagosPage({ searchParams }: PageProps) {
       sortDir,
     }),
     getPaymentsSummary(filterPayload),
+    getTenantConfig(),
   ]);
 
   return (
@@ -152,7 +154,7 @@ export default async function PagosPage({ searchParams }: PageProps) {
         <PagosExportButton />
       </header>
 
-      <PagosSummary summary={summary} />
+      <PagosSummary summary={summary} currency={tenantConfig.currency} />
 
       <PagosDateRange
         initialFrom={dateFrom ?? ""}

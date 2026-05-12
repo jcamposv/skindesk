@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { METHOD_LABEL } from "@/components/clientes/pagos/types";
-import { formatCurrency } from "@/components/clientes/pagos/format";
+import { formatMoney } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { PaymentsSummary } from "@/services/pagos.service";
 
@@ -21,7 +21,16 @@ import type { PaymentsSummary } from "@/services/pagos.service";
  * global — it answers "how much money does the studio still need to
  * collect", which is independent of any view filter.
  */
-export function PagosSummary({ summary }: { summary: PaymentsSummary }) {
+export function PagosSummary({
+  summary,
+  currency,
+}: {
+  summary: PaymentsSummary;
+  /** Tenant currency code, supplied by the Server Component caller from
+   *  `getTenantConfig()`. Server Components don't read the
+   *  `CurrencyProvider` context, so the currency travels as a prop. */
+  currency: string;
+}) {
   const methodLabel = summary.topMethod
     ? METHOD_LABEL[summary.topMethod]
     : "—";
@@ -37,13 +46,13 @@ export function PagosSummary({ summary }: { summary: PaymentsSummary }) {
       <StatTile
         icon={CircleDollarSignIcon}
         label={incomeLabel}
-        value={formatCurrency(summary.windowIncome)}
+        value={formatMoney(summary.windowIncome, currency)}
         tone="bg-[#F4F1EC] text-[#8C4A30]"
       />
       <StatTile
         icon={WalletIcon}
         label="Saldo pendiente"
-        value={formatCurrency(summary.pendingBalance)}
+        value={formatMoney(summary.pendingBalance, currency)}
         tone="bg-[#F8EFD7] text-[#7C5E1F]"
       />
       <StatTile

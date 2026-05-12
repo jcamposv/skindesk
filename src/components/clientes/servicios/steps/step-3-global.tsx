@@ -8,6 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useMoney } from "@/components/providers/currency-provider";
 import { Input } from "@/components/ui/input";
 import { CurrencyInput, NumericInput } from "@/components/ui/numeric-input";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ interface Step3GlobalProps {
 export function Step3Global({ staff }: Step3GlobalProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useFormContext<FieldValues & any>();
+  const { symbol, currency, descriptor } = useMoney();
 
   return (
     <div className="grid gap-3 rounded-xl border bg-card p-4">
@@ -142,12 +144,14 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-[11px] font-medium text-muted-foreground">
-                Monto del paquete (USD)
+                Monto del paquete ({currency})
               </FormLabel>
               <CurrencyInput
                 value={(field.value as number) ?? null}
                 onChange={(n) => field.onChange(n ?? 0)}
-                placeholder="$ 0"
+                prefix={`${symbol} `}
+                locale={descriptor.locale}
+                placeholder={`${symbol} 0`}
               />
               <FormMessage />
             </FormItem>

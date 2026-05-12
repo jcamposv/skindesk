@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/components/clientes/pagos/format";
+import { formatMoney } from "@/lib/currency";
 import {
   METHOD_LABEL,
   STATUS_LABEL,
@@ -31,6 +31,7 @@ import { SERVICE_TYPE_LABEL } from "@/components/clientes/servicios/types";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import {
   getPaymentTransactionById,
   getServicioSessionsProgress,
@@ -98,12 +99,23 @@ export default async function PagoDetailPage({ params }: PageProps) {
     redirect(dashboardForRole(session.profile.role));
   }
 
-  const tx = await getPaymentTransactionById(id);
+  const [tx, tenantConfig] = await Promise.all([
+    getPaymentTransactionById(id),
+    getTenantConfig(),
+  ]);
   if (!tx) notFound();
 
   const sessions = tx.servicio
     ? await getServicioSessionsProgress(tx.servicio.id)
     : null;
+
+  // Bind the formatter once so the JSX below stays readable. The currency
+  // travels through the Server Component as a prop substitute via this
+  // closure — no provider needed because nothing inside is interactive.
+  // Detail pages show exact values (cents matter on per-tx amounts and
+  // plan totals), so we force 2 fraction digits here.
+  const fmt = (n: number) =>
+    formatMoney(n, tenantConfig.currency, { maximumFractionDigits: 2 });
 
   const MethodIcon = METHOD_ICON[tx.method];
   const status: PaymentStatus | null = tx.plan?.status ?? null;
@@ -133,7 +145,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
               Pago registrado
             </p>
             <h1 className="font-heading mt-1 text-2xl font-medium tracking-tight sm:text-3xl">
-              {formatCurrency(tx.amount)}
+              {fmt(tx.amount)}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {formatPaidAt(tx.paidAt)} · {METHOD_LABEL[tx.method]}
@@ -204,7 +216,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
           </header>
 
           <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-            <DetailRow label="Monto pagado" value={formatCurrency(tx.amount)} />
+            <DetailRow label="Monto pagado" value={fmt(tx.amount)} />
             <DetailRow
               label="Fecha de pago"
               value={formatPaidAt(tx.paidAt)}
@@ -331,16 +343,16 @@ export default async function PagoDetailPage({ params }: PageProps) {
           <div className="grid grid-cols-2 gap-2 rounded-xl border border-dashed bg-card/40 px-4 py-3 sm:grid-cols-4">
             <MoneyTile
               label="Total del paquete"
-              value={formatCurrency(tx.plan.totalAmount)}
+              value={fmt(tx.plan.totalAmount)}
             />
             <MoneyTile
               label="Pagado acumulado"
-              value={formatCurrency(tx.plan.paidAmount)}
+              value={fmt(tx.plan.paidAmount)}
               tone="text-[#4F605C]"
             />
             <MoneyTile
               label="Saldo restante"
-              value={formatCurrency(tx.plan.balance)}
+              value={fmt(tx.plan.balance)}
               tone={
                 tx.plan.balance > 0
                   ? "text-[#8C4A30] font-semibold"
@@ -349,7 +361,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
             />
             <MoneyTile
               label="Este pago"
-              value={formatCurrency(tx.amount)}
+              value={fmt(tx.amount)}
               tone="text-foreground font-semibold"
             />
           </div>

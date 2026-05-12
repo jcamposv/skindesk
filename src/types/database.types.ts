@@ -1025,6 +1025,7 @@ export type Database = {
           business_hours_start: string
           cancel_at_period_end: boolean
           created_at: string
+          currency: string
           current_period_end: string | null
           id: string
           name: string
@@ -1042,6 +1043,7 @@ export type Database = {
           business_hours_start?: string
           cancel_at_period_end?: boolean
           created_at?: string
+          currency?: string
           current_period_end?: string | null
           id?: string
           name: string
@@ -1059,6 +1061,7 @@ export type Database = {
           business_hours_start?: string
           cancel_at_period_end?: boolean
           created_at?: string
+          currency?: string
           current_period_end?: string | null
           id?: string
           name?: string

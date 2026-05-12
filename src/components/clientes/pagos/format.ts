@@ -1,18 +1,14 @@
 /**
- * Currency formatter shared between server and client components.
- * Lives outside `payment-summary-row.tsx` (which is `"use client"`) so
- * Server Components can import it without crossing the client boundary.
+ * Pagos-module formatter compatibility shim.
+ *
+ * The canonical helper is `formatMoney(amount, currencyCode)` in
+ * `src/lib/currency.ts`. Server Components call it directly with
+ * `tenantConfig.currency`; Client Components reach it via the
+ * `useMoney()` hook. This file re-exports `formatMoney` as the
+ * historical alias so older imports keep compiling.
+ *
+ * Do NOT add a no-arg variant here — every money render must declare
+ * which currency it speaks. Defaults belong in the provider, not in
+ * the formatter.
  */
-// Currency is tenant-scoped in spirit, but the `tenants` row has no
-// `currency` column yet. Default to ARS to match `es-AR` locale and the
-// AR-pinned timezone in `tenant-config.ts`. Add a tenant-level override
-// when the first international tenant lands.
-const TENANT_CURRENCY = "ARS";
-
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: TENANT_CURRENCY,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export { formatMoney as formatCurrency, formatMoney } from "@/lib/currency";

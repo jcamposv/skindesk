@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createBillingPortalSessionAction } from "@/actions/billing.actions";
 import { SubscriptionToggleDialog } from "@/components/billing/cancel-subscription-dialog";
 import { PortalReturnRefresh } from "@/components/billing/portal-return-refresh";
+import { CurrencySettingsCard } from "@/components/settings/currency-settings-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { PLAN_BY_SLUG } from "@/lib/plans";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import type { Database } from "@/types/database.types";
 
 export const metadata: Metadata = { title: "Ajustes" };
@@ -73,9 +75,18 @@ export default async function SettingsPage() {
     redirect(dashboardForRole("clienta"));
   }
 
+  // `getTenantConfig` is React.cache'd against the layout's call, so
+  // this only costs one round-trip per request.
+  const tenantConfig = await getTenantConfig();
+
   const planConfig = session.tenant?.plan
     ? PLAN_BY_SLUG[session.tenant.plan]
     : null;
+  // Only the tenant-owning profesional (or super_admin) edits financial
+  // settings. Asistente sees the current value but can't change it.
+  const canEditFinancials =
+    (session.profile.role === "profesional" && Boolean(session.tenant)) ||
+    session.profile.role === "super_admin";
   const status = session.tenant?.subscription_status ?? null;
   const cancelAtPeriodEnd = session.tenant?.cancel_at_period_end ?? false;
   const currentPeriodEnd = session.tenant?.current_period_end ?? null;
@@ -126,6 +137,11 @@ export default async function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <CurrencySettingsCard
+        initialCurrency={tenantConfig.currency}
+        canEdit={canEditFinancials}
+      />
 
       {planConfig ? (
         <Card className="max-w-xl">

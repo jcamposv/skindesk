@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { CurrencyProvider } from "@/components/providers/currency-provider";
 import { SubscriptionBanner } from "@/components/subscription-banner";
 import {
   SidebarInset,
@@ -11,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import type { Database } from "@/types/database.types";
 
 type SubStatus = Database["public"]["Enums"]["subscription_status"];
@@ -63,6 +65,12 @@ export default async function StaffLayout({
     }
   }
 
+  // Tenant config is request-cached (React.cache) — reading it here
+  // doesn't double the round-trip with anything pages call later.
+  // CurrencyProvider seeds every client component with the active code,
+  // so Dashboard / Pagos / Cliente detail never depend on Configuración.
+  const tenantConfig = await getTenantConfig();
+
   return (
     <SidebarProvider>
       <AppSidebar initialUser={session.user} role={session.profile.role} />
@@ -80,7 +88,9 @@ export default async function StaffLayout({
           />
           <h1 className="text-sm font-medium text-muted-foreground">SkinDesk</h1>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+        <CurrencyProvider currency={tenantConfig.currency}>
+          <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+        </CurrencyProvider>
       </SidebarInset>
     </SidebarProvider>
   );
