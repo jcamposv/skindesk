@@ -47,6 +47,13 @@ export function mapPgError(
     return "Los datos no pasan las validaciones del servidor.";
   }
 
+  // Exclusion constraint — emitted by the citas overlap guard
+  // (`citas_no_overlap_per_professional`) when two non-cancelled citas
+  // for the same professional would overlap in time.
+  if (code === "23P01") {
+    return "Conflicto de horario: ya hay otra cita en ese rango para ese profesional.";
+  }
+
   // Connection / network.
   if (/network|fetch failed|econnrefused/i.test(msg)) {
     return "Sin conexión con el servidor. Verificá tu red.";

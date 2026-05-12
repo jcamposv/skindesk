@@ -20,6 +20,7 @@ import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatCard, type StatCardProps } from "@/components/shared/stat-card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getTenantConfig } from "@/lib/tenant-config";
 import { getCitasHoyCount, getProximasCitas } from "@/services/citas.service";
 import {
   getActiveClientesCount,
@@ -55,11 +56,44 @@ const DEMO = {
 
 const CLIENT_TONES = ["balsam", "aquatone", "artemis", "dustyRose"] as const;
 
-const TIME_FORMAT = new Intl.DateTimeFormat("es-AR", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "America/Argentina/Buenos_Aires",
-});
+/**
+ * "Próximas citas" timestamp:
+ *   · Today  → "Hoy · 22:59"
+ *   · Tomorrow → "Mañana · 11:00"
+ *   · Otherwise → "vie 15 may · 11:00"
+ * Day comparison happens in the tenant TZ so a 23:00 cita in AR doesn't
+ * read as "tomorrow" just because the request runs through a UTC server.
+ */
+function formatCitaWhen(startAt: string, timezone: string, now: Date): string {
+  const start = new Date(startAt);
+  const timeFmt = new Intl.DateTimeFormat("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: timezone,
+  });
+  const dayKey = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
+
+  const startDay = dayKey(start);
+  const todayDay = dayKey(now);
+  const tomorrowDay = dayKey(new Date(now.getTime() + 86_400_000));
+  const time = timeFmt.format(start);
+
+  if (startDay === todayDay) return `Hoy · ${time}`;
+  if (startDay === tomorrowDay) return `Mañana · ${time}`;
+  const dayFmt = new Intl.DateTimeFormat("es-AR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: timezone,
+  });
+  return `${dayFmt.format(start)} · ${time}`;
+}
 
 export default async function ProfesionalDashboardPage() {
   const session = await getCurrentSession();
@@ -86,6 +120,7 @@ export default async function ProfesionalDashboardPage() {
     newClientes,
     citasHoy,
     proximasCitas,
+    tenantConfig,
   ] = await Promise.all([
     getActiveClientesCount(),
     getMonthlyRevenue(),
@@ -94,7 +129,9 @@ export default async function ProfesionalDashboardPage() {
     getNewClientes(4),
     getCitasHoyCount(),
     getProximasCitas(4),
+    getTenantConfig(),
   ]);
+  const now = new Date();
 
   const stats: StatCardProps[] = [
     {
@@ -168,7 +205,7 @@ export default async function ProfesionalDashboardPage() {
                     avatarTone={CLIENT_TONES[idx % CLIENT_TONES.length]}
                     meta={
                       <span className="rounded-full bg-muted px-2 py-1 font-medium text-foreground/80 tabular-nums">
-                        {TIME_FORMAT.format(new Date(cita.startAt))}
+                        {formatCitaWhen(cita.startAt, tenantConfig.timezone, now)}
                       </span>
                     }
                   />

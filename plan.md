@@ -53,7 +53,11 @@ Deliberadamente diferidos (esperar volumen real):
   fricción.
 
 Next candidates:
-1. Agenda / `citas` module — unlocks 2 dashboard widgets + an own tab.
+1. Agenda / `citas` module — ✅ shipped 2026-05-11 (calendar, sheet form,
+   resource view, cliente-detail integration). Bundle 6 hardening
+   shipped 2026-05-12 (EXCLUSION constraint, status history, cancellation
+   reason, calendar provider abstraction, tenant config, etc — full
+   detail in §M.7).
 2. Inventario module — unlocks 1 widget.
 3. Bundle 5 — servicios atomicity + perf cleanup (RPC for create, list
    projection, pagination, index on `(servicio_id, status)`).
@@ -252,6 +256,51 @@ stays — it's the canonical list of service types for this module.
   `payload`).
 - [ ] L12 · Pagination/lazy-load inside Histórico for >30 services.
 - [ ] L13 · Index `sesiones (servicio_id, status)`.
+
+### §M.7 — Bundle 6: Citas hardening · **active** (post-review 2026-05-11)
+
+All 18 items from the citas review, grouped by execution batch.
+
+**Batch A · DB migration (single file, cohesive)** — done 2026-05-12 · `supabase/migrations/20260512024456_citas_hardening.sql` pushed.
+- [x] **C1 · EXCLUSION constraint** `citas_no_overlap_per_professional` on `(professional_id WITH =, tstzrange(start_at,end_at) WITH &&)` `WHERE professional_id IS NOT NULL AND status NOT IN ('cancelada','ausente')`. `btree_gist` extension enabled.
+- [x] **C2 · New cancellation/confirmation columns**: `cancellation_reason`, `cancelled_by`, `confirmed_at`, `reminder_sent_at`, `rescheduled_from_id`, generated `duration_min`. Check constraint enforces `cancellation_reason IS NOT NULL` when status is `cancelada`.
+- [x] **C3 · Calendar-provider columns**: `external_provider`, `external_event_id`, `external_calendar_id`, `external_sync_status` (check-constrained to `pending|synced|error|disabled`), `external_synced_at`. Unique partial index for webhook upsert.
+- [x] **C4 · Status history** `public.cita_status_history` + AFTER UPDATE trigger `private.citas_log_status_change`. RLS mirrors citas (4 SELECT policies).
+- [x] **C5 · `clienta_self_update` RLS policy** — asymmetric `using` (`status IN ('pendiente','confirmada')`) / `with check` (`status IN ('confirmada','cancelada')`).
+- [x] **C6 · `confirmed_at` AUTO-fill** trigger `private.citas_set_confirmed_at` on INSERT + UPDATE OF status.
+- [x] **C7 · Tightened all four definer functions** — `set search_path = public, auth`.
+- [x] **C8 · Partial index** `citas_tenant_active_start_idx`.
+- [x] **C9 · `tenants` table columns** `timezone`, `business_hours_start`, `business_hours_end` with sensible defaults.
+
+**Batch B · Server actions + services** — done 2026-05-12.
+- [x] **C10 · `mapPgError` handles `23P01`** → "Conflicto de horario: ya hay otra cita…".
+- [x] **C11 · Pre-flight `detectOverlap`** in `createCitaAction` + `updateCitaAction` (excludes the edited row). DB EXCLUSION is the backstop; the action also catches `23P01` from a racing tab and re-surfaces as `errors: { startAt: ['overlap'] }`.
+- [x] **C12 · `AgendaCita` DTO extended** with `cancellationReason`, `confirmedAt`, `reminderSentAt`, `rescheduledFromId`. Mapper + nested-select column lists updated.
+- [x] **C13 · `src/lib/tenant-config.ts`** — `React.cache`-wrapped `getTenantConfig()` returning `{ timezone, businessHoursStart, businessHoursEnd }`. Hardcoded sites in `citas.actions.ts` (`CITA_WHEN_FMT`, `SUGGESTION_BUSINESS_*`, `TENANT_TZ`) and `citas.service.ts` (`todayBoundsIso`) all replaced.
+
+**Batch C · Schemas (zod)** — done.
+- [x] **C14 · `cancellationReason`** added + `superRefine` enforces required-when-cancelled + blank-when-not.
+
+**Batch D · Form / UI** — done.
+- [x] **C15 · `CancellationReasonField`** — separate sub-component watching `status`, only renders when `cancelada`. `aria-invalid` wired.
+- [x] **C16 · `ServicioPickerField`** — new `listServiciosForClienteCitaAction` server action + a sub-component that watches `clienteId`, fetches the clienta's services, renders a native select with "Sin asociar a un servicio" sentinel.
+- [x] **C17 · Arrow-key nav** on status radiogroup — Left/Up = previous, Right/Down = next, wraps at edges. Only the active radio has `tabIndex={0}`.
+- [x] **C18 · Hoisted `CALENDAR_MIN` / `CALENDAR_MAX`** to module scope in `agenda-calendar.tsx`.
+
+**Batch E · Cliente-detail integration** — done.
+- [x] **C19 · `<ClienteCitasWidget>`** — two-column "Próximas / Historial reciente" card between the header and tabs. Backed by `getCitasForCliente(id)` (parallel-batched in the page's `Promise.all`). Empty-state link to the agenda.
+
+**Batch F · Calendar provider abstraction** — done.
+- [x] **C20 · `src/lib/calendar-providers/`** — `CalendarProvider` interface + `LocalCalendarProvider` no-op. `createCitaAction` routes through `Promise.allSettled([sendEmail, syncToExternalCalendar])`; sync result written back to the new `external_*` columns. Provider swap = single function (`getCalendarProvider`) when Google ships.
+
+**Batch G · Algorithm + UX polish** — done.
+- [x] **C21 · Gap-walk `findFreeSlotsLinear`** — sorts events, walks each gap, projects candidates into per-day business windows via `businessHoursWindowFor`. Linear in event count. `Intl`-based offset probe replaces the AR-hardcoded `-03:00`.
+- [x] **C22 · TZ + business-hours rules** documented in `AGENTS.md`.
+
+**Deferred (nice-to-have, after Bundle 6 ships)**
+- [ ] Typeahead/Combobox for the clienta picker (needs a new shared component; defer until tenant has 500+ clientas).
+- [ ] Refactor `useCitaMutations` to a single `mutate(opts)` shape (cosmetic; current 3-handler API is clearer for callers).
+- [ ] Drop `security definer` from the audit trigger entirely (C7 already hardens it; full drop requires passing `created_by` from the action — bigger surgery).
 
 ### Deferred (review §L items 14+)
 Documented; revisit after a real tenant has >20 active clientas with >10

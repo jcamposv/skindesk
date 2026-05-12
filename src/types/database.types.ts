@@ -39,17 +39,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      cita_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          cita_id: string
+          from_status: Database["public"]["Enums"]["cita_status"] | null
+          id: string
+          reason: string | null
+          tenant_id: string
+          to_status: Database["public"]["Enums"]["cita_status"]
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          cita_id: string
+          from_status?: Database["public"]["Enums"]["cita_status"] | null
+          id?: string
+          reason?: string | null
+          tenant_id: string
+          to_status: Database["public"]["Enums"]["cita_status"]
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          cita_id?: string
+          from_status?: Database["public"]["Enums"]["cita_status"] | null
+          id?: string
+          reason?: string | null
+          tenant_id?: string
+          to_status?: Database["public"]["Enums"]["cita_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cita_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cita_status_history_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cita_status_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       citas: {
         Row: {
+          cancellation_reason: string | null
+          cancelled_by: string | null
           cliente_id: string
+          confirmed_at: string | null
           created_at: string
           created_by: string | null
+          duration_min: number | null
           end_at: string
+          external_calendar_id: string | null
+          external_event_id: string | null
+          external_provider: string | null
+          external_sync_status: string
+          external_synced_at: string | null
           id: string
           last_editor_id: string | null
           notes: string | null
           professional_id: string | null
           professional_label: string | null
+          reminder_sent_at: string | null
+          rescheduled_from_id: string | null
           servicio_id: string | null
           start_at: string
           status: Database["public"]["Enums"]["cita_status"]
@@ -59,15 +125,26 @@ export type Database = {
           version: number
         }
         Insert: {
+          cancellation_reason?: string | null
+          cancelled_by?: string | null
           cliente_id: string
+          confirmed_at?: string | null
           created_at?: string
           created_by?: string | null
+          duration_min?: number | null
           end_at: string
+          external_calendar_id?: string | null
+          external_event_id?: string | null
+          external_provider?: string | null
+          external_sync_status?: string
+          external_synced_at?: string | null
           id?: string
           last_editor_id?: string | null
           notes?: string | null
           professional_id?: string | null
           professional_label?: string | null
+          reminder_sent_at?: string | null
+          rescheduled_from_id?: string | null
           servicio_id?: string | null
           start_at: string
           status?: Database["public"]["Enums"]["cita_status"]
@@ -77,15 +154,26 @@ export type Database = {
           version?: number
         }
         Update: {
+          cancellation_reason?: string | null
+          cancelled_by?: string | null
           cliente_id?: string
+          confirmed_at?: string | null
           created_at?: string
           created_by?: string | null
+          duration_min?: number | null
           end_at?: string
+          external_calendar_id?: string | null
+          external_event_id?: string | null
+          external_provider?: string | null
+          external_sync_status?: string
+          external_synced_at?: string | null
           id?: string
           last_editor_id?: string | null
           notes?: string | null
           professional_id?: string | null
           professional_label?: string | null
+          reminder_sent_at?: string | null
+          rescheduled_from_id?: string | null
           servicio_id?: string | null
           start_at?: string
           status?: Database["public"]["Enums"]["cita_status"]
@@ -95,6 +183,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "citas_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "citas_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -121,6 +216,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_rescheduled_from_id_fkey"
+            columns: ["rescheduled_from_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
             referencedColumns: ["id"]
           },
           {
@@ -836,6 +938,8 @@ export type Database = {
       }
       tenants: {
         Row: {
+          business_hours_end: string
+          business_hours_start: string
           cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
@@ -847,9 +951,12 @@ export type Database = {
           subscription_status:
             | Database["public"]["Enums"]["subscription_status"]
             | null
+          timezone: string
           updated_at: string
         }
         Insert: {
+          business_hours_end?: string
+          business_hours_start?: string
           cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
@@ -861,9 +968,12 @@ export type Database = {
           subscription_status?:
             | Database["public"]["Enums"]["subscription_status"]
             | null
+          timezone?: string
           updated_at?: string
         }
         Update: {
+          business_hours_end?: string
+          business_hours_start?: string
           cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
@@ -875,6 +985,7 @@ export type Database = {
           subscription_status?:
             | Database["public"]["Enums"]["subscription_status"]
             | null
+          timezone?: string
           updated_at?: string
         }
         Relationships: []

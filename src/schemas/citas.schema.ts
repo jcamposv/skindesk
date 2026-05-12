@@ -27,15 +27,36 @@ export const citaCreateSchema = z
     endAt: z.string().min(1, "Fin requerido"),
     status: citaStatusEnum.default("pendiente"),
     notes: z.string().max(5000).default(""),
+    /** Required when `status === 'cancelada'`; blank otherwise. The DB
+     *  has a matching check constraint so a forged client can't bypass
+     *  this even via direct PostgREST. */
+    cancellationReason: z.string().max(500).default(""),
   })
   .strict()
-  .refine(
-    (v) => new Date(v.endAt).getTime() > new Date(v.startAt).getTime(),
-    {
-      message: "La hora de fin debe ser posterior al inicio",
-      path: ["endAt"],
-    },
-  );
+  .superRefine((v, ctx) => {
+    if (new Date(v.endAt).getTime() <= new Date(v.startAt).getTime()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endAt"],
+        message: "La hora de fin debe ser posterior al inicio",
+      });
+    }
+    if (v.status === "cancelada" && !v.cancellationReason.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cancellationReason"],
+        message: "Indicá el motivo de la cancelación",
+      });
+    }
+    if (v.status !== "cancelada" && v.cancellationReason.trim().length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cancellationReason"],
+        message:
+          "El motivo de cancelación solo aplica cuando el estado es 'Cancelada'",
+      });
+    }
+  });
 
 export type CitaCreateInput = z.infer<typeof citaCreateSchema>;
 

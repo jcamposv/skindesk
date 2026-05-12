@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
+import { ClienteCitasWidget } from "@/components/citas/cliente-citas-widget";
 import { ClienteDetailHeader } from "@/components/clientes/cliente-detail-header";
 import { ClienteDetailTabs } from "@/components/clientes/cliente-detail-tabs";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/components/clientes/cliente-detail-tabs-config";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getCitasForCliente } from "@/services/citas.service";
 import { getClienteById } from "@/services/clientes.service";
 import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
 import { getPaymentPlansForCliente } from "@/services/pagos.service";
@@ -63,13 +65,14 @@ export default async function ClienteDetailPage({
   // Both queries are independent — `getEvaluacionForCliente` only needs
   // the URL id (which equals cliente.id when the cliente exists; RLS will
   // return null otherwise). Promise.all saves ~50ms vs awaiting in series.
-  const [cliente, evaluacion, servicios, staff, paymentPlans] =
+  const [cliente, evaluacion, servicios, staff, paymentPlans, citas] =
     await Promise.all([
       getClienteById(id),
       getEvaluacionForCliente(id),
       getServiciosForCliente(id),
       getStaffForTenant(session.profile.tenant_id ?? ""),
       getPaymentPlansForCliente(id),
+      getCitasForCliente(id),
     ]);
   if (!cliente) notFound();
 
@@ -83,6 +86,10 @@ export default async function ClienteDetailPage({
           id: session.profile.id,
           full_name: session.profile.full_name ?? "",
         }}
+      />
+      <ClienteCitasWidget
+        upcoming={citas.upcoming}
+        recent={citas.recent}
       />
       <ClienteDetailTabs
         cliente={cliente}

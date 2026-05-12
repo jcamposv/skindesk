@@ -93,6 +93,12 @@ const STATUS_LABEL: Record<AgendaCita["status"], string> = {
 
 const UNASSIGNED_RESOURCE_ID = "_unassigned";
 
+// Calendar viewport bounds — hoisted to module scope so we don't create
+// fresh Date objects on every render (rbc uses these in its own useMemo
+// deps; new identities would invalidate downstream memoisation).
+const CALENDAR_MIN = new Date(0, 0, 0, 7, 0);
+const CALENDAR_MAX = new Date(0, 0, 0, 22, 0);
+
 /** Shape react-big-calendar consumes — start/end as `Date` objects. */
 interface CalendarEvent {
   id: string;
@@ -287,8 +293,8 @@ export function AgendaCalendar({
           onSelectEvent={handleSelectEvent}
           step={30}
           timeslots={2}
-          min={new Date(0, 0, 0, 7, 0)}
-          max={new Date(0, 0, 0, 22, 0)}
+          min={CALENDAR_MIN}
+          max={CALENDAR_MAX}
           eventPropGetter={eventPropGetter}
           components={calendarComponents}
           resources={byResource ? resources : undefined}

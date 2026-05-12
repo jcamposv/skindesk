@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { CheckCircle2Icon, Trash2Icon } from "lucide-react";
@@ -23,7 +23,11 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-import type { SlotSuggestion } from "@/actions/citas.actions";
+import {
+  listServiciosForClienteCitaAction,
+  type CitaServicioOption,
+  type SlotSuggestion,
+} from "@/actions/citas.actions";
 
 import { SlotAvailability } from "./slot-availability";
 
@@ -147,6 +151,7 @@ function CitaDialogBody({
       endAt: initialCita?.endAt ?? createDefaults?.endAt ?? "",
       status: (initialCita?.status ?? "pendiente") as CitaStatus,
       notes: initialCita?.notes ?? "",
+      cancellationReason: initialCita?.cancellationReason ?? "",
     },
   });
 
@@ -263,6 +268,28 @@ function CitaDialogBody({
                   role="radiogroup"
                   aria-label="Estado de la cita"
                   className="flex flex-wrap gap-1.5"
+                  onKeyDown={(e) => {
+                    // Arrow-key navigation between status pills (WCAG
+                    // radiogroup pattern). Left/Up → previous, Right/Down
+                    // → next; wraps at the edges.
+                    if (
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight" &&
+                      e.key !== "ArrowUp" &&
+                      e.key !== "ArrowDown"
+                    )
+                      return;
+                    e.preventDefault();
+                    const idx = STATUS_OPTIONS.findIndex(
+                      (o) => o.value === field.value,
+                    );
+                    const dir =
+                      e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 1;
+                    const next =
+                      (idx + dir + STATUS_OPTIONS.length) %
+                      STATUS_OPTIONS.length;
+                    field.onChange(STATUS_OPTIONS[next].value);
+                  }}
                 >
                   {STATUS_OPTIONS.map((s) => {
                     const isActive = field.value === s.value;
@@ -272,6 +299,9 @@ function CitaDialogBody({
                         type="button"
                         role="radio"
                         aria-checked={isActive}
+                        // Only the active radio is in the tab order — Tab
+                        // moves into the group once, arrows move between.
+                        tabIndex={isActive ? 0 : -1}
                         onClick={() => field.onChange(s.value)}
                         className={cn(
                           "min-h-9 rounded-md border px-3 py-1.5 text-[12px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/40",
@@ -289,6 +319,14 @@ function CitaDialogBody({
               </FormItem>
             )}
           />
+
+          {/* C16 · Optional service link. Watches `clienteId`, fetches her
+              services on change. Empty when no clienta is picked yet. */}
+          <ServicioPickerField form={form} />
+
+          {/* C15 · cancellation_reason — only visible when status is cancelada.
+              The zod superRefine enforces required-when + blank-when-not. */}
+          <CancellationReasonField form={form} />
 
           <FormField
             control={form.control}
@@ -366,6 +404,132 @@ function CitaDialogBody({
         </footer>
       </form>
     </Form>
+  );
+}
+
+// ─── Service picker (optional link) ────────────────────────────────────────
+
+/** Optional servicio link for the cita. Watches `clienteId` — when it
+ *  changes, refetches the clienta's services. Hidden when no clienta is
+ *  selected (the picker would be empty anyway). The cita stays valid
+ *  with `servicioId = null` for one-off consultas. */
+function ServicioPickerField({
+  form,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: ReturnType<typeof useForm<any>>;
+}) {
+  const clienteId = useWatch({ control: form.control, name: "clienteId" }) as
+    | string
+    | undefined;
+  const [options, setOptions] = useState<CitaServicioOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!clienteId) {
+      setOptions([]);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      const res = await listServiciosForClienteCitaAction(clienteId);
+      if (cancelled) return;
+      setLoading(false);
+      if (res.success && res.data) setOptions(res.data);
+      else setOptions([]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [clienteId]);
+
+  if (!clienteId) return null;
+
+  return (
+    <FormField
+      control={form.control}
+      name="servicioId"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel
+            htmlFor="cita-servicio"
+            className="text-[11px] font-medium text-muted-foreground"
+          >
+            Servicio (opcional)
+          </FormLabel>
+          <select
+            id="cita-servicio"
+            value={(field.value as string | null) ?? ""}
+            onChange={(e) =>
+              field.onChange(e.target.value === "" ? null : e.target.value)
+            }
+            disabled={loading}
+            className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <option value="">
+              {loading
+                ? "Cargando servicios…"
+                : options.length === 0
+                  ? "Sin servicios para esta clienta"
+                  : "Sin asociar a un servicio"}
+            </option>
+            {options.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+                {s.status === "completed" || s.status === "cancelled"
+                  ? ` · ${s.status}`
+                  : ""}
+              </option>
+            ))}
+          </select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+// ─── Cancellation reason (conditional field) ───────────────────────────────
+
+/** Renders the cancellation reason textarea only when status is
+ *  `cancelada`. Watched separately so the rest of the form doesn't
+ *  re-render on every keystroke of the reason. */
+function CancellationReasonField({
+  form,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: ReturnType<typeof useForm<any>>;
+}) {
+  const status = useWatch({ control: form.control, name: "status" }) as
+    | CitaStatus
+    | undefined;
+  if (status !== "cancelada") return null;
+  return (
+    <FormField
+      control={form.control}
+      name="cancellationReason"
+      render={({ field, fieldState }) => (
+        <FormItem>
+          <FormLabel
+            htmlFor="cita-cancel-reason"
+            className="text-[11px] font-medium text-muted-foreground"
+          >
+            Motivo de cancelación
+          </FormLabel>
+          <textarea
+            id="cita-cancel-reason"
+            rows={2}
+            value={(field.value as string) ?? ""}
+            onChange={(e) => field.onChange(e.target.value)}
+            aria-invalid={fieldState.invalid || undefined}
+            placeholder="Ej. La clienta avisó por WhatsApp que no podía venir."
+            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          />
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 
