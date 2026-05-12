@@ -104,6 +104,40 @@ export async function listClientes(
  * The id alone is the cache key — the supabase client is created internally
  * so it doesn't fragment the cache.
  */
+/** Lightweight `{ id, fullName }` list of every clienta in the tenant —
+ *  used by pickers (agenda dialog, future quick-actions). RLS handles
+ *  tenant scoping. Capped at 500 to keep the payload small; combobox
+ *  with search is the next step at higher volumes. */
+export interface ClientePickerItem {
+  id: string;
+  fullName: string;
+}
+
+export const getClientesForPicker = cache(
+  async (): Promise<ClientePickerItem[]> => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("id, profile:profiles!inner(full_name)")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) {
+      console.warn("[clientes] getClientesForPicker:", error.message);
+      return [];
+    }
+    return (data ?? []).map((row) => {
+      const prof = row.profile as
+        | { full_name: string | null }
+        | { full_name: string | null }[]
+        | null;
+      const fullName = Array.isArray(prof)
+        ? prof[0]?.full_name
+        : prof?.full_name;
+      return { id: row.id, fullName: fullName ?? "Clienta" };
+    });
+  },
+);
+
 export const getClienteById = cache(
   async (id: string): Promise<ClienteDetail | null> => {
     const supabase = await createClient();

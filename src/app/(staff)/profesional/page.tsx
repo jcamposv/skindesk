@@ -20,6 +20,7 @@ import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatCard, type StatCardProps } from "@/components/shared/stat-card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
+import { getCitasHoyCount, getProximasCitas } from "@/services/citas.service";
 import {
   getActiveClientesCount,
   getMonthlyRevenue,
@@ -40,42 +41,10 @@ const USD_FORMAT = new Intl.NumberFormat("en-US", {
 
 // Widgets that still use seed data — keep until their backing tables ship.
 // Each one is tagged so it's obvious during reviews and easy to grep.
-//   citasHoy / próximas citas → needs `citas` table (agenda module)
-//   productosBajos            → needs `inventory` table
-//   tareas                    → needs `tasks` table
+//   productosBajos → needs `inventory` table
+//   tareas         → needs `tasks` table
 const DEMO = {
-  citasHoy: 8,
   productosBajos: 7,
-  upcoming: [
-    {
-      id: "1",
-      name: "María Gómez",
-      service: "Limpieza Facial Profunda",
-      time: "09:00",
-      tone: "balsam" as const,
-    },
-    {
-      id: "2",
-      name: "Sofía Hernández",
-      service: "Hidratación con Dermapen",
-      time: "11:30",
-      tone: "aquatone" as const,
-    },
-    {
-      id: "3",
-      name: "Paula Torres",
-      service: "Radiofrecuencia Facial",
-      time: "01:00 PM",
-      tone: "artemis" as const,
-    },
-    {
-      id: "4",
-      name: "Daniela Ruiz",
-      service: "Peeling Químico",
-      time: "03:30 PM",
-      tone: "dustyRose" as const,
-    },
-  ],
   tasks: [
     { id: "1", label: "Confirmar citas de mañana" },
     { id: "2", label: "Reponer ampollas vitamina C" },
@@ -85,6 +54,12 @@ const DEMO = {
 } as const;
 
 const CLIENT_TONES = ["balsam", "aquatone", "artemis", "dustyRose"] as const;
+
+const TIME_FORMAT = new Intl.DateTimeFormat("es-AR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "America/Argentina/Buenos_Aires",
+});
 
 export default async function ProfesionalDashboardPage() {
   const session = await getCurrentSession();
@@ -102,29 +77,32 @@ export default async function ProfesionalDashboardPage() {
     session.user.email?.split("@")[0] ??
     "ahí";
 
-  // All five aggregators run in parallel — RLS-scoped to this tenant.
+  // All aggregators run in parallel — RLS-scoped to this tenant.
   const [
     activeClientes,
     monthlyRevenue,
     revenueByMonth,
     topTreatments,
     newClientes,
+    citasHoy,
+    proximasCitas,
   ] = await Promise.all([
     getActiveClientesCount(),
     getMonthlyRevenue(),
     getRevenueByMonth(6),
     getTopTreatments(4),
     getNewClientes(4),
+    getCitasHoyCount(),
+    getProximasCitas(4),
   ]);
 
   const stats: StatCardProps[] = [
     {
-      // DEMO — waiting on agenda module.
       label: "Citas Hoy",
-      value: NUMBER_FORMAT.format(DEMO.citasHoy),
+      value: NUMBER_FORMAT.format(citasHoy),
       icon: CalendarIcon,
       tone: "balsam",
-      link: { href: "/profesional/agenda", label: "Ver calendario" },
+      link: { href: ROUTES.agenda, label: "Ver calendario" },
     },
     {
       label: "Clientes Activos",
@@ -152,6 +130,7 @@ export default async function ProfesionalDashboardPage() {
 
   const hasTreatments = topTreatments.slices.length > 0;
   const hasNewClientes = newClientes.length > 0;
+  const hasProximasCitas = proximasCitas.length > 0;
 
   return (
     <div className="grid gap-8">
@@ -177,25 +156,28 @@ export default async function ProfesionalDashboardPage() {
 
         <DashboardSection
           title="Próximas citas"
-          action={<DemoBadge href="/profesional/agenda" />}
+          action={<SectionLink href={ROUTES.agenda} label="Ver agenda" />}
         >
-          {/* DEMO — replace with real `citas` query when agenda lands. */}
-          <ul className="flex flex-col gap-4">
-            {DEMO.upcoming.map((appt) => (
-              <li key={appt.id}>
-                <PersonRow
-                  name={appt.name}
-                  detail={appt.service}
-                  avatarTone={appt.tone}
-                  meta={
-                    <span className="rounded-full bg-muted px-2 py-1 font-medium text-foreground/80 tabular-nums">
-                      {appt.time}
-                    </span>
-                  }
-                />
-              </li>
-            ))}
-          </ul>
+          {hasProximasCitas ? (
+            <ul className="flex flex-col gap-4">
+              {proximasCitas.map((cita, idx) => (
+                <li key={cita.id}>
+                  <PersonRow
+                    name={cita.clienteName}
+                    detail={cita.servicioName ?? cita.title}
+                    avatarTone={CLIENT_TONES[idx % CLIENT_TONES.length]}
+                    meta={
+                      <span className="rounded-full bg-muted px-2 py-1 font-medium text-foreground/80 tabular-nums">
+                        {TIME_FORMAT.format(new Date(cita.startAt))}
+                      </span>
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyHint copy="No hay citas próximas. Agendá una desde el calendario." />
+          )}
         </DashboardSection>
 
         <DashboardSection title="Tratamientos más populares">

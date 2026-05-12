@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/numeric-input";
 import { cn } from "@/lib/utils";
 
 import {
@@ -169,14 +170,11 @@ function RegisterPaymentBody({
                 <FormLabel className="text-[11px] font-medium text-muted-foreground">
                   Monto cobrado
                 </FormLabel>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min={0}
-                  value={(field.value as number) ?? 0}
-                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                <CurrencyInput
+                  value={(field.value as number) ?? null}
+                  onChange={(n) => field.onChange(n ?? 0)}
+                  placeholder="$ 0,00"
                   className="h-10"
-                  placeholder="0.00"
                 />
                 <FormMessage />
               </FormItem>

@@ -75,7 +75,15 @@ export default async function ClienteDetailPage({
 
   return (
     <div className="grid min-w-0 gap-4">
-      <ClienteDetailHeader cliente={cliente} evaluacion={evaluacion} />
+      <ClienteDetailHeader
+        cliente={cliente}
+        evaluacion={evaluacion}
+        staff={staff}
+        currentProfesional={{
+          id: session.profile.id,
+          full_name: session.profile.full_name ?? "",
+        }}
+      />
       <ClienteDetailTabs
         cliente={cliente}
         evaluacion={evaluacion}

@@ -9,6 +9,7 @@ import {
 
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { NumericInput } from "@/components/ui/numeric-input";
 import { cn } from "@/lib/utils";
 
 import { LASER_EQUIPMENT } from "../catalog";
@@ -259,13 +260,12 @@ export function Step3Laser({
                   <FormLabel className="text-[11px] font-medium text-muted-foreground">
                     Duración (min)
                   </FormLabel>
-                  <Input
-                    type="number"
-                    value={(field.value as number) ?? 0}
-                    onChange={(e) =>
-                      field.onChange(Math.max(0, Number(e.target.value) || 0))
-                    }
-                    className="h-9"
+                  <NumericInput
+                    value={(field.value as number) ?? null}
+                    onChange={(n) => field.onChange(n ?? 0)}
+                    min={0}
+                    max={600}
+                    placeholder="60"
                   />
                   <FormMessage />
                 </FormItem>

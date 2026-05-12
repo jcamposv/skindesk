@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarIcon,
   LayoutDashboardIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -44,11 +45,13 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
   ],
   profesional: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Agenda", href: ROUTES.agenda, icon: CalendarIcon },
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
   asistente: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
+    { title: "Agenda", href: ROUTES.agenda, icon: CalendarIcon },
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
@@ -63,6 +66,17 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
 export function AppSidebar({ initialUser, role, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   const nav = NAV_BY_ROLE[role];
+
+  // Pick the single nav item whose href is the longest prefix match for
+  // the current pathname. Without this, `/profesional/agenda` would mark
+  // both "Dashboard" (`/profesional`) and "Agenda" active, because the
+  // dashboard href is a prefix of every nested staff route.
+  const activeHref = nav
+    .filter(
+      (item) =>
+        pathname === item.href || pathname.startsWith(`${item.href}/`),
+    )
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -86,9 +100,7 @@ export function AppSidebar({ initialUser, role, ...props }: AppSidebarProps) {
             <SidebarMenu>
               {nav.map((item) => {
                 const Icon = item.icon;
-                const active =
-                  pathname === item.href ||
-                  pathname.startsWith(`${item.href}/`);
+                const active = item.href === activeHref;
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton

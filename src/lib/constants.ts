@@ -21,6 +21,8 @@ export const ROUTES = {
   settings: "/settings",
   /** Clientes module — list / detail / create. profesional + asistente. */
   clientes: "/clientes",
+  /** Agenda (citas calendar) — profesional + asistente. */
+  agenda: "/profesional/agenda",
 } as const;
 
 export const PUBLIC_ROUTES: readonly string[] = [

@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput, NumericInput } from "@/components/ui/numeric-input";
 import { cn } from "@/lib/utils";
 import type { StaffMember } from "@/services/staff.service";
 
@@ -123,15 +124,12 @@ export function Step3Global({ staff }: Step3GlobalProps) {
               <FormLabel className="text-[11px] font-medium text-muted-foreground">
                 Total de sesiones
               </FormLabel>
-              <Input
-                type="number"
+              <NumericInput
+                value={(field.value as number) ?? null}
+                onChange={(n) => field.onChange(n ?? 1)}
                 min={1}
                 max={50}
-                value={(field.value as number) ?? 1}
-                onChange={(e) =>
-                  field.onChange(Math.max(1, Number(e.target.value) || 1))
-                }
-                className="h-9"
+                placeholder="6"
               />
               <FormMessage />
             </FormItem>
@@ -146,14 +144,10 @@ export function Step3Global({ staff }: Step3GlobalProps) {
               <FormLabel className="text-[11px] font-medium text-muted-foreground">
                 Monto del paquete (USD)
               </FormLabel>
-              <Input
-                type="number"
-                min={0}
-                value={(field.value as number) ?? 0}
-                onChange={(e) =>
-                  field.onChange(Math.max(0, Number(e.target.value) || 0))
-                }
-                className="h-9"
+              <CurrencyInput
+                value={(field.value as number) ?? null}
+                onChange={(n) => field.onChange(n ?? 0)}
+                placeholder="$ 0"
               />
               <FormMessage />
             </FormItem>

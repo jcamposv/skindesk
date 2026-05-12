@@ -1,0 +1,204 @@
+/* Tone overrides for react-big-calendar to match the SkinDesk palette.
+ * Aim: modern, Google Calendar-clean — thin hairlines, no heavy shadows,
+ * minimal chrome. The shell wrapper handles outer card styling. */
+
+.rbc-shell {
+  --rbc-border: var(--border);
+  --rbc-hairline: hsl(var(--border) / 0.45);
+  --rbc-hairline-strong: hsl(var(--border) / 0.7);
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────────── */
+
+.rbc-shell .rbc-toolbar {
+  margin: 0 0 0.5rem;
+  padding: 0 0.25rem 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--rbc-hairline);
+}
+
+.rbc-shell .rbc-toolbar button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.4rem;
+  transition: background-color 120ms, color 120ms;
+  box-shadow: none;
+}
+.rbc-shell .rbc-toolbar button:hover {
+  background: hsl(var(--muted) / 0.65);
+  color: hsl(var(--foreground));
+}
+.rbc-shell .rbc-toolbar button.rbc-active,
+.rbc-shell .rbc-toolbar button:active {
+  background: #f6e0d6;
+  color: #8c4a30;
+  border-color: transparent;
+  box-shadow: none;
+}
+.rbc-shell .rbc-toolbar button:focus-visible {
+  outline: 2px solid #bb7154;
+  outline-offset: 1px;
+}
+
+.rbc-shell .rbc-toolbar-label {
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground) / 0.85);
+}
+
+/* ── Headers ───────────────────────────────────────────────────────────── */
+
+.rbc-shell .rbc-header {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rbc-hairline);
+  border-left: none;
+  background: transparent;
+}
+.rbc-shell .rbc-time-header,
+.rbc-shell .rbc-time-header-content {
+  border-color: var(--rbc-hairline);
+}
+.rbc-shell .rbc-time-header.rbc-overflowing {
+  border-right-color: transparent;
+}
+
+/* Gutter (left time column) */
+.rbc-shell .rbc-time-gutter,
+.rbc-shell .rbc-time-gutter .rbc-timeslot-group {
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+  font-weight: 500;
+  border-color: var(--rbc-hairline);
+}
+.rbc-shell .rbc-time-gutter .rbc-time-slot {
+  border-top: none;
+}
+
+/* ── Grid (week / day) ─────────────────────────────────────────────────── */
+
+.rbc-shell .rbc-time-view,
+.rbc-shell .rbc-time-content,
+.rbc-shell .rbc-month-view {
+  border-color: var(--rbc-hairline);
+  background: transparent;
+}
+.rbc-shell .rbc-time-content {
+  border-top: 1px solid var(--rbc-hairline);
+}
+.rbc-shell .rbc-time-content > * + * > * {
+  border-left-color: var(--rbc-hairline);
+}
+
+.rbc-shell .rbc-day-bg,
+.rbc-shell .rbc-month-row,
+.rbc-shell .rbc-date-cell {
+  border-color: var(--rbc-hairline);
+}
+.rbc-shell .rbc-month-row + .rbc-month-row {
+  border-top-color: var(--rbc-hairline);
+}
+
+/* Timeslot grid — full hour line solid, half-hour ghost.
+ * Mirrors Google Calendar's quiet half-hour separator. */
+.rbc-shell .rbc-timeslot-group {
+  border-bottom: 1px solid var(--rbc-hairline);
+  min-height: 48px;
+}
+.rbc-shell .rbc-time-slot {
+  border-top: 1px dashed transparent;
+}
+.rbc-shell .rbc-time-slot + .rbc-time-slot {
+  border-top-color: hsl(var(--border) / 0.25);
+}
+
+.rbc-shell .rbc-today {
+  background: #fbefe7;
+}
+.rbc-shell .rbc-off-range-bg {
+  background: hsl(var(--muted) / 0.35);
+}
+
+/* ── Events ────────────────────────────────────────────────────────────── */
+
+.rbc-shell .rbc-event {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  /* Clip our custom card content on short slots — without this the rbc
+   * wrapper lets children paint past the row boundary. */
+  overflow: hidden;
+}
+.rbc-shell .rbc-event:focus {
+  outline: 2px solid #bb7154;
+  outline-offset: 1px;
+}
+/* The library renders a time label ("19:59 – 20:59") above our custom
+ * card by default. We already show pill + clienta name in the card, so
+ * the label is redundant chrome that steals ~16px from short slots. */
+.rbc-shell .rbc-event-label {
+  display: none;
+}
+/* `.rbc-event-content` is the wrapper rbc puts around our custom component
+ * — make sure it also clips. */
+.rbc-shell .rbc-event-content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rbc-shell .rbc-current-time-indicator {
+  background-color: #bb7154;
+  height: 2px;
+}
+
+/* Agenda view tweaks */
+.rbc-shell .rbc-agenda-view table.rbc-agenda-table {
+  font-size: 12.5px;
+  border-color: var(--rbc-hairline);
+}
+.rbc-shell .rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  border-bottom-color: var(--rbc-hairline);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.rbc-shell .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+  border-color: var(--rbc-hairline);
+}
+
+/* ── Resource view ("Ver por profesionales") ───────────────────────────── */
+
+.rbc-shell-resources .rbc-time-header-content .rbc-row.rbc-row-resource {
+  min-height: 56px;
+  border-bottom-color: var(--rbc-hairline);
+  background: transparent;
+}
+.rbc-shell-resources .rbc-header {
+  padding: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+.rbc-shell-resources .rbc-time-content > * + * > * {
+  border-left-color: var(--rbc-hairline-strong);
+}
+
+/* ── A11y ──────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .rbc-shell .rbc-toolbar button {
+    transition: none;
+  }
+}

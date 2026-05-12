@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeftIcon,
   CalendarIcon,
-  CalendarPlusIcon,
   CheckIcon,
   ClipboardCheckIcon,
   MailIcon,
@@ -16,19 +15,22 @@ import {
   SparklesIcon,
   type LucideIcon,
 } from "lucide-react";
-import { toast } from "sonner";
 
+import { NuevaCitaButton } from "@/components/citas/nueva-cita-button";
 import { ClienteStatusBadge } from "@/components/clientes/cliente-status-badge";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ClienteDetail } from "@/services/clientes.service";
+import type { StaffMember } from "@/services/staff.service";
 import type { Evaluacion } from "@/types/evaluacion";
 
 interface ClienteDetailHeaderProps {
   cliente: ClienteDetail;
   evaluacion: Evaluacion | null;
+  staff: StaffMember[];
+  currentProfesional: { id: string; full_name: string };
 }
 
 const BIRTH_FMT = new Intl.DateTimeFormat("es-AR", {
@@ -58,6 +60,8 @@ function formatBirth(birthDate: string | null): string | null {
 export function ClienteDetailHeader({
   cliente,
   evaluacion,
+  staff,
+  currentProfesional,
 }: ClienteDetailHeaderProps) {
   const name = cliente.profile.full_name ?? "Sin nombre";
   const age = ageFromBirth(cliente.birth_date);
@@ -135,20 +139,14 @@ export function ClienteDetailHeader({
 
         {/* Primary CTA */}
         <div className="flex justify-end lg:self-center">
-          <Button
-            type="button"
-            size="default"
-            onClick={() =>
-              toast.message("Próximamente", {
-                description:
-                  "El módulo de agenda llega en la próxima iteración.",
-              })
-            }
-            className="gap-1.5 bg-[#BB7154] text-white shadow-sm hover:bg-[#A56146] focus-visible:ring-[#BB7154]/40"
-          >
-            <CalendarPlusIcon className="size-4" />
-            Nueva cita
-          </Button>
+          <NuevaCitaButton
+            cliente={{
+              id: cliente.id,
+              fullName: cliente.profile.full_name ?? "Clienta",
+            }}
+            staff={staff}
+            currentProfesional={currentProfesional}
+          />
         </div>
       </div>
     </header>

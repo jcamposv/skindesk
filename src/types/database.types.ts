@@ -39,6 +39,106 @@ export type Database = {
   }
   public: {
     Tables: {
+      citas: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          end_at: string
+          id: string
+          last_editor_id: string | null
+          notes: string | null
+          professional_id: string | null
+          professional_label: string | null
+          servicio_id: string | null
+          start_at: string
+          status: Database["public"]["Enums"]["cita_status"]
+          tenant_id: string
+          title: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          end_at: string
+          id?: string
+          last_editor_id?: string | null
+          notes?: string | null
+          professional_id?: string | null
+          professional_label?: string | null
+          servicio_id?: string | null
+          start_at: string
+          status?: Database["public"]["Enums"]["cita_status"]
+          tenant_id: string
+          title?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          end_at?: string
+          id?: string
+          last_editor_id?: string | null
+          notes?: string | null
+          professional_id?: string | null
+          professional_label?: string | null
+          servicio_id?: string | null
+          start_at?: string
+          status?: Database["public"]["Enums"]["cita_status"]
+          tenant_id?: string
+          title?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_last_editor_id_fkey"
+            columns: ["last_editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_servicio_id_fkey"
+            columns: ["servicio_id"]
+            isOneToOne: false
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           address: string | null
@@ -803,6 +903,12 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
+      cita_status:
+        | "pendiente"
+        | "confirmada"
+        | "completada"
+        | "cancelada"
+        | "ausente"
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       evaluacion_status: "borrador" | "completada"
       frequency_key: "semanal" | "quincenal" | "mensual" | "personalizada"
@@ -1401,6 +1507,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
+      cita_status: [
+        "pendiente",
+        "confirmada",
+        "completada",
+        "cancelada",
+        "ausente",
+      ],
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       evaluacion_status: ["borrador", "completada"],
       frequency_key: ["semanal", "quincenal", "mensual", "personalizada"],
