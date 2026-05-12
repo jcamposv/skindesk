@@ -2,11 +2,23 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { InfoIcon } from "lucide-react";
 
+import { CurrencyToggle } from "@/components/marketing/currency-toggle";
+import { PeriodToggle } from "@/components/marketing/period-toggle";
 import { PlanCard } from "@/components/marketing/plan-card";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { PLANS } from "@/lib/plans";
+import {
+  commonCurrencies,
+  getPlanPricing,
+  pricingSupportsAnnual,
+  resolvePrice,
+} from "@/lib/pricing";
+import {
+  getPreferredBillingPeriod,
+  getPreferredPricingCurrency,
+} from "@/lib/pricing-currency";
 import { getCurrentSession } from "@/lib/supabase/server";
 
 interface PageProps {
@@ -21,11 +33,43 @@ export default async function HomePage({ searchParams }: PageProps) {
   const { canceled } = await searchParams;
   const showCanceledNotice = canceled === "1";
 
+  // Pricing is the slow path here (Stripe API call on cache miss).
+  // Everything else is in-memory or cookie reads, so awaiting it first
+  // doesn't block anything we can parallelise.
+  const pricing = await getPlanPricing();
+  const supportsAnnual = pricingSupportsAnnual(pricing);
+  const period = await getPreferredBillingPeriod(supportsAnnual);
+  const availableCurrencies = commonCurrencies(pricing, period);
+  const currency = await getPreferredPricingCurrency(availableCurrencies);
+
+  // Build the savings label for the annual toggle (computed from the
+  // highlighted plan so the number is meaningful, not averaged). When
+  // either price is missing or annual isn't even offered, no label.
+  const annualHint = supportsAnnual ? buildSavingsHint() : undefined;
+
+  function buildSavingsHint(): string | undefined {
+    const highlight = PLANS.find((p) => p.highlight) ?? PLANS[0];
+    const monthly = resolvePrice(pricing, highlight.slug, "month", currency);
+    const annual = resolvePrice(pricing, highlight.slug, "year", currency);
+    if (!monthly || !annual) return undefined;
+    const monthlyCost12 = monthly.unitAmount * 12;
+    if (monthlyCost12 <= 0) return undefined;
+    const savingsPct = Math.round(
+      ((monthlyCost12 - annual.unitAmount) / monthlyCost12) * 100,
+    );
+    if (savingsPct <= 0) return undefined;
+    return `−${savingsPct}%`;
+  }
+
   return (
     <main className="flex min-h-svh flex-col">
       <header className="flex items-center justify-between px-6 py-4 md:px-10">
         <Logo size="md" />
         <div className="flex items-center gap-2">
+          <CurrencyToggle
+            currentCurrency={currency}
+            available={availableCurrencies}
+          />
           <Button
             variant="ghost"
             render={<Link href={ROUTES.login} />}
@@ -61,7 +105,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       ) : null}
 
-      <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-12 px-6 pt-10 pb-20 md:pt-20">
+      <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-10 px-6 pt-10 pb-20 md:pt-20">
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent-foreground ring-1 ring-accent/30">
             Software para cosmetología y estética
@@ -76,10 +120,26 @@ export default async function HomePage({ searchParams }: PageProps) {
           </p>
         </div>
 
+        {supportsAnnual ? (
+          <PeriodToggle current={period} annualHint={annualHint} />
+        ) : null}
+
         <div className="grid w-full gap-6 md:grid-cols-3">
-          {PLANS.map((plan) => (
-            <PlanCard key={plan.slug} plan={plan} />
-          ))}
+          {PLANS.map((plan) => {
+            const resolved = resolvePrice(pricing, plan.slug, period, currency);
+            if (!resolved) return null;
+            return (
+              <PlanCard
+                key={plan.slug}
+                plan={plan}
+                price={{
+                  unitAmount: resolved.unitAmount,
+                  currency: resolved.currency,
+                  period,
+                }}
+              />
+            );
+          })}
         </div>
 
         <p className="text-center text-xs text-muted-foreground">

@@ -18,17 +18,28 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { checkoutSchema, type CheckoutInput } from "@/schemas/checkout.schema";
-import type { PlanSlug } from "@/lib/plans";
+import type { BillingPeriod, PlanSlug } from "@/lib/plans";
 import type { ActionState } from "@/types/supabase";
 
 interface CheckoutFormProps {
   plan: PlanSlug;
+  /** Billing period the user picked on the landing. Persisted via the
+   *  `pricing_period` cookie too, but threaded as a prop here so the
+   *  Stripe Session is built from what the user *saw*, not a stale
+   *  cookie. */
+  period: BillingPeriod;
 }
 
-export function CheckoutForm({ plan }: CheckoutFormProps) {
+export function CheckoutForm({ plan, period }: CheckoutFormProps) {
   const form = useForm<CheckoutInput>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { plan, fullName: "", email: "", businessName: "" },
+    defaultValues: {
+      plan,
+      period,
+      fullName: "",
+      email: "",
+      businessName: "",
+    },
   });
   const [, startTransition] = useTransition();
   const [state, formAction, pending] = useActionState<
@@ -50,6 +61,7 @@ export function CheckoutForm({ plan }: CheckoutFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-5">
         <input type="hidden" name="plan" value={plan} />
+        <input type="hidden" name="period" value={period} />
         <FormField
           control={form.control}
           name="fullName"

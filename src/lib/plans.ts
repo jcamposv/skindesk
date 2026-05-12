@@ -1,24 +1,29 @@
 /**
  * Plan catalog for the profesional self-signup flow.
  *
- * Hardcoded for MVP. When the super admin dashboard needs live editing, move
- * this config into a `public.plans` table (slug, name, monthly_price_usd,
- * trial_days, limits jsonb, stripe_price_id) and read it at request time.
+ * Metadata (slug, name, copy, features, limits, trial) lives here.
+ * Prices live in Stripe — fetched via `getPlanPricing()` in `lib/pricing.ts`,
+ * which reads `currency_options` on each Price for multi-currency support.
  *
- * Stripe Price IDs come from env vars so dev/prod can swap without code
- * changes. Create the products + prices in Stripe Dashboard once, then put
- * the resulting `price_xxx` in `.env.local` / Vercel env.
+ * Stripe Price IDs (monthly + optional annual) come from env vars so dev/prod
+ * can swap without code changes. Annual is opt-in: if the env var is missing
+ * or blank, the landing hides the mensual↔anual toggle entirely.
+ *
+ * `usdFallbackCents` is the marketing-only safety net used when the Stripe
+ * fetch fails (network blip, key missing in preview). It's intentionally in
+ * cents/USD to match Stripe's `unit_amount` semantics — never edit by hand
+ * to override the catalog; edit Stripe.
  */
 
 export type PlanSlug = "basico" | "pro" | "clinica";
+
+export type BillingPeriod = "month" | "year";
 
 export interface Plan {
   slug: PlanSlug;
   name: string;
   tagline: string;
   description: string;
-  /** Monthly price in USD, displayed on the landing — source of truth is Stripe. */
-  monthlyPriceUsd: number;
   /** Length of the free trial. 0 ⇒ no trial. */
   trialDays: number;
   features: readonly string[];
@@ -28,8 +33,16 @@ export interface Plan {
     maxAsistentes: number;
     maxProductos: number | null;
   };
-  /** Name of the env var that holds this plan's Stripe Price ID. */
+  /** Env var holding the monthly Stripe Price ID. Required. */
   stripePriceEnvVar: string;
+  /** Env var holding the annual Stripe Price ID. Optional — empty/unset
+   *  means the plan only sells monthly. */
+  stripePriceAnnualEnvVar?: string;
+  /** Marketing-only USD fallback in cents. Used if the Stripe price fetch
+   *  fails so the landing never blanks out. Mirrors the price you set in
+   *  Stripe Dashboard — Stripe is the source of truth, this is just
+   *  insurance. */
+  usdFallbackCents: { month: number; year?: number };
   /** UI hint for the plan card. */
   highlight?: boolean;
 }
@@ -42,7 +55,6 @@ export const PLANS: readonly Plan[] = [
     tagline: "Para cosmetólogas independientes que arrancan",
     description:
       "Lo esencial para llevar tu agenda, fichas de clientas y catálogo, sin complicarte.",
-    monthlyPriceUsd: 19,
     trialDays: 14,
     features: [
       "Hasta 50 clientas activas",
@@ -52,6 +64,8 @@ export const PLANS: readonly Plan[] = [
     ],
     limits: { maxClientas: 50, maxAsistentes: 0, maxProductos: 30 },
     stripePriceEnvVar: "STRIPE_PRICE_BASICO",
+    stripePriceAnnualEnvVar: "STRIPE_PRICE_BASICO_ANNUAL",
+    usdFallbackCents: { month: 1900, year: 18000 },
   },
   {
     slug: "pro",
@@ -59,7 +73,6 @@ export const PLANS: readonly Plan[] = [
     tagline: "Para cosmetólogas con cartera consolidada",
     description:
       "Todo el flujo profesional, sin límites de clientas ni de catálogo, con biblioteca avanzada.",
-    monthlyPriceUsd: 39,
     trialDays: 14,
     features: [
       "Clientas ilimitadas",
@@ -70,6 +83,8 @@ export const PLANS: readonly Plan[] = [
     ],
     limits: { maxClientas: null, maxAsistentes: 0, maxProductos: null },
     stripePriceEnvVar: "STRIPE_PRICE_PRO",
+    stripePriceAnnualEnvVar: "STRIPE_PRICE_PRO_ANNUAL",
+    usdFallbackCents: { month: 3900, year: 37000 },
     highlight: true,
   },
   {
@@ -78,7 +93,6 @@ export const PLANS: readonly Plan[] = [
     tagline: "Para espacios con varias profesionales",
     description:
       "Cuentas de equipo con permisos diferenciados, además de todo lo del plan Pro.",
-    monthlyPriceUsd: 79,
     trialDays: 14,
     features: [
       "Todo lo del plan Pro",
@@ -88,6 +102,8 @@ export const PLANS: readonly Plan[] = [
     ],
     limits: { maxClientas: null, maxAsistentes: 5, maxProductos: null },
     stripePriceEnvVar: "STRIPE_PRICE_CLINICA",
+    stripePriceAnnualEnvVar: "STRIPE_PRICE_CLINICA_ANNUAL",
+    usdFallbackCents: { month: 7900, year: 75000 },
   },
 ] as const;
 
@@ -98,4 +114,11 @@ export const PLAN_BY_SLUG: Record<PlanSlug, Plan> = Object.fromEntries(
 /** True when `value` is a valid plan slug. */
 export function isPlanSlug(value: string | null | undefined): value is PlanSlug {
   return value === "basico" || value === "pro" || value === "clinica";
+}
+
+/** True when `value` is a valid billing period. */
+export function isBillingPeriod(
+  value: string | null | undefined,
+): value is BillingPeriod {
+  return value === "month" || value === "year";
 }

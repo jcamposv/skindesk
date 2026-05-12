@@ -7,19 +7,28 @@ import { CheckoutForm } from "@/components/forms/checkout-form";
 import { AuthHero } from "@/components/shared/auth-hero";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
+import { formatMoney } from "@/lib/currency";
 import { ROUTES } from "@/lib/constants";
-import { isPlanSlug, PLAN_BY_SLUG } from "@/lib/plans";
+import {
+  isBillingPeriod,
+  isPlanSlug,
+  PLAN_BY_SLUG,
+  type BillingPeriod,
+} from "@/lib/plans";
+import {
+  commonCurrencies,
+  getPlanPricing,
+  resolvePrice,
+} from "@/lib/pricing";
+import {
+  getPreferredBillingPeriod,
+  getPreferredPricingCurrency,
+} from "@/lib/pricing-currency";
 
 export const metadata: Metadata = { title: "Continuar al pago" };
 
-const USD = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 interface PageProps {
-  searchParams: Promise<{ plan?: string }>;
+  searchParams: Promise<{ plan?: string; period?: string }>;
 }
 
 export default async function CheckoutPage({ searchParams }: PageProps) {
@@ -27,6 +36,36 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   if (!isPlanSlug(params.plan)) redirect(ROUTES.home);
 
   const plan = PLAN_BY_SLUG[params.plan];
+
+  // Period resolution mirrors the landing: explicit ?period= wins,
+  // then cookie, then "month". We additionally clamp to what the plan
+  // actually supports — if a stale link asks for annual on a plan
+  // without annual, downgrade to monthly silently.
+  const pricing = await getPlanPricing();
+  const requested: BillingPeriod | null = isBillingPeriod(params.period)
+    ? params.period
+    : null;
+  const cookiePeriod = await getPreferredBillingPeriod(
+    pricing[plan.slug].annual !== null,
+  );
+  const period: BillingPeriod =
+    requested && (requested === "month" || pricing[plan.slug].annual !== null)
+      ? requested
+      : cookiePeriod;
+
+  const available = commonCurrencies(pricing, period);
+  const currency = await getPreferredPricingCurrency(available);
+  const resolved = resolvePrice(pricing, plan.slug, period, currency);
+
+  // resolvePrice returns null only if the plan has no monthly price at
+  // all — config issue. Bounce back to landing so the user picks again
+  // instead of seeing a half-broken form.
+  if (!resolved) redirect(ROUTES.home);
+
+  const formatted = formatMoney(resolved.unitAmount / 100, resolved.currency, {
+    maximumFractionDigits: 0,
+  });
+  const periodSuffix = period === "month" ? "/mes" : "/año";
 
   const heroCopy =
     plan.trialDays > 0
@@ -77,9 +116,11 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                   <h1 className="text-3xl font-semibold tracking-tight">
                     {plan.name}
                   </h1>
-                  <span className="text-lg font-medium">
-                    {USD.format(plan.monthlyPriceUsd)}
-                    <span className="text-sm text-muted-foreground">/mes</span>
+                  <span className="text-lg font-medium tabular-nums">
+                    {formatted}
+                    <span className="text-sm text-muted-foreground">
+                      {periodSuffix}
+                    </span>
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -93,7 +134,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                 ) : null}
               </div>
             </div>
-            <CheckoutForm plan={plan.slug} />
+            <CheckoutForm plan={plan.slug} period={period} />
           </div>
         </div>
 

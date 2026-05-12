@@ -960,14 +960,44 @@ export type Database = {
           },
         ]
       }
+      stripe_webhook_events: {
+        Row: {
+          error: string | null
+          event_id: string
+          event_type: string
+          id: number
+          processed_at: string | null
+          received_at: string
+        }
+        Insert: {
+          error?: string | null
+          event_id: string
+          event_type: string
+          id?: number
+          processed_at?: string | null
+          received_at?: string
+        }
+        Update: {
+          error?: string | null
+          event_id?: string
+          event_type?: string
+          id?: number
+          processed_at?: string | null
+          received_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
+          billing_interval: string | null
           cancel_at_period_end: boolean
           canceled_at: string | null
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
           id: string
+          last_event_created: string | null
+          last_event_id: string | null
           plan: Database["public"]["Enums"]["plan_slug"]
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string
@@ -978,12 +1008,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_interval?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          last_event_created?: string | null
+          last_event_id?: string | null
           plan: Database["public"]["Enums"]["plan_slug"]
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string
@@ -994,12 +1027,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_interval?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          last_event_created?: string | null
+          last_event_id?: string | null
           plan?: Database["public"]["Enums"]["plan_slug"]
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string
@@ -1021,6 +1057,7 @@ export type Database = {
       }
       tenants: {
         Row: {
+          billing_interval: string | null
           business_hours_end: string
           business_hours_start: string
           cancel_at_period_end: boolean
@@ -1039,6 +1076,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_interval?: string | null
           business_hours_end?: string
           business_hours_start?: string
           cancel_at_period_end?: boolean
@@ -1057,6 +1095,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_interval?: string | null
           business_hours_end?: string
           business_hours_start?: string
           cancel_at_period_end?: boolean

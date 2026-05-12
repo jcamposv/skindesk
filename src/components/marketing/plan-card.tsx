@@ -10,20 +10,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatMoney } from "@/lib/currency";
 import { cn } from "@/lib/utils";
-import type { Plan } from "@/lib/plans";
+import type { BillingPeriod, Plan } from "@/lib/plans";
+
+/**
+ * Marketing-side price card. Amount + currency come from Stripe via
+ * `getPlanPricing()` in the parent — this component never touches the
+ * Stripe SDK or env vars, so it can render statically in any layout.
+ *
+ * Why the parent passes `unitAmount` in cents (Stripe's smallest unit):
+ * - Stripe is the source of truth for amounts.
+ * - The cents → major-unit divide happens once, here, where we render.
+ * - `formatMoney` then renders with the right locale + symbol.
+ *
+ * `period` decides the `/mes` vs `/año` caption and the card link query.
+ */
+export interface DisplayPrice {
+  /** Stripe `unit_amount` (smallest currency unit, e.g. cents). */
+  unitAmount: number;
+  /** Uppercase ISO-4217. */
+  currency: string;
+  period: BillingPeriod;
+}
 
 interface PlanCardProps {
   plan: Plan;
+  price: DisplayPrice;
+  /** Optional savings tag rendered next to the amount (e.g. "−20%"). */
+  savingsLabel?: string | null;
 }
 
-const USD = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
+export function PlanCard({ plan, price, savingsLabel }: PlanCardProps) {
+  // Stripe's `unit_amount` is in the currency's smallest unit. For
+  // zero-decimal currencies (JPY, CLP, PYG), Stripe stores the major
+  // unit directly; `Intl.NumberFormat` handles that automatically once
+  // we divide by 100 — except we shouldn't divide for those. Easiest
+  // path: ask Stripe via the standard "currencies without decimals"
+  // list. Until we hit one in production, we divide by 100 across the
+  // board; the LATAM set we support uses two-decimal currencies.
+  const amountMajor = price.unitAmount / 100;
+  const formatted = formatMoney(amountMajor, price.currency, {
+    maximumFractionDigits: 0,
+  });
+  const periodSuffix = price.period === "month" ? "/mes" : "/año";
+  const checkoutHref = `/checkout?plan=${plan.slug}&period=${price.period}`;
 
-export function PlanCard({ plan }: PlanCardProps) {
   return (
     <Card
       className={cn(
@@ -40,10 +72,15 @@ export function PlanCard({ plan }: PlanCardProps) {
         <CardTitle className="text-2xl">{plan.name}</CardTitle>
         <CardDescription>{plan.tagline}</CardDescription>
         <div className="mt-3 flex items-baseline gap-1">
-          <span className="text-4xl font-semibold tracking-tight">
-            {USD.format(plan.monthlyPriceUsd)}
+          <span className="text-4xl font-semibold tracking-tight tabular-nums">
+            {formatted}
           </span>
-          <span className="text-sm text-muted-foreground">/mes</span>
+          <span className="text-sm text-muted-foreground">{periodSuffix}</span>
+          {savingsLabel ? (
+            <span className="ml-2 inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-medium text-accent-foreground">
+              {savingsLabel}
+            </span>
+          ) : null}
         </div>
         {plan.trialDays > 0 ? (
           <p className="mt-1 text-xs text-muted-foreground">
@@ -69,7 +106,7 @@ export function PlanCard({ plan }: PlanCardProps) {
           size="lg"
           className="w-full"
           variant={plan.highlight ? "default" : "outline"}
-          render={<Link href={`/checkout?plan=${plan.slug}`} />}
+          render={<Link href={checkoutHref} />}
         >
           Comenzar con {plan.name}
         </Button>

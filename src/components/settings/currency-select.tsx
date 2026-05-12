@@ -25,12 +25,19 @@ export function CurrencySelect({
   onValueChange,
   disabled,
   triggerClassName,
+  filter,
 }: {
   value: string;
   onValueChange: (next: string) => void;
   disabled?: boolean;
   triggerClassName?: string;
+  /** Optional gate for the items list. Settings shows every code; the
+   *  marketing toggle restricts to the Stripe intersection. */
+  filter?: (code: string) => boolean;
 }) {
+  const items = filter
+    ? CURRENCIES.filter((c) => filter(c.currencyCode))
+    : CURRENCIES;
   return (
     <Select
       value={value}
@@ -47,7 +54,7 @@ export function CurrencySelect({
         <SelectValue placeholder="Seleccioná moneda" />
       </SelectTrigger>
       <SelectContent>
-        {CURRENCIES.map((c) => (
+        {items.map((c) => (
           <SelectItem key={c.currencyCode} value={c.currencyCode}>
             <CurrencyOption
               flag={c.flag}

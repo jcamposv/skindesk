@@ -4,9 +4,18 @@ import type Stripe from "stripe";
 import { paymentFailedHtml } from "@/components/emails/payment-failed";
 import { welcomeProfesionalHtml } from "@/components/emails/welcome-profesional";
 import { ROUTES } from "@/lib/constants";
-import { isPlanSlug, PLAN_BY_SLUG, type PlanSlug } from "@/lib/plans";
+import {
+  isPlanSlug,
+  PLAN_BY_SLUG,
+  type BillingPeriod,
+  type PlanSlug,
+} from "@/lib/plans";
 import { EMAIL_FROM, resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
+import {
+  priceIdToPlan,
+  stripeIntervalToBillingPeriod,
+} from "@/lib/stripe-price-map";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database.types";
 
@@ -37,26 +46,89 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(`Webhook error: ${message}`, { status: 400 });
   }
 
+  // Event-level idempotency. Insert-or-update the row at the very top so
+  // a parallel delivery of the same event sees the row + bails. We DON'T
+  // bail solely on existence: if a previous attempt failed transiently,
+  // `processed_at` stays NULL and we re-run. Only fully-processed events
+  // (processed_at NOT NULL) short-circuit.
+  const admin = createAdminClient();
+
+  const { data: eventRow, error: eventInsertErr } = await admin
+    .from("stripe_webhook_events")
+    .upsert(
+      {
+        event_id: event.id,
+        event_type: event.type,
+        // received_at default applies on first insert; ON CONFLICT updates
+        // nothing meaningful — we just want the SELECT projection back.
+      },
+      { onConflict: "event_id", ignoreDuplicates: false },
+    )
+    .select("processed_at")
+    .single();
+
+  if (eventInsertErr) {
+    console.error(
+      `[stripe-webhook ${event.id} ${event.type}] event-log insert failed`,
+      eventInsertErr.message,
+    );
+    return new Response("Handler error", { status: 500 });
+  }
+  if (eventRow?.processed_at) {
+    console.log(
+      `[stripe-webhook ${event.id} ${event.type}] dedup: already processed at ${eventRow.processed_at}`,
+    );
+    return new Response("ok", { status: 200 });
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object);
+        await handleCheckoutCompleted(event);
         break;
+      case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
-        await handleSubscriptionChange(event.data.object);
+        // All three converge on the same upsert. `created` is the safety
+        // net for the rare case where it arrives before
+        // `checkout.session.completed` finishes; `deleted` flips
+        // status='canceled' which the layout hard-gate already handles.
+        await handleSubscriptionChange(event);
+        break;
+      case "customer.subscription.trial_will_end":
+        await handleTrialWillEnd(event);
+        break;
+      case "invoice.payment_succeeded":
+        await handleInvoicePaymentSucceeded(event);
         break;
       case "invoice.payment_failed":
         // Stripe also fires customer.subscription.updated → past_due, which
         // syncs the cached status. This handler is purely for the user-
         // facing notification.
-        await handleInvoicePaymentFailed(event.data.object);
+        await handleInvoicePaymentFailed(event);
         break;
       default:
         // No-op — log only at info level to keep the inbox clean.
         break;
     }
+
+    // Mark processed. If this UPDATE fails, the next retry will simply
+    // re-process — idempotent handlers above are designed for that.
+    await admin
+      .from("stripe_webhook_events")
+      .update({ processed_at: new Date().toISOString(), error: null })
+      .eq("event_id", event.id);
   } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "unknown handler failure";
+
+    // Persist the error message on the event row so super_admin forensics
+    // can see what blew up without reading Vercel logs.
+    await admin
+      .from("stripe_webhook_events")
+      .update({ error: message.slice(0, 4000) })
+      .eq("event_id", event.id);
+
     // Two error classes:
     //  - Terminal (`TerminalWebhookError`): the event itself is broken
     //    (missing metadata, bad shape). Retrying won't help — return 200
@@ -65,12 +137,22 @@ export async function POST(request: Request): Promise<Response> {
     //    so Stripe retries with exponential backoff.
     if (err instanceof TerminalWebhookError) {
       console.error(
-        `[stripe-webhook] terminal error for ${event.type}, ack with 200:`,
-        err.message,
+        `[stripe-webhook ${event.id} ${event.type}] terminal error, ack with 200:`,
+        message,
       );
+      // Mark as processed since we've decided not to retry — keeps the
+      // dedup contract honest (further retries from the "Resend" button
+      // also bail). The error message is preserved above.
+      await admin
+        .from("stripe_webhook_events")
+        .update({ processed_at: new Date().toISOString() })
+        .eq("event_id", event.id);
       return new Response("ok", { status: 200 });
     }
-    console.error(`[stripe-webhook] handler for ${event.type} failed`, err);
+    console.error(
+      `[stripe-webhook ${event.id} ${event.type}] handler failed`,
+      err,
+    );
     return new Response("Handler error", { status: 500 });
   }
 
@@ -110,13 +192,48 @@ function mapStripeStatus(
   }
 }
 
+/**
+ * Resolve the plan slug for a Subscription. Priority:
+ *   1. Reverse lookup from the Price ID (handles portal upgrades).
+ *   2. `metadata.plan` (set at Checkout — wrong after portal upgrades).
+ *   3. Existing DB row's plan (last-known-good).
+ * Throws Terminal if we can't pick anything sane.
+ */
+function resolvePlan(args: {
+  priceId: string;
+  metadataPlan: string | null | undefined;
+  fallbackPlan: PlanSlug | null;
+  eventId: string;
+}): { plan: PlanSlug; billingInterval: BillingPeriod | null } {
+  const reverse = priceIdToPlan(args.priceId);
+  if (reverse) {
+    return { plan: reverse.plan, billingInterval: reverse.billingInterval };
+  }
+  if (isPlanSlug(args.metadataPlan)) {
+    console.warn(
+      `[stripe-webhook ${args.eventId}] price ${args.priceId} not in reverse map; falling back to metadata.plan=${args.metadataPlan}`,
+    );
+    return { plan: args.metadataPlan, billingInterval: null };
+  }
+  if (args.fallbackPlan) {
+    console.warn(
+      `[stripe-webhook ${args.eventId}] price ${args.priceId} not in reverse map and no metadata; keeping existing plan=${args.fallbackPlan}`,
+    );
+    return { plan: args.fallbackPlan, billingInterval: null };
+  }
+  throw new TerminalWebhookError(
+    `cannot resolve plan for price ${args.priceId} (no reverse map, metadata, or existing row)`,
+  );
+}
+
 // ---------------------------------------------------------------------------
 // checkout.session.completed
 // ---------------------------------------------------------------------------
 
 async function handleCheckoutCompleted(
-  session: Stripe.Checkout.Session,
+  event: Stripe.Event,
 ): Promise<void> {
+  const session = event.data.object as Stripe.Checkout.Session;
   if (session.mode !== "subscription" || !session.subscription) return;
 
   const subscriptionId =
@@ -125,16 +242,20 @@ async function handleCheckoutCompleted(
       : session.subscription.id;
 
   const admin = createAdminClient();
+  const logPrefix = `[stripe-webhook ${event.id} checkout.session.completed]`;
 
-  // Idempotency: if we've already created the subscription row for this
-  // Stripe subscription, skip everything. Stripe retries webhooks and the
-  // dashboard "Resend event" button is one click away.
+  // Subscription-row-level idempotency. We still need this even with the
+  // event-level dedup at the top — Stripe's "Resend event" button can
+  // emit DIFFERENT event_ids that point at the same subscription.
   const { data: existing } = await admin
     .from("subscriptions")
     .select("id")
     .eq("stripe_subscription_id", subscriptionId)
     .maybeSingle();
-  if (existing) return;
+  if (existing) {
+    console.log(`${logPrefix} sub ${subscriptionId} already exists; skipping`);
+    return;
+  }
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
@@ -189,13 +310,15 @@ async function handleCheckoutCompleted(
   }
 
   // 3) Persist the subscription AND mint the activation magic link in
-  //    parallel — the two operations are independent (insert needs tenant.id
-  //    + subscription details which we already have, generateLink only needs
-  //    the email). Saves ~100-200ms on the webhook handler. Stripe API
-  //    ≥2026-04 moved current_period_start/end onto SubscriptionItem; read
-  //    them from the first (and, in our case, only) item.
+  //    parallel. Stripe API ≥2026-04 moved current_period_start/end onto
+  //    SubscriptionItem; read them from the first (and, in our case,
+  //    only) item.
   const item = subscription.items.data[0];
   const status = mapStripeStatus(subscription.status);
+  const billingInterval = stripeIntervalToBillingPeriod(
+    item.price.recurring?.interval ?? null,
+  );
+
   const [subInsert, linkResult] = await Promise.all([
     admin.from("subscriptions").insert({
       tenant_id: tenant.id,
@@ -207,15 +330,16 @@ async function handleCheckoutCompleted(
           : subscription.customer.id,
       stripe_subscription_id: subscription.id,
       stripe_price_id: item.price.id,
+      billing_interval: billingInterval,
       current_period_start: tsToIso(item.current_period_start),
       current_period_end: tsToIso(item.current_period_end),
       trial_end: tsToIso(subscription.trial_end),
       cancel_at_period_end: subscription.cancel_at_period_end,
+      last_event_id: event.id,
+      last_event_created: new Date(event.created * 1000).toISOString(),
     }),
     // After Supabase exchanges the magic-link code, the callback's
     // password_set check will land the user on /auth/setup automatically.
-    // The `?next=/auth/setup` here is a hint for older flows that pass
-    // through; the callback is the source of truth.
     admin.auth.admin.generateLink({
       type: "magiclink",
       email,
@@ -228,13 +352,9 @@ async function handleCheckoutCompleted(
   ]);
 
   if (subInsert.error) {
-    // Transient: Postgres / network. Let Stripe retry.
     throw new Error(`subscriptions insert failed: ${subInsert.error.message}`);
   }
   if (linkResult.error || !linkResult.data?.properties?.action_link) {
-    // Transient: Supabase auth API hiccup. Stripe retry will replay this
-    // event; idempotency on subscriptions skips the DB ops, only the email
-    // resend executes.
     throw new Error(`generateLink failed: ${linkResult.error?.message}`);
   }
   const linkData = linkResult.data;
@@ -257,26 +377,79 @@ async function handleCheckoutCompleted(
     // Don't throw — the account is fully provisioned. A failed email is
     // recoverable from the user's side ("forgot my magic link" → request
     // again). Log loudly so we notice.
-    console.error("[stripe] welcome email failed", mailErr.message);
+    console.error(`${logPrefix} welcome email failed`, mailErr.message);
   }
+
+  console.log(
+    `${logPrefix} provisioned tenant ${tenant.id} plan=${plan} interval=${billingInterval}`,
+  );
 }
 
 // ---------------------------------------------------------------------------
-// customer.subscription.updated / deleted
+// customer.subscription.created / updated / deleted
 // ---------------------------------------------------------------------------
 
 async function handleSubscriptionChange(
-  subscription: Stripe.Subscription,
+  event: Stripe.Event,
 ): Promise<void> {
+  const subscription = event.data.object as Stripe.Subscription;
   const admin = createAdminClient();
+  const eventCreated = new Date(event.created * 1000).toISOString();
+  const logPrefix = `[stripe-webhook ${event.id} ${event.type}]`;
+
+  // Race protection: don't overwrite a row with state older than what we
+  // already have. Stripe doesn't guarantee delivery order; an outdated
+  // event arriving after a newer one would otherwise clobber the latest
+  // state. Tie-break uses Stripe's `created` timestamp.
+  const { data: existing } = await admin
+    .from("subscriptions")
+    .select("id, plan, last_event_created")
+    .eq("stripe_subscription_id", subscription.id)
+    .maybeSingle();
+
+  if (
+    existing?.last_event_created &&
+    new Date(existing.last_event_created) >= new Date(eventCreated)
+  ) {
+    console.log(
+      `${logPrefix} skipping out-of-order event (row ${existing.last_event_created} >= event ${eventCreated})`,
+    );
+    return;
+  }
+
   const status = mapStripeStatus(subscription.status);
   const item = subscription.items.data[0];
+  const { plan, billingInterval } = resolvePlan({
+    priceId: item.price.id,
+    metadataPlan: subscription.metadata?.plan ?? null,
+    fallbackPlan: (existing?.plan ?? null) as PlanSlug | null,
+    eventId: event.id,
+  });
+  const resolvedInterval =
+    billingInterval ??
+    stripeIntervalToBillingPeriod(item.price.recurring?.interval ?? null);
 
-  await admin
+  if (!existing) {
+    // Row doesn't exist yet — likely a `subscription.created` arriving
+    // before `checkout.session.completed` finished. Let checkout.session
+    // do the provisioning (user+tenant+email); we just skip until the
+    // row exists. The webhook will be retried for `subscription.updated`
+    // on the next state change anyway; for `subscription.created`,
+    // checkout.session.completed will fire shortly after and populate
+    // everything.
+    console.log(
+      `${logPrefix} sub ${subscription.id} not in DB yet — waiting for checkout.session.completed`,
+    );
+    return;
+  }
+
+  const { error } = await admin
     .from("subscriptions")
     .update({
+      plan,
       status,
       stripe_price_id: item.price.id,
+      billing_interval: resolvedInterval,
       current_period_start: tsToIso(item.current_period_start),
       current_period_end: tsToIso(item.current_period_end),
       trial_end: tsToIso(subscription.trial_end),
@@ -284,8 +457,53 @@ async function handleSubscriptionChange(
       canceled_at: subscription.canceled_at
         ? tsToIso(subscription.canceled_at)
         : null,
+      last_event_id: event.id,
+      last_event_created: eventCreated,
     })
     .eq("stripe_subscription_id", subscription.id);
+
+  if (error) {
+    throw new Error(`subscriptions update failed: ${error.message}`);
+  }
+
+  console.log(
+    `${logPrefix} sub ${subscription.id} → plan=${plan} interval=${resolvedInterval} status=${status}`,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// customer.subscription.trial_will_end
+// ---------------------------------------------------------------------------
+
+async function handleTrialWillEnd(event: Stripe.Event): Promise<void> {
+  // Stripe fires this 3 days before `trial_end`. We don't send an email
+  // here yet — Stripe's own Smart Retries + the in-app banner cover the
+  // "trial is ending" UX. This is the hook point for a future targeted
+  // notification (CTA: add payment method now).
+  //
+  // Logging the event ties the audit trail to whatever follow-up the
+  // marketing team wires next.
+  const subscription = event.data.object as Stripe.Subscription;
+  console.log(
+    `[stripe-webhook ${event.id} customer.subscription.trial_will_end] sub=${subscription.id} trial_end=${tsToIso(subscription.trial_end)}`,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// invoice.payment_succeeded
+// ---------------------------------------------------------------------------
+
+async function handleInvoicePaymentSucceeded(
+  event: Stripe.Event,
+): Promise<void> {
+  // No-op handler for now — Stripe sends the receipt automatically and
+  // `customer.subscription.updated` already advances the local period.
+  // Keeping the branch wired lets us add a hook later (referrer credits,
+  // accounting export, etc.) without changing the dispatch table.
+  const invoice = event.data.object as Stripe.Invoice;
+  console.log(
+    `[stripe-webhook ${event.id} invoice.payment_succeeded] invoice=${invoice.id} amount_paid=${invoice.amount_paid} currency=${invoice.currency}`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -293,8 +511,11 @@ async function handleSubscriptionChange(
 // ---------------------------------------------------------------------------
 
 async function handleInvoicePaymentFailed(
-  invoice: Stripe.Invoice,
+  event: Stripe.Event,
 ): Promise<void> {
+  const invoice = event.data.object as Stripe.Invoice;
+  const logPrefix = `[stripe-webhook ${event.id} invoice.payment_failed]`;
+
   // The matching customer.subscription.updated event already flipped the
   // tenant cache to past_due (driving the in-app banner). Here we only
   // notify the customer.
@@ -313,7 +534,10 @@ async function handleInvoicePaymentFailed(
 
   // No row yet (e.g. failed invoice fired before checkout.session.completed
   // landed) — skip rather than guess. We'll catch it on the next cycle.
-  if (!subRow) return;
+  if (!subRow) {
+    console.log(`${logPrefix} no sub row yet for ${subscriptionId}; skipping`);
+    return;
+  }
 
   const planConfig = PLAN_BY_SLUG[subRow.plan];
   const amountDue = formatStripeAmount(invoice.amount_due, invoice.currency);
@@ -337,7 +561,7 @@ async function handleInvoicePaymentFailed(
     { idempotencyKey: `payment-failed/${invoice.id}` },
   );
   if (mailErr) {
-    console.error("[stripe] payment-failed email failed", mailErr.message);
+    console.error(`${logPrefix} payment-failed email failed`, mailErr.message);
   }
 }
 

@@ -46,9 +46,15 @@ export default async function SuperAdminPage() {
       .eq("status", "active"),
   ]);
 
+  // MRR is a list-price approximation across active subscriptions. We
+  // use the per-plan USD fallback in cents (mirrors what Stripe charges
+  // by default) instead of pulling live prices here — saving N Stripe
+  // round-trips for a stat that's intentionally rough. A real "MRR
+  // realised" number would aggregate Stripe Invoices.
   const mrrUsd = (mrrRows.data ?? []).reduce(
     (sum, row) =>
-      sum + (PLAN_BY_SLUG[row.plan as PlanSlug]?.monthlyPriceUsd ?? 0),
+      sum +
+      (PLAN_BY_SLUG[row.plan as PlanSlug]?.usdFallbackCents.month ?? 0) / 100,
     0,
   );
 

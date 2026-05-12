@@ -90,16 +90,36 @@ export default async function SettingsPage() {
   const status = session.tenant?.subscription_status ?? null;
   const cancelAtPeriodEnd = session.tenant?.cancel_at_period_end ?? false;
   const currentPeriodEnd = session.tenant?.current_period_end ?? null;
+  const billingInterval = session.tenant?.billing_interval ?? null;
   const isHardGated = status ? HARD_GATE_STATUSES.has(status) : false;
   // Asistente sees the plan but can't manage billing — only the profesional
   // who owns the tenant should reach the portal. Super_admin has no tenant.
   const canManageBilling =
     session.profile.role === "profesional" && Boolean(session.tenant);
 
+  // Three states share one row: terminating (cancel scheduled / hard-gated)
+  // shows "termina/venció el …"; healthy active|trialing shows the next
+  // renewal; everything else hides the row.
+  const isTerminating = cancelAtPeriodEnd || isHardGated;
+  const showRenewal =
+    !isTerminating &&
+    (status === "active" || status === "trialing") &&
+    Boolean(currentPeriodEnd);
+
   const periodEndLabel =
-    currentPeriodEnd && (cancelAtPeriodEnd || isHardGated)
+    currentPeriodEnd && (isTerminating || showRenewal)
       ? DATE_FORMAT.format(new Date(currentPeriodEnd))
       : null;
+
+  const renewalRowLabel = isTerminating
+    ? cancelAtPeriodEnd
+      ? "Termina el"
+      : "Vencimiento"
+    : status === "trialing"
+      ? "Tu prueba termina el"
+      : billingInterval === "year"
+        ? "Próxima renovación anual"
+        : "Próxima renovación";
 
   return (
     <div className="grid gap-4">
@@ -154,7 +174,14 @@ export default async function SettingsPage() {
           <CardContent className="grid gap-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Plan</span>
-              <span className="font-medium">{planConfig.name}</span>
+              <span className="font-medium">
+                {planConfig.name}
+                {billingInterval ? (
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    ({billingInterval === "year" ? "anual" : "mensual"})
+                  </span>
+                ) : null}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Estado</span>
@@ -168,7 +195,7 @@ export default async function SettingsPage() {
             </div>
             {periodEndLabel ? (
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{cancelAtPeriodEnd ? "Termina el" : "Vencimiento"}</span>
+                <span>{renewalRowLabel}</span>
                 <span className="font-medium tabular-nums text-foreground/80">
                   {periodEndLabel}
                 </span>
