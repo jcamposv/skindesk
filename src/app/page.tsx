@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { InfoIcon } from "lucide-react";
 
 import { CurrencyToggle } from "@/components/marketing/currency-toggle";
+import { LandingHero } from "@/components/marketing/landing-hero";
 import { PeriodToggle } from "@/components/marketing/period-toggle";
 import { PlanCard } from "@/components/marketing/plan-card";
 import { Logo } from "@/components/shared/logo";
@@ -63,60 +64,71 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   return (
     <main className="flex min-h-svh flex-col">
-      <header className="flex items-center justify-between px-6 py-4 md:px-10">
-        <Logo size="md" />
-        <div className="flex items-center gap-2">
-          <CurrencyToggle
-            currentCurrency={currency}
-            available={availableCurrencies}
-          />
-          <Button
-            variant="ghost"
-            render={<Link href={ROUTES.login} />}
-            className="hidden sm:inline-flex"
-          >
-            Iniciar sesión
-          </Button>
-          <Button
-            variant="outline"
-            render={<Link href={ROUTES.login} />}
-            className="sm:hidden"
-          >
-            Entrar
-          </Button>
-        </div>
-      </header>
-
-      {showCanceledNotice ? (
-        <div className="border-b border-border/60 bg-muted/40">
-          <div className="mx-auto flex w-full max-w-6xl items-start gap-3 px-6 py-3 md:px-10">
-            <InfoIcon
-              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-              aria-hidden
+      {/* Dark band — header + canceled notice + hero share one continuous
+       *  background so the nav reads as part of the hero, not a stitched
+       *  patch. mb-* gives the plans section breathing room below. The
+       *  radial blurs live here (not inside the hero) so they bleed across
+       *  the whole band with no seam between header and hero. */}
+      <div className="relative isolate mb-16 overflow-hidden bg-[#4A5A55] text-white md:mb-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 -left-20 -z-0 size-[520px] rounded-full bg-[#5C6E6C]/40 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 bottom-0 -z-0 size-[420px] rounded-full bg-[#D2A96A]/20 blur-3xl"
+        />
+        <header className="relative z-10 flex items-center justify-between px-6 py-4 md:px-10">
+          <Logo size="md" variant="white" />
+          <div className="flex items-center gap-2">
+            <CurrencyToggle
+              currentCurrency={currency}
+              available={availableCurrencies}
             />
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">
-                Cancelaste el pago.
-              </span>{" "}
-              No te cobramos nada. Si fue sin querer, elegí tu plan abajo y
-              vuelve a intentar — tu información no se perdió.
-            </p>
+            <Button
+              variant="outline"
+              render={<Link href={ROUTES.login} />}
+              className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
+            >
+              Iniciar sesión
+            </Button>
           </div>
-        </div>
-      ) : null}
+        </header>
 
-      <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-10 px-6 pt-10 pb-20 md:pt-20">
-        <div className="flex flex-col items-center gap-4 text-center">
+        {showCanceledNotice ? (
+          <div className="relative z-10 border-y border-white/15 bg-white/5">
+            <div className="flex items-start gap-3 px-6 py-3 md:px-10">
+              <InfoIcon
+                className="mt-0.5 size-4 shrink-0 text-white/70"
+                aria-hidden
+              />
+              <p className="text-sm text-white/80">
+                <span className="font-medium text-white">
+                  Cancelaste el pago.
+                </span>{" "}
+                No te cobramos nada. Si fue sin querer, elegí tu plan abajo y
+                vuelve a intentar — tu información no se perdió.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        <LandingHero />
+      </div>
+
+      <section
+        id="planes"
+        className="flex w-full flex-col items-center gap-10 px-6 pb-20 md:px-10"
+      >
+        <div className="flex flex-col items-center gap-3 text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent-foreground ring-1 ring-accent/30">
-            Software para cosmetología y estética
+            Elige tu plan
           </span>
-          <h1 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-            Gestiona tu clínica de piel con el plan que necesitas
-          </h1>
+          <h2 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+            Empieza con el plan que necesitas
+          </h2>
           <p className="max-w-2xl text-balance text-muted-foreground">
-            Agenda, fichas de clientas, catálogo y reportes — todo en un solo
-            lugar. Empieza con 14 días de prueba; sin permanencia, cancela
-            cuando quieras.
+            Sin permanencia. Cambia o cancela cuando quieras.
           </p>
         </div>
 

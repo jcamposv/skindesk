@@ -44,6 +44,14 @@ const nextConfig: NextConfig = {
               pathname: "/storage/v1/object/**",
             },
           ]),
+      // Unsplash — used for the marketing hero placeholder until the team
+      // ships custom photography. Safe to whitelist: Unsplash hotlinking is
+      // their advertised use case.
+      {
+        protocol: "https" as const,
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
     ],
   },
 };
