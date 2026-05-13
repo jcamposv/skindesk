@@ -153,3 +153,27 @@
         transform: translate3d(0, 0, 0);
     }
 }
+
+/* Atlas content rows: thin scrollbar on desktop, hidden on touch where
+   horizontal scroll is gesture-driven and a visible bar adds visual noise. */
+.atlas-content-row::-webkit-scrollbar {
+    height: 8px;
+}
+.atlas-content-row::-webkit-scrollbar-track {
+    background: transparent;
+}
+.atlas-content-row::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+}
+.atlas-content-row::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 20%, var(--border));
+}
+@media (hover: none) {
+    .atlas-content-row::-webkit-scrollbar {
+        display: none;
+    }
+    .atlas-content-row {
+        scrollbar-width: none;
+    }
+}

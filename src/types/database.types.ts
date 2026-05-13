@@ -39,6 +39,243 @@ export type Database = {
   }
   public: {
     Tables: {
+      atlas_entries: {
+        Row: {
+          archived_at: string | null
+          author_id: string | null
+          body_md: string | null
+          cover_path: string | null
+          created_at: string
+          description: string | null
+          id: string
+          position: number
+          published_at: string | null
+          published_by: string | null
+          search_tsv: unknown
+          section: Database["public"]["Enums"]["atlas_section"]
+          slug: string
+          status: Database["public"]["Enums"]["atlas_entry_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          author_id?: string | null
+          body_md?: string | null
+          cover_path?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          position?: number
+          published_at?: string | null
+          published_by?: string | null
+          search_tsv?: unknown
+          section: Database["public"]["Enums"]["atlas_section"]
+          slug: string
+          status?: Database["public"]["Enums"]["atlas_entry_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          author_id?: string | null
+          body_md?: string | null
+          cover_path?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          position?: number
+          published_at?: string | null
+          published_by?: string | null
+          search_tsv?: unknown
+          section?: Database["public"]["Enums"]["atlas_section"]
+          slug?: string
+          status?: Database["public"]["Enums"]["atlas_entry_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_entries_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atlas_entries_published_by_fkey"
+            columns: ["published_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atlas_entries_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atlas_entry_versions: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          entry_id: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          entry_id: string
+          id?: string
+          snapshot: Json
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          entry_id?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_entry_versions_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atlas_entry_versions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "atlas_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atlas_favorites: {
+        Row: {
+          created_at: string
+          entry_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_favorites_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "atlas_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atlas_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atlas_files: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          kind: Database["public"]["Enums"]["atlas_file_kind"]
+          mime_type: string
+          original_name: string
+          position: number
+          size_bytes: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["atlas_file_kind"]
+          mime_type: string
+          original_name: string
+          position?: number
+          size_bytes: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["atlas_file_kind"]
+          mime_type?: string
+          original_name?: string
+          position?: number
+          size_bytes?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_files_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "atlas_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atlas_views: {
+        Row: {
+          entry_id: string
+          id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          entry_id: string
+          id?: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          entry_id?: string
+          id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_views_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "atlas_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atlas_views_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cita_status_history: {
         Row: {
           changed_at: string
@@ -1668,6 +1905,28 @@ export type Database = {
       }
     }
     Functions: {
+      atlas_section_counts: {
+        Args: never
+        Returns: {
+          published_count: number
+          section: Database["public"]["Enums"]["atlas_section"]
+        }[]
+      }
+      atlas_slug_available: {
+        Args: {
+          p_exclude_id?: string
+          p_section: Database["public"]["Enums"]["atlas_section"]
+          p_slug: string
+        }
+        Returns: boolean
+      }
+      atlas_tags_for_section: {
+        Args: { p_section: Database["public"]["Enums"]["atlas_section"] }
+        Returns: {
+          frequency: number
+          tag: string
+        }[]
+      }
       productos_stats: {
         Args: never
         Returns: {
@@ -1683,6 +1942,16 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
+      atlas_entry_status: "draft" | "published" | "archived"
+      atlas_file_kind: "pdf" | "html" | "image"
+      atlas_section:
+        | "biotipos"
+        | "estados_cutaneos"
+        | "fitzpatrick"
+        | "glogau"
+        | "piramide_skincare"
+        | "principios_activos"
+        | "compatibilidad_activos"
       cita_status:
         | "pendiente"
         | "confirmada"
@@ -2313,6 +2582,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "profesional", "asistente", "clienta"],
+      atlas_entry_status: ["draft", "published", "archived"],
+      atlas_file_kind: ["pdf", "html", "image"],
+      atlas_section: [
+        "biotipos",
+        "estados_cutaneos",
+        "fitzpatrick",
+        "glogau",
+        "piramide_skincare",
+        "principios_activos",
+        "compatibilidad_activos",
+      ],
       cita_status: [
         "pendiente",
         "confirmada",

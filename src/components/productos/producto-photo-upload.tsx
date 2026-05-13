@@ -9,9 +9,9 @@ import {
   TrashIcon,
   UploadCloudIcon,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useStorageUpload } from "@/hooks/use-storage-upload";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { ProductoCategoria } from "@/schemas/productos.schema";
@@ -59,86 +59,42 @@ export function ProductoPhotoUpload({
   onChange,
 }: ProductoPhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl);
+
+  // Shared upload primitive — same one Atlas covers and Atlas files use.
+  const { upload, uploading, blobPreview } = useStorageUpload({
+    bucket: "productos-photos",
+    accept: ALLOWED_MIME,
+    maxBytes: MAX_BYTES,
+    makePath: (file) => {
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      return `${tenantId}/${productoId}/photo.${ext}`;
+    },
+    onUploaded: async ({ path, url }) => {
+      // Best-effort cleanup when the extension changed (JPG over PNG).
+      // Orphans are non-fatal so we don't await this on the critical path.
+      if (currentPath && currentPath !== path) {
+        const supabase = createBrowserSupabase();
+        await supabase.storage
+          .from("productos-photos")
+          .remove([currentPath])
+          .catch(() => {});
+      }
+      onChange({ path, url });
+    },
+  });
+
+  const previewUrl = blobPreview ?? currentUrl;
 
   function pickFile() {
     if (uploading) return;
     fileInputRef.current?.click();
   }
 
-  /**
-   * Single entry point for both the file picker and the drag-and-drop
-   * handler. Validates MIME + size, runs the optimistic local preview, then
-   * uploads to Storage and swaps in the signed URL.
-   */
-  async function processFile(file: File) {
-    if (!(ALLOWED_MIME as readonly string[]).includes(file.type)) {
-      toast.error("Formato no permitido. Usá JPG, PNG o WEBP.");
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      toast.error("La imagen supera los 5 MB.");
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-
-    setUploading(true);
-    try {
-      const supabase = createBrowserSupabase();
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-      const path = `${tenantId}/${productoId}/photo.${ext}`;
-
-      const { error: uploadErr } = await supabase.storage
-        .from("productos-photos")
-        .upload(path, file, {
-          cacheControl: "3600",
-          upsert: true,
-          contentType: file.type,
-        });
-
-      if (uploadErr) {
-        toast.error(uploadErr.message);
-        setPreviewUrl(currentUrl);
-        URL.revokeObjectURL(objectUrl);
-        return;
-      }
-
-      // Clean up old object when the extension changed (e.g. JPG over a
-      // previous PNG). Best-effort — orphan files are non-fatal.
-      if (currentPath && currentPath !== path) {
-        await supabase.storage
-          .from("productos-photos")
-          .remove([currentPath])
-          .catch(() => {});
-      }
-
-      const { data: signed, error: signErr } = await supabase.storage
-        .from("productos-photos")
-        .createSignedUrl(path, 60 * 60);
-      if (signErr || !signed) {
-        toast.error("Foto subida pero no se pudo previsualizar.");
-        setPreviewUrl(currentUrl);
-        URL.revokeObjectURL(objectUrl);
-        onChange({ path, url: null });
-        return;
-      }
-
-      onChange({ path, url: signed.signedUrl });
-      setPreviewUrl(signed.signedUrl);
-      URL.revokeObjectURL(objectUrl);
-    } finally {
-      setUploading(false);
-    }
-  }
-
   async function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow picking the same file twice
-    if (file) await processFile(file);
+    if (file) await upload(file);
   }
 
   async function handleRemove(e: React.MouseEvent) {
@@ -151,7 +107,6 @@ export function ProductoPhotoUpload({
         .remove([currentPath])
         .catch(() => {});
     }
-    setPreviewUrl(null);
     onChange({ path: null, url: null });
   }
 
@@ -175,7 +130,7 @@ export function ProductoPhotoUpload({
     setDragOver(false);
     if (uploading) return;
     const file = e.dataTransfer.files?.[0];
-    if (file) await processFile(file);
+    if (file) await upload(file);
   }
 
   const hasPreview = Boolean(previewUrl);

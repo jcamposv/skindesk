@@ -4,9 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpenIcon,
   CalendarIcon,
   CreditCardIcon,
   LayoutDashboardIcon,
+  LibraryIcon,
   PackageIcon,
   RouteIcon,
   SettingsIcon,
@@ -44,6 +46,8 @@ type NavItem = {
 const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
   super_admin: [
     { title: "Panel global", href: ROUTES.superAdmin, icon: ShieldCheckIcon },
+    { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
+    { title: "Atlas · CMS", href: ROUTES.atlasAdmin, icon: LibraryIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
   profesional: [
@@ -52,6 +56,7 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Catálogo de productos", href: ROUTES.productos, icon: PackageIcon },
     { title: "Rutinas", href: ROUTES.rutinas, icon: RouteIcon },
+    { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
     { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],
@@ -61,6 +66,7 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
     { title: "Clientes", href: ROUTES.clientes, icon: UsersIcon },
     { title: "Catálogo de productos", href: ROUTES.productos, icon: PackageIcon },
     { title: "Rutinas", href: ROUTES.rutinas, icon: RouteIcon },
+    { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
     { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
     { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
   ],

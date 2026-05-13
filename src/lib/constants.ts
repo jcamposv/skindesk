@@ -29,6 +29,10 @@ export const ROUTES = {
   productos: "/productos",
   /** Biblioteca de rutinas — plantillas reutilizables del profesional. */
   rutinas: "/rutinas",
+  /** Atlas dermocosmético — biblioteca clínica curada (read-only para staff). */
+  atlas: "/atlas",
+  /** CMS del Atlas — solo super_admin. */
+  atlasAdmin: "/super-admin/atlas",
 } as const;
 
 export const PUBLIC_ROUTES: readonly string[] = [
