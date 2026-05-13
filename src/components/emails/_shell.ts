@@ -94,7 +94,7 @@ export function renderEmail({ title, preheader, body }: ShellProps): string {
             </tr>
             <tr>
               <td style="background:${COLORS.cardShade};padding:18px 40px;border-top:1px solid ${COLORS.cardBorder};text-align:center;">
-                <p style="margin:0;font-size:12px;line-height:1.5;color:${COLORS.textMuted};">¿Necesitás ayuda? Escribinos a <a href="mailto:${SUPPORT_EMAIL}" style="color:${COLORS.balsam};text-decoration:underline;font-weight:500;">${SUPPORT_EMAIL}</a>.</p>
+                <p style="margin:0;font-size:12px;line-height:1.5;color:${COLORS.textMuted};">¿Necesitas ayuda? Escríbenos a <a href="mailto:${SUPPORT_EMAIL}" style="color:${COLORS.balsam};text-decoration:underline;font-weight:500;">${SUPPORT_EMAIL}</a>.</p>
               </td>
             </tr>
           </table>

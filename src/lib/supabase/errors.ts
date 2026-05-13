@@ -22,10 +22,10 @@ export function mapPgError(
 
   // Auth / RLS denials.
   if (code === "42501" || /permission denied/i.test(msg)) {
-    return "No tenés permisos para esta acción.";
+    return "No tienes permisos para esta acción.";
   }
   if (/row-level security|violates row-level security/i.test(msg)) {
-    return "No tenés permisos para modificar este registro.";
+    return "No tienes permisos para modificar este registro.";
   }
 
   // Unique violation (e.g. duplicate email, duplicate clienta).

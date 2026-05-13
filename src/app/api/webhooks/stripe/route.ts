@@ -363,7 +363,7 @@ async function handleCheckoutCompleted(
     {
       from: EMAIL_FROM,
       to: email,
-      subject: "Activá tu cuenta de SkinDesk",
+      subject: "Activa tu cuenta de SkinDesk",
       html: welcomeProfesionalHtml({
         fullName,
         planName: planConfig.name,

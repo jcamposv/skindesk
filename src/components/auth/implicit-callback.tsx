@@ -67,13 +67,13 @@ export function ImplicitCallback() {
     }
 
     if (fragmentError) {
-      setErrored(true);
+      queueMicrotask(() => setErrored(true));
       router.replace(loginErrorUrl(fragmentError, fragmentErrorDescription));
       return;
     }
 
     if (!accessToken || !refreshToken) {
-      setErrored(true);
+      queueMicrotask(() => setErrored(true));
       router.replace(
         loginErrorUrl("missing_tokens", "El enlace no incluye tokens válidos."),
       );

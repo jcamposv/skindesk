@@ -149,7 +149,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
           <SparklesIcon className="size-8 text-muted-foreground" />
           <p className="mt-3 font-heading text-base">Sin resultados</p>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Probá con otros filtros o limpiá la búsqueda para ver el catálogo
+            Prueba con otros filtros o limpia la búsqueda para ver el catálogo
             completo.
           </p>
         </div>

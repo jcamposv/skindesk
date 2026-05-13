@@ -7,7 +7,6 @@ import {
   ChevronDownIcon,
   FolderOpenIcon,
   HistoryIcon,
-  WandSparklesIcon,
 } from "lucide-react";
 
 import {

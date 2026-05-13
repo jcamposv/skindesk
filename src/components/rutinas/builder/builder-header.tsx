@@ -376,7 +376,7 @@ export function BuilderHeader({
       {!ready ? (
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <AlertCircleIcon className="size-3.5 text-[#BB7154]" />
-          <span>Para guardar necesitás:</span>
+          <span>Para guardar necesitas:</span>
           {nameMissing ? (
             <span className="rounded-full bg-[#FBEFE7] px-2 py-0.5 font-medium text-[#8C4A30]">
               Nombre

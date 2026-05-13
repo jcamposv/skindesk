@@ -109,7 +109,7 @@ export default async function ClientesPage({ searchParams }: PageProps) {
           </h1>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
             Toda la información de tus clientas centralizada — fichas, rutinas,
-            citas y evolución. Empezá agregando una nueva, {firstName}.
+            citas y evolución. Empieza agregando una nueva, {firstName}.
           </p>
         </div>
         {canCreate ? <AddClientaSheet /> : null}

@@ -112,7 +112,7 @@ export default async function AtlasLandingPage() {
           title={
             <>
               <ClockIcon className="size-3.5" />
-              Recientemente vistos
+              Vistos recientemente
             </>
           }
         >
@@ -133,7 +133,7 @@ export default async function AtlasLandingPage() {
                 className="size-3.5 text-[#D2A96A]"
                 strokeWidth={2.25}
               />
-              Recientemente publicado
+              Publicaciones recientes
             </>
           }
           action={

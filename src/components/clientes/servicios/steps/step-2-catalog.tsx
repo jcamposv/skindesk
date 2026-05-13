@@ -30,7 +30,7 @@ export function Step2Catalog({ serviceType, value, onChange }: Step2Props) {
           Elegí el servicio de {SERVICE_TYPE_LABEL[serviceType].toLowerCase()}
         </h3>
         <p className="text-[12.5px] text-muted-foreground">
-          Catálogo personalizable. Si no está acá, podés crearlo desde Configuración.
+          Catálogo personalizable. Si no está aquí, puedes crearlo desde Configuración.
         </p>
       </div>
       <ul className="grid gap-2 sm:grid-cols-2">

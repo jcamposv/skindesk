@@ -281,7 +281,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
               className="gap-1.5"
               render={<Link href={`${ROUTES.clientes}/${tx.cliente.id}`} />}
             >
-              Ver ficha de la clienta
+              Ver perfil de la clienta
               <ExternalLinkIcon className="size-3.5" />
             </Button>
           ) : null}

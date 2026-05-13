@@ -28,7 +28,7 @@ export async function updateAvatarUrlAction(
 ): Promise<ActionState> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
 
   const supabase = await createClient();

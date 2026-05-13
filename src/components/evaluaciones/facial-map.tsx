@@ -292,13 +292,13 @@ function FacialMapImpl({ value, onChange, mode, className }: FacialMapProps) {
         <p className="mt-3 text-center text-[11.5px] text-muted-foreground">
           {isEdit && activeCode ? (
             <>
-              Tocá una zona para anotar
+              Toca una zona para anotar
               <span className="ml-1 inline-flex items-center gap-1 rounded-md bg-[#BB7154] px-1.5 text-[10.5px] font-bold text-white">
                 {activeCode}
               </span>
             </>
           ) : isEdit ? (
-            "Seleccioná un código clínico → tocá la zona indicada"
+            "Seleccioná un código clínico → toca la zona indicada"
           ) : (
             "Mapa de alteraciones de la sesión"
           )}

@@ -306,7 +306,7 @@ export function PagosTable({
       onRowClick={(r) => router.push(`${ROUTES.pagos}/${r.id}`)}
       getRowId={(r) => r.id}
       emptyTitle="Sin pagos registrados"
-      emptyDescription="Cuando registres pagos desde la ficha de una clienta, los vas a ver acá."
+      emptyDescription="Cuando registres pagos desde la perfil de una clienta, los vas a ver aquí."
       emptyIcon={WalletIcon}
     />
   );

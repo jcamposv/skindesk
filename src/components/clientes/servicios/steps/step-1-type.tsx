@@ -29,7 +29,7 @@ export function Step1Type({ value, onChange }: Step1Props) {
     <div className="grid gap-3">
       <div>
         <h3 className="font-heading text-base font-medium tracking-tight">
-          ¿Qué tipo de servicio querés agregar?
+          ¿Qué tipo de servicio quieres agregar?
         </h3>
         <p className="text-[12.5px] text-muted-foreground">
           Cada tipo de servicio tiene su propio mapa, parámetros y campos clínicos.

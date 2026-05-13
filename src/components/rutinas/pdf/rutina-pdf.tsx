@@ -456,7 +456,7 @@ function MomentoSection({
   const m = isAm ? palette.am : palette.pm;
   const title = isAm ? "RUTINA AM" : "RUTINA PM";
   const tagline = isAm
-    ? "Empezá tu día cuidando tu piel"
+    ? "Empieza tu día cuidando tu piel"
     : "El momento perfecto para regenerar tu piel";
 
   // Pick a card width so the grid feels balanced. 3 per row by default;

@@ -52,14 +52,14 @@ export async function createClientaAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
 
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
 
   const callerRole = session.profile.role;
@@ -73,7 +73,7 @@ export async function createClientaAction(
   if (!allowed || !tenantId) {
     return {
       success: false,
-      message: "No tenés permisos para crear clientas.",
+      message: "No tienes permisos para crear clientas.",
     };
   }
 
@@ -277,7 +277,7 @@ export async function updateClientaAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -355,7 +355,7 @@ export async function resendClientaInviteAction(
 ): Promise<ActionState> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
 
   const callerRole = session.profile.role;
@@ -368,7 +368,7 @@ export async function resendClientaInviteAction(
   if (!allowed) {
     return {
       success: false,
-      message: "No tenés permisos para reenviar invitaciones.",
+      message: "No tienes permisos para reenviar invitaciones.",
     };
   }
 

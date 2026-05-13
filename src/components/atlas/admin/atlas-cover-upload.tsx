@@ -142,7 +142,7 @@ export function AtlasCoverUpload({
           <div className="flex flex-col items-center gap-1.5 text-center">
             <UploadCloudIcon className="size-7 text-muted-foreground" />
             <span className="text-xs font-medium">
-              {dragOver ? "Soltá la imagen" : "Subir o arrastrar portada"}
+              {dragOver ? "Suelta la imagen" : "Subir o arrastrar portada"}
             </span>
             <span className="text-[10px] text-muted-foreground">
               JPG, PNG o WEBP · máx 5 MB

@@ -87,7 +87,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           type: "manual",
           message: values.password
             ? "Mínimo 8 caracteres."
-            : "Necesitás tu contraseña. Si no tenés una, configurala desde el link de abajo.",
+            : "Necesitas tu contraseña. Si todavía no tienes una, configúrala desde el enlace de abajo.",
         });
         return;
       }
@@ -233,12 +233,12 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           href={ROUTES.forgotPassword}
           className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
-          Configurá tu contraseña si todavía no tenés una.
+          Configura tu contraseña si todavía no tienes una.
         </Link>
       </div>
 
       <p className="text-center text-sm text-muted-foreground">
-        ¿No tenés cuenta?{" "}
+        ¿No tienes cuenta?{" "}
         <Link
           href={ROUTES.home}
           className="font-medium text-primary underline-offset-4 hover:underline"

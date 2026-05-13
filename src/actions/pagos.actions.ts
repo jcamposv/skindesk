@@ -36,13 +36,13 @@ export async function registerPaymentAction(
 ): Promise<ActionState<RegisterPaymentResult>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = paymentRegisterSchema.safeParse(input);
@@ -71,7 +71,7 @@ export async function registerPaymentAction(
   if (!plan) {
     return {
       success: false,
-      message: "El servicio no tiene un plan de pago. Recargá la página.",
+      message: "El servicio no tiene un plan de pago. Recarga la página.",
     };
   }
 
@@ -121,13 +121,13 @@ export async function voidPaymentAction(
 ): Promise<ActionState<{ id: string }>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = paymentVoidSchema.safeParse(input);
@@ -192,13 +192,13 @@ export async function deletePaymentAction(
 ): Promise<ActionState<{ id: string }>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const supabase = await createClient();

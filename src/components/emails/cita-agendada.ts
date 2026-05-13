@@ -56,13 +56,13 @@ export function citaAgendadaHtml({
     detailsRows.push(`${strong("Profesional")}: ${professionalName}`);
 
   return renderEmail({
-    title: "Tenés una cita agendada en SkinDesk",
+    title: "Tienes una cita agendada en SkinDesk",
     preheader: `${scheduledByName} agendó tu próxima cita: ${whenLabel}.`,
     body: `
       ${eyebrow("Nueva cita confirmada")}
-      ${heading(`¡Hola ${firstName}!`)}
+      ${heading(`Hola ${firstName},`)}
       ${paragraph(
-        `${strong(scheduledByName)} acaba de agendar una cita para vos. Te dejamos los detalles abajo para que no se te pase.`,
+        `${strong(scheduledByName)} agendó una cita para ti. Estos son los detalles:`,
         { html: true },
       )}
       ${callout(detailsRows.join("<br/>"), { html: true })}
@@ -75,12 +75,12 @@ export function citaAgendadaHtml({
           : ""
       }
       ${paragraph(
-        "Si no podés asistir, avisanos con la mayor antelación posible respondiendo este correo.",
+        "Si no puedes asistir, avísanos lo antes posible respondiendo este correo.",
         { muted: true },
       )}
       ${divider()}
       ${fineprint(
-        `Podés ver todas tus citas en cualquier momento desde tu portal: ${link(appUrl, "skindesk.co")}.`,
+        `Puedes ver todas tus citas en cualquier momento desde tu portal: ${link(appUrl, "skindesk.co")}.`,
         { html: true },
       )}
     `,

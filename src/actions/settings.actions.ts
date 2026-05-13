@@ -27,13 +27,13 @@ export async function updateTenantCurrencyAction(
 ): Promise<ActionState<{ currency: string }>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
   if (!session.profile.tenant_id) {
     return {

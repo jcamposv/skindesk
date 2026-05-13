@@ -53,7 +53,7 @@ export async function signInAction(
       return {
         success: false,
         message: isInvalidCreds
-          ? "Email o contraseña incorrectos. Si te registraste recientemente todavía no tenés contraseña — usá el magic link o restablecela."
+          ? "Email o contraseña incorrectos. Si te registraste recientemente todavía no tienes contraseña — usa el magic link o restablecela."
           : error.message,
       };
     }

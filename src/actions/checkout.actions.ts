@@ -126,7 +126,7 @@ export async function createCheckoutSessionAction(
     return {
       success: false,
       message:
-        "No pudimos preparar el pago. Avisanos para revisar la configuración.",
+        "No pudimos preparar el pago. Avísanos para revisar la configuración.",
     };
   }
 
@@ -184,7 +184,7 @@ export async function createCheckoutSessionAction(
     return {
       success: false,
       message:
-        "No pudimos iniciar el pago. Intentá de nuevo en unos minutos o escribinos si persiste.",
+        "No pudimos iniciar el pago. Intentá de nuevo en unos minutos o escríbenos si persiste.",
     };
   }
 

@@ -39,12 +39,12 @@ export function rutinaAssignedHtml({
 
   return renderEmail({
     title: `${profesionalName} te asignó una rutina`,
-    preheader: `Tu rutina "${rutinaName}" ya está disponible en tu portal SkinDesk.`,
+    preheader: `Tu rutina "${rutinaName}" ya está disponible en tu portal de SkinDesk.`,
     body: `
       ${eyebrow("Tu nueva rutina")}
-      ${heading(`¡Hola ${firstName}! ✨`)}
+      ${heading(`Hola ${firstName},`)}
       ${paragraph(
-        `${strong(profesionalName)} te asignó una rutina personalizada: ${strong(rutinaName)}. Podés verla con todos los pasos, productos y tiempos desde tu portal.`,
+        `${strong(profesionalName)} te asignó una rutina personalizada: ${strong(rutinaName)}. Desde tu portal puedes ver cada paso con sus productos y tiempos.`,
         { html: true },
       )}
       ${
@@ -54,12 +54,12 @@ export function rutinaAssignedHtml({
       }
       ${button(portalUrl, "Ver mi rutina")}
       ${paragraph(
-        "Si tenés dudas sobre algún paso, escribile directamente a tu profesional desde el portal.",
+        "Si tienes dudas sobre algún paso, escríbele a tu profesional desde el portal.",
         { muted: true },
       )}
       ${divider()}
       ${fineprint(
-        "Si pensás que recibiste este correo por error, podés ignorarlo — tu profesional puede actualizar la asignación cuando quiera.",
+        "Si recibiste este correo por error, puedes ignorarlo — tu profesional puede actualizar la asignación en cualquier momento.",
       )}
     `,
   });

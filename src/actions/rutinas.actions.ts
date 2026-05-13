@@ -71,7 +71,7 @@ async function upsertRutina(
   if (data.kind === "assignment" && !data.clienteId) {
     return {
       success: false,
-      message: "Tenés que elegir la clienta para asignar la rutina.",
+      message: "Tienes que elegir la clienta para asignar la rutina.",
     };
   }
   if (data.kind === "template" && data.clienteId) {
@@ -82,9 +82,9 @@ async function upsertRutina(
   }
 
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para guardar rutinas." };
+    return { success: false, message: "No tienes permisos para guardar rutinas." };
   }
 
   const supabase = await createClient();
@@ -256,7 +256,6 @@ async function diffSteps(
     if (step.id && existingById.has(step.id)) {
       const row = stepToRow(step, rutinaId, order);
       // rutina_id stays the same; skip it from the update payload.
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { rutina_id: _omit, ...updateCols } = row;
       const { error: updErr } = await supabase
         .from("rutina_steps")
@@ -301,9 +300,9 @@ export async function duplicateRutinaAction(
   rutinaId: string,
 ): Promise<ActionState<{ rutinaId: string }>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para duplicar." };
+    return { success: false, message: "No tienes permisos para duplicar." };
   }
 
   const supabase = await createClient();
@@ -388,9 +387,9 @@ export async function archiveRutinaAction(
   rutinaId: string,
 ): Promise<ActionState> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session)) {
-    return { success: false, message: "Sin permisos para eliminar." };
+    return { success: false, message: "No tienes permisos para eliminar." };
   }
 
   const supabase = await createClient();
@@ -436,9 +435,9 @@ export async function assignRutinaToClienteAction(
   }
 
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para asignar rutinas." };
+    return { success: false, message: "No tienes permisos para asignar rutinas." };
   }
 
   const supabase = await createClient();
@@ -767,7 +766,7 @@ async function requireActiveProfesional(): Promise<
   | { ok: false; message: string }
 > {
   const session = await getCurrentSession();
-  if (!session) return { ok: false, message: "No autenticado." };
+  if (!session) return { ok: false, message: "Inicia sesión para continuar." };
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
@@ -777,7 +776,7 @@ async function requireActiveProfesional(): Promise<
   if (session.profile.role !== "super_admin") {
     const status = session.tenant?.subscription_status ?? null;
     if (status !== "active" && status !== "trialing") {
-      return { ok: false, message: "Necesitás una membresía activa." };
+      return { ok: false, message: "Necesitas una membresía activa." };
     }
   }
   if (!session.profile.tenant_id && session.profile.role !== "super_admin") {
@@ -1032,7 +1031,7 @@ export async function importShareRutinaAction(
     return {
       success: false,
       message:
-        "Ninguno de los productos de la rutina existe en tu catálogo. Volvé a importar con la opción de copiar productos.",
+        "Ninguno de los productos de la rutina existe en tu catálogo. Vuelve a importar con la opción de copiar productos.",
     };
   }
 

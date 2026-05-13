@@ -116,7 +116,7 @@ export function ShareImportButton({
               <span>
                 <strong>{importableSteps}</strong> de{" "}
                 <strong>{analysis.totalSteps}</strong> pasos usan productos
-                que ya tenés en tu catálogo.
+                que ya tienes en tu catálogo.
               </span>
             </div>
 

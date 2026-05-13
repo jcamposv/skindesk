@@ -72,7 +72,7 @@ export function CurrencySettingsCard({
         </CardTitle>
         <CardDescription>
           Define cómo se muestran los montos en todo SkinDesk: dashboard,
-          plan de pagos, ficha de la clienta y el módulo de Pagos. No
+          plan de pagos, perfil de la clienta y el módulo de Pagos. No
           convierte importes: solo cambia el formato.
         </CardDescription>
       </CardHeader>

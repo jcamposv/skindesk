@@ -102,7 +102,7 @@ function HistoryBody({
               {service.name}
             </DialogPrimitive.Title>
             <p className="truncate text-[12px] text-muted-foreground">
-              {completed} de {service.totalSessions} sesiones · tocá una sesión
+              {completed} de {service.totalSessions} sesiones · toca una sesión
               para ver el detalle clínico.
             </p>
           </div>

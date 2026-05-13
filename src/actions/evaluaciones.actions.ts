@@ -44,7 +44,7 @@ export async function upsertEvaluacionAction(
 ): Promise<ActionState<UpsertResult>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
 
   const callerRole = session.profile.role;
@@ -53,7 +53,7 @@ export async function upsertEvaluacionAction(
     callerRole === "asistente" ||
     callerRole === "super_admin";
   if (!allowed) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = evaluacionPatchSchema.safeParse(patch);

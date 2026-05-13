@@ -63,7 +63,7 @@ const STEPS = [
   {
     key: 3,
     label: "Primera sesión",
-    description: "Configurá el detalle y registrá la sesión.",
+    description: "Configura el detalle y registra la sesión.",
   },
 ] as const;
 
@@ -165,7 +165,7 @@ function AddServiceBody({
             Agregar servicio
           </DialogPrimitive.Title>
           <p className="text-[12px] text-muted-foreground">
-            Asigná un tratamiento a la clienta y registrá la primera sesión.
+            Asigná un tratamiento a la clienta y registra la primera sesión.
           </p>
         </div>
         <button

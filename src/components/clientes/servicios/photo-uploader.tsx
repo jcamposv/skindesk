@@ -115,7 +115,7 @@ export function PhotoUploader({
 
     for (const file of accepted) {
       if (!isAllowedMime(file.type)) {
-        toast.error(`Formato no soportado (${file.name}). Usá JPG, PNG o WebP.`);
+        toast.error(`Formato no soportado (${file.name}). Usa JPG, PNG o WebP.`);
         continue;
       }
       if (file.size > MAX_BYTES) {

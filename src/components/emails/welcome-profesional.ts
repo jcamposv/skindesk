@@ -36,28 +36,32 @@ export function welcomeProfesionalHtml({
   // from Stripe metadata. The shell helpers each escape what they receive,
   // so we only need to escape when we hand-assemble HTML in `paragraph(…,
   // { html: true })`.
+  // First-name greeting feels personal; gender stays neutral by saying
+  // "te damos la bienvenida" instead of "bienvenida/bienvenido".
+  const firstName = fullName.trim().split(/\s+/)[0] || fullName;
+
   return renderEmail({
-    title: "Bienvenida a SkinDesk",
-    preheader: `Tu plan ${planName} ya está activo — activá tu cuenta para entrar al panel.`,
+    title: "Tu cuenta de SkinDesk está lista",
+    preheader: `Tu plan ${planName} ya está activo. Activa tu cuenta para entrar al panel.`,
     body: `
       ${eyebrow("Tu cuenta está lista")}
-      ${heading(`Hola ${fullName}, ¡bienvenida a SkinDesk!`)}
+      ${heading(`Hola ${firstName}, te damos la bienvenida a SkinDesk.`)}
       ${paragraph(
-        `Tu suscripción al plan ${strong(planName)} ya está activa. Para entrar a tu panel solo hace falta que confirmes tu cuenta — el enlace caduca en 30 minutos.`,
+        `Tu suscripción al plan ${strong(planName)} ya está activa. Para entrar a tu panel solo necesitas confirmar tu cuenta — el enlace caduca en 30 minutos.`,
         { html: true },
       )}
       ${button(magicLink, "Activar mi cuenta")}
       ${paragraph(
-        `¿No te llegó o expiró? Pedí uno nuevo desde ${link(`${appUrl}/login`, "la página de inicio de sesión")}.`,
+        `¿No te llegó o ya expiró? Solicita uno nuevo desde ${link(`${appUrl}/login`, "la página de inicio de sesión")}.`,
         { html: true, muted: true },
       )}
       ${callout(
-        `${strong("Tip:")} después de tu primer ingreso te vamos a pedir crear una contraseña — así podés iniciar sesión rápido sin esperar el magic link cada vez.`,
+        `${strong("Sugerencia:")} en tu primer ingreso te pediremos crear una contraseña — así inicias sesión sin esperar un enlace nuevo cada vez.`,
         { html: true },
       )}
       ${divider()}
       ${fineprint(
-        `¿Preguntas? Escribinos a ${link(`mailto:${SUPPORT_EMAIL}`, SUPPORT_EMAIL)}.`,
+        `¿Tienes preguntas? Escríbenos a ${link(`mailto:${SUPPORT_EMAIL}`, SUPPORT_EMAIL)}.`,
         { html: true },
       )}
     `,

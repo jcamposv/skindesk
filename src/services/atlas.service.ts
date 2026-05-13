@@ -35,9 +35,30 @@ export interface AtlasFile extends AtlasFileRow {
   htmlRoute: string | null;
 }
 
-/** 30-minute signed URL — long enough that the user can stay on the page
- *  and download / re-open without re-signing, short enough that a leaked
- *  link rots quickly. */
+/**
+ * 30-minute signed URL — chosen as the single TTL for every storage path
+ * we surface (cover thumbnails, attachment PDFs/images, HTML bundles).
+ *
+ * Why 30 min:
+ *  - Landing / section pages are ISR with `revalidate = 60`, so signed URLs
+ *    embedded in cached HTML are at most ~60 s old when served. 30 min of
+ *    validity easily covers the cache window + a generous browser-side
+ *    fetch grace period.
+ *  - Reader pages aren't cached and re-sign on each request, so 30 min
+ *    only needs to outlive a single reading session — long enough for the
+ *    user to scroll/download without breakage, short enough that a link
+ *    leaked via screenshot / history sync rots before it's useful.
+ *
+ * DO NOT bump this for a future "share to clienta" feature. Direct
+ * Supabase signed URLs are NOT revocable, NOT auditable, and NOT
+ * rate-limitable — they're inappropriate as an external sharing primitive.
+ * The right architecture for share-to-clienta is:
+ *   1. `atlas_share_tokens` table (token, entry_id, expires_at, revoked_at)
+ *   2. Server route (`/api/atlas/share/[token]/[fileId]`) that validates
+ *      the token, logs access, and proxies the file bytes — never hands
+ *      the underlying signed URL to the browser.
+ * The existing `/api/atlas/files/[fileId]/html` route is the pattern.
+ */
 export const ATLAS_SIGNED_URL_TTL = 60 * 30;
 
 // ---------------------------------------------------------------------------

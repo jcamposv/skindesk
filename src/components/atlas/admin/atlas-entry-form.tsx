@@ -305,8 +305,8 @@ export function AtlasEntryForm({
                   </FormControl>
                   <p className="text-[11px] text-muted-foreground">
                     {slugStatus === "taken"
-                      ? "Ese slug ya existe en esta sección."
-                      : "Se autogenera desde el título. Editalo para fijarlo."}
+                      ? "Esa URL ya existe en esta sección."
+                      : "Se autogenera desde el título. Edítalo para fijarlo."}
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -323,7 +323,7 @@ export function AtlasEntryForm({
                     <Textarea
                       {...field}
                       rows={2}
-                      placeholder="Resumen de 1–2 líneas para la card."
+                      placeholder="Resumen breve para la vista previa."
                     />
                   </FormControl>
                   <FormMessage />
@@ -438,7 +438,7 @@ export function AtlasEntryForm({
                 onChange={handleCoverChange}
               />
               <p className="text-[11px] text-muted-foreground">
-                La portada se guarda al pulsar “
+                La portada se guarda al presionar “
                 {isEdit ? "Guardar cambios" : "Crear entrada"}”.
               </p>
             </div>

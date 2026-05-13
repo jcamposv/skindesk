@@ -426,18 +426,14 @@ function ServicioPickerField({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!clienteId) {
-      setOptions([]);
-      return;
-    }
+    if (!clienteId) return;
     let cancelled = false;
-    setLoading(true);
     (async () => {
+      setLoading(true);
       const res = await listServiciosForClienteCitaAction(clienteId);
       if (cancelled) return;
       setLoading(false);
-      if (res.success && res.data) setOptions(res.data);
-      else setOptions([]);
+      setOptions(res.success && res.data ? res.data : []);
     })();
     return () => {
       cancelled = true;

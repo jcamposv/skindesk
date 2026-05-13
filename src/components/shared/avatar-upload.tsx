@@ -188,7 +188,7 @@ function UploadDialog({
 
   const acceptFile = useCallback((next: File) => {
     if (!isAllowedMime(next.type)) {
-      toast.error("Formato no soportado. Usá JPG, PNG, WebP o GIF.");
+      toast.error("Formato no soportado. Usa JPG, PNG, WebP o GIF.");
       return;
     }
     if (next.size > MAX_BYTES) {
@@ -398,10 +398,10 @@ function UploadDialog({
                   <UploadCloudIcon className="size-5" />
                 </span>
                 <p className="text-[13px] font-medium">
-                  Arrastrá una imagen aquí
+                  Arrastra una imagen aquí
                 </p>
                 <p className="text-[11.5px] text-muted-foreground">
-                  o hacé clic para elegirla desde tu computadora
+                  o haz clic para elegirla desde tu computadora
                 </p>
                 <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-[11.5px] font-medium text-foreground/80 ring-1 ring-border/60">
                   <ImagePlusIcon className="size-3" />
@@ -413,7 +413,7 @@ function UploadDialog({
 
           {currentUrl && !file ? (
             <p className="text-center text-[11px] text-muted-foreground">
-              Tenés una foto cargada. Subí una nueva para reemplazarla.
+              Tienes una foto cargada. Subí una nueva para reemplazarla.
             </p>
           ) : null}
         </div>

@@ -206,7 +206,7 @@ function ErrorState() {
         </h1>
         <p className="text-balance text-base text-muted-foreground">
           Si recién pagaste, esperá un par de minutos y refrescá esta página.
-          Si el problema persiste, escribinos y te ayudamos a resolverlo.
+          Si el problema persiste, escríbenos y te ayudamos a resolverlo.
         </p>
       </div>
 

@@ -28,23 +28,23 @@ export function shareInviteHtml({
   shareUrl,
 }: ShareInviteProps): string {
   return renderEmail({
-    title: `${senderName} compartió una rutina con vos`,
-    preheader: `${senderName} te compartió la rutina "${rutinaName}". Necesitás membresía activa para abrirla.`,
+    title: `${senderName} compartió una rutina contigo`,
+    preheader: `Recibiste la rutina "${rutinaName}". Necesitas una membresía activa para abrirla.`,
     body: `
       ${eyebrow("Rutina compartida")}
       ${heading(`${senderName} te compartió una rutina`)}
       ${paragraph(
-        `${strong(rutinaName)} está disponible para que la veas en tu cuenta SkinDesk. Si te sirve, podés importarla a tu biblioteca con un click — la copia queda totalmente bajo tu control y la original no se modifica.`,
+        `${strong(rutinaName)} está disponible para que la veas en tu cuenta de SkinDesk. Si te resulta útil, puedes importarla a tu biblioteca con un clic — la copia queda bajo tu control y la original no se modifica.`,
         { html: true },
       )}
       ${button(shareUrl, "Ver la rutina")}
       ${paragraph(
-        "Para abrir el link necesitás iniciar sesión con una cuenta de SkinDesk con membresía activa.",
+        "Para abrir el enlace necesitas iniciar sesión con una cuenta de SkinDesk con membresía activa.",
         { muted: true },
       )}
       ${divider()}
       ${fineprint(
-        "Este link no incluye datos de clientas, notas clínicas ni historial de asignaciones — son privados de cada profesional.",
+        "Este enlace no incluye datos de clientas, notas clínicas ni historial de asignaciones — esa información es privada de cada profesional.",
       )}
     `,
   });

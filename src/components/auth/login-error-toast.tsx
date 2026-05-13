@@ -17,19 +17,19 @@ import { toast } from "sonner";
 const ERROR_MESSAGES: Record<string, string> = {
   // Supabase /verify codes
   otp_expired:
-    "El enlace expiró. Pedí uno nuevo desde la pantalla de recuperar contraseña.",
+    "El enlace expiró. Pide uno nuevo desde la pantalla de recuperar contraseña.",
   access_denied:
-    "El enlace ya fue usado o no es válido. Pedí uno nuevo.",
-  invalid_request: "El enlace no es válido. Pedí uno nuevo.",
+    "El enlace ya fue usado o no es válido. Pide uno nuevo.",
+  invalid_request: "El enlace no es válido. Pide uno nuevo.",
   // Internal codes from our callbacks
   missing_tokens:
-    "El enlace no traía tokens válidos. Probá pedir uno nuevo.",
+    "El enlace no traía tokens válidos. Prueba pedir uno nuevo.",
   set_session_failed:
-    "No pudimos iniciar tu sesión. Pedí un enlace nuevo y volvé a intentar.",
+    "No pudimos iniciar tu sesión. Pide un enlace nuevo y vuelve a intentar.",
   exchange_failed:
-    "No pudimos validar el enlace. Probablemente expiró — pedí uno nuevo.",
+    "No pudimos validar el enlace. Probablemente expiró — pide uno nuevo.",
   auth_callback:
-    "Hubo un problema con el enlace. Volvé a intentarlo.",
+    "Hubo un problema con el enlace. Vuelve a intentarlo.",
 };
 
 export function LoginErrorToast() {

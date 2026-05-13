@@ -272,7 +272,7 @@ export function ProductoForm({
         {/* B — Foto */}
         <Section
           title="Foto del producto"
-          description="Opcional. Si no subís foto, mostramos una ilustración."
+          description="Opcional. Si no subes foto, mostramos una ilustración."
           icon={CameraIcon}
         >
           <ProductoPhotoUpload
@@ -323,7 +323,7 @@ export function ProductoForm({
         {/* D — Tipo de piel */}
         <Section
           title="Tipo de piel recomendado"
-          description="Tocá los chips. Si marcás 'Todas', se seleccionan todos."
+          description="Toca los chips. Si marcás 'Todas', se seleccionan todos."
           icon={DropletIcon}
         >
           <SkinTypesField
@@ -477,7 +477,7 @@ export function ProductoForm({
         {/* G — Notas clínicas */}
         <Section
           title="Notas clínicas"
-          description="Solo visibles para vos — nunca se muestran a la clienta."
+          description="Solo visibles para ti — nunca se muestran a la clienta."
           icon={ClipboardListIcon}
         >
           <FormField

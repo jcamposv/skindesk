@@ -99,7 +99,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                 Cancelaste el pago.
               </span>{" "}
               No te cobramos nada. Si fue sin querer, elegí tu plan abajo y
-              volvé a intentar — tu información no se perdió.
+              vuelve a intentar — tu información no se perdió.
             </p>
           </div>
         </div>

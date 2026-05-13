@@ -17,7 +17,7 @@ import {
 } from "@/schemas/atlas.schema";
 import { listAtlasEntries } from "@/services/atlas.service";
 
-export const metadata: Metadata = { title: "Atlas · CMS" };
+export const metadata: Metadata = { title: "Atlas · Administración" };
 // CMS sees draft + archived rows — content branches by role at the data
 // layer, so we keep it dynamic instead of caching.
 export const dynamic = "force-dynamic";
@@ -98,7 +98,7 @@ export default async function AtlasAdminListPage({ searchParams }: PageProps) {
         <div className="grid gap-1">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#EAE6DC] px-2.5 py-1 text-[11px] font-medium text-[#5C6E6C]">
             <LibraryIcon className="size-3" />
-            Atlas · CMS
+            Atlas · Administración
           </span>
           <h1 className="font-heading text-2xl font-medium tracking-tight sm:text-3xl">
             Biblioteca dermocosmética
@@ -182,7 +182,7 @@ export default async function AtlasAdminListPage({ searchParams }: PageProps) {
         <div className="grid place-items-center rounded-xl border border-dashed bg-card p-10 text-center">
           <p className="font-heading text-base">Sin entradas todavía</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Creá la primera entrada para arrancar la biblioteca.
+            Crea la primera entrada para arrancar la biblioteca.
           </p>
           <Button
             variant="cta"

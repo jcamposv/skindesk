@@ -54,13 +54,13 @@ export async function createCitaAction(
   input: CitaCreateInput,
 ): Promise<ActionState<CitaResult>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "asistente" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = citaCreateSchema.safeParse(input);
@@ -240,7 +240,7 @@ async function sendCitaAgendadaEmail({
       {
         from: EMAIL_FROM,
         to: profile.email,
-        subject: "Tenés una cita agendada en SkinDesk",
+        subject: "Tienes una cita agendada en SkinDesk",
         html: citaAgendadaHtml({
           clientaName: profile.full_name ?? "Clienta",
           scheduledByName,
@@ -275,13 +275,13 @@ export async function updateCitaAction(
   expectedVersion?: number,
 ): Promise<ActionState<CitaResult>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "asistente" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = citaUpdateSchema.safeParse(input);
@@ -376,13 +376,13 @@ export async function deleteCitaAction(
   id: string,
 ): Promise<ActionState<{ id: string }>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "asistente" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const supabase = await createClient();
@@ -421,7 +421,7 @@ export async function listServiciosForClienteCitaAction(
   clienteId: string,
 ): Promise<ActionState<CitaServicioOption[]>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!clienteId) return { success: true, data: [] };
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -527,13 +527,13 @@ export async function checkCitaAvailabilityAction(
   input: CheckAvailabilityInput,
 ): Promise<ActionState<SlotAvailabilityResult>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "asistente" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = checkAvailabilitySchema.safeParse(input);

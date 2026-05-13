@@ -48,7 +48,7 @@ interface RutinasAsignadasTabProps {
  * Two CTAs:
  *   · "Asignar desde biblioteca" → opens AssignRutinaDialog with the
  *     clienta preselected; picker lists library templates.
- *   · "Crear nueva rutina" → navigates to the builder with the cliente
+ *   · "Nueva rutina" → navigates to the builder with the cliente
  *     pre-selected (`?cliente=<id>`).
  */
 export function RutinasAsignadasTab({

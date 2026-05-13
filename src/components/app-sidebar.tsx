@@ -47,8 +47,8 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
   super_admin: [
     { title: "Panel global", href: ROUTES.superAdmin, icon: ShieldCheckIcon },
     { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
-    { title: "Atlas · CMS", href: ROUTES.atlasAdmin, icon: LibraryIcon },
-    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+    { title: "Atlas · Administración", href: ROUTES.atlasAdmin, icon: LibraryIcon },
+    { title: "Configuración", href: ROUTES.settings, icon: SettingsIcon },
   ],
   profesional: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
@@ -58,7 +58,7 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
     { title: "Rutinas", href: ROUTES.rutinas, icon: RouteIcon },
     { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
     { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
-    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+    { title: "Configuración", href: ROUTES.settings, icon: SettingsIcon },
   ],
   asistente: [
     { title: "Dashboard", href: ROUTES.profesional, icon: LayoutDashboardIcon },
@@ -68,7 +68,7 @@ const NAV_BY_ROLE: Record<Exclude<AppRole, "clienta">, NavItem[]> = {
     { title: "Rutinas", href: ROUTES.rutinas, icon: RouteIcon },
     { title: "Atlas dermocosmético", href: ROUTES.atlas, icon: BookOpenIcon },
     { title: "Pagos", href: ROUTES.pagos, icon: CreditCardIcon },
-    { title: "Ajustes", href: ROUTES.settings, icon: SettingsIcon },
+    { title: "Configuración", href: ROUTES.settings, icon: SettingsIcon },
   ],
 };
 

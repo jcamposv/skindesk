@@ -516,7 +516,7 @@ function EmptyState({
         </h3>
         <p className="max-w-md text-[12.5px] text-muted-foreground">
           {filtered
-            ? "Cambiá el filtro o agregá un servicio nuevo para esta clienta."
+            ? "Cambia el filtro o agregá un servicio nuevo para esta clienta."
             : "Cuando agregues un servicio vas a poder registrar sesiones, controlar el avance y guardar fotos antes/después."}
         </p>
       </div>

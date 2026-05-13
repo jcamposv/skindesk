@@ -66,28 +66,22 @@ export function SlotAvailability({
     new Date(endAt).getTime() > new Date(startAt).getTime();
 
   useEffect(() => {
-    if (!canCheck) {
-      setResult(null);
-      setIsChecking(false);
-      return;
-    }
+    if (!canCheck) return;
     const reqId = ++reqIdRef.current;
-    setIsChecking(true);
     const handle = window.setTimeout(async () => {
+      // Discard if a newer request superseded this one before we started.
+      if (reqId !== reqIdRef.current) return;
+      setIsChecking(true);
+      setResult(null);
       const res = await checkCitaAvailabilityAction({
         startAt,
         endAt,
         professionalId: professionalId ?? null,
         excludeCitaId: excludeCitaId ?? null,
       });
-      // Discard stale responses.
       if (reqId !== reqIdRef.current) return;
       setIsChecking(false);
-      if (res.success && res.data) {
-        setResult(res.data);
-      } else {
-        setResult(null);
-      }
+      setResult(res.success && res.data ? res.data : null);
     }, DEBOUNCE_MS);
 
     return () => {

@@ -218,7 +218,7 @@ function BuilderInner({
               <SheetHeader className="border-b px-4 py-3">
                 <SheetTitle className="text-sm">Catálogo de productos</SheetTitle>
                 <SheetDescription className="text-xs">
-                  Tocá <strong>+</strong> para agregar un producto al final
+                  Toca <strong>+</strong> para agregar un producto al final
                   de la rutina.
                 </SheetDescription>
               </SheetHeader>
@@ -305,8 +305,8 @@ function BuilderInner({
                   </p>
                   <p className="mt-1 max-w-md text-xs text-[#8C4A30]/80">
                     Agregá productos desde el catálogo (panel izquierdo)
-                    tocando <strong>+</strong> o arrastrándolos hasta acá.
-                    Necesitás al menos 1 paso para guardar o asignar la
+                    tocando <strong>+</strong> o arrastrandolos hasta aquí.
+                    Necesitas al menos 1 paso para guardar o asignar la
                     rutina.
                   </p>
                 </div>
@@ -343,7 +343,7 @@ function BuilderInner({
             >
               <PackagePlusIcon className="size-6" />
               <p className="mt-2">
-                Arrastrá un producto acá o tocá <strong>+</strong> en el
+                Arrastra un producto aquí o toca <strong>+</strong> en el
                 catálogo
               </p>
             </div>

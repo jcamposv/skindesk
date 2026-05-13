@@ -231,7 +231,7 @@ export function ClientesTable({ rows, total }: ClientesTableProps) {
       onRowClick={(r) => router.push(`${ROUTES.clientes}/${r.id}`)}
       getRowId={(r) => r.id}
       emptyTitle="Todavía no agregaste clientas"
-      emptyDescription="Empezá agregando tu primera clienta. Le creamos el portal y le mandamos la invitación por email."
+      emptyDescription="Empieza agregando tu primera clienta. Le creamos el portal y le mandamos la invitación por email."
       emptyIcon={UsersIcon}
     />
   );

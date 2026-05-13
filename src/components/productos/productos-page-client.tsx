@@ -107,7 +107,7 @@ export function ProductosPageClient({
           <PackagePlusIcon className="size-8 text-muted-foreground" />
           <p className="mt-3 font-heading text-base">Sin productos todavía</p>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Sumá los productos que usás para luego armar rutinas a tus clientas.
+            Agrega los productos que usas para luego armar rutinas a tus clientas.
           </p>
           {canEdit ? (
             <Button

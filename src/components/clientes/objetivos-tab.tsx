@@ -60,12 +60,12 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
           <ClipboardListIcon className="size-5" />
         </span>
         <h3 className="font-heading text-base">
-          Necesitás llenar la evaluación primero
+          Necesitas llenar la evaluación primero
         </h3>
         <p className="max-w-md text-sm text-muted-foreground">
           Cuando completes anamnesis, estilo de vida y diagnóstico en la pestaña
           <span className="font-medium"> Evaluación</span>, vas a poder definir
-          el objetivo y el plan de tratamiento desde acá.
+          el objetivo y el plan de tratamiento desde aquí.
         </p>
       </div>
     );
@@ -141,7 +141,7 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
             </span>
             <p className="text-[13px] font-medium">Sin plan definido todavía</p>
             <p className="text-[12px] text-muted-foreground">
-              Usá el botón <span className="font-medium">Crear plan</span> de
+              Usa el botón <span className="font-medium">Crear plan</span> de
               arriba para empezar.
             </p>
           </div>

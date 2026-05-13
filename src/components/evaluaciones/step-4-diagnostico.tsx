@@ -162,7 +162,7 @@ export function Step4Diagnostico() {
         id="s4-mapa"
         icon={StickerIcon}
         title="Mapa facial · marcado de alteraciones"
-        hint="Seleccioná un código clínico → tocá la zona indicada en el rostro."
+        hint="Seleccioná un código clínico → toca la zona indicada en el rostro."
         tone="copper"
       >
         <Controller

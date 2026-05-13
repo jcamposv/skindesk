@@ -171,14 +171,14 @@ export async function cancelSubscriptionAction(): Promise<ActionState> {
       message:
         err instanceof Error
           ? err.message
-          : "No pudimos cancelar la suscripción. Probá de nuevo.",
+          : "No pudimos cancelar la suscripción. Prueba de nuevo.",
     };
   }
 
   revalidatePath(ROUTES.settings);
   return {
     success: true,
-    message: "Cancelación programada. Mantenés acceso hasta el fin del período.",
+    message: "Cancelación programada. Manténs acceso hasta el fin del período.",
   };
 }
 
@@ -229,7 +229,7 @@ export async function reactivateSubscriptionAction(): Promise<ActionState> {
       message:
         err instanceof Error
           ? err.message
-          : "No pudimos reactivar la suscripción. Probá de nuevo.",
+          : "No pudimos reactivar la suscripción. Prueba de nuevo.",
     };
   }
 

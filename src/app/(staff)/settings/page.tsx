@@ -22,7 +22,7 @@ import { getCurrentSession } from "@/lib/supabase/server";
 import { getTenantConfig } from "@/lib/tenant-config";
 import type { Database } from "@/types/database.types";
 
-export const metadata: Metadata = { title: "Ajustes" };
+export const metadata: Metadata = { title: "Configuración" };
 
 const ROLE_LABEL = {
   super_admin: "Super admin",
@@ -132,7 +132,7 @@ export default async function SettingsPage() {
         <h2 className="text-2xl font-semibold tracking-tight">Ajustes</h2>
         <p className="text-sm text-muted-foreground">
           {isHardGated
-            ? "Reactivá tu suscripción para volver a usar SkinDesk."
+            ? "Reactiva tu suscripción para volver a usar SkinDesk."
             : "Gestiona tu cuenta y preferencias."}
         </p>
       </div>

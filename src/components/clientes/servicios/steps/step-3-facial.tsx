@@ -3,7 +3,6 @@
 import { Controller, useFormContext, type FieldValues } from "react-hook-form";
 
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { NumericInput } from "@/components/ui/numeric-input";
 
 import { ChipMultiSelect } from "../chip-multi-select";

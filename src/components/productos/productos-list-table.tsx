@@ -143,7 +143,7 @@ export function ProductosListTable({
       sortable={false}
       showPagination={false}
       emptyTitle="Sin productos"
-      emptyDescription="Sumá productos al catálogo para empezar a armar rutinas."
+      emptyDescription="Agrega productos al catálogo para empezar a armar rutinas."
       emptyIcon={PackageIcon}
     />
   );

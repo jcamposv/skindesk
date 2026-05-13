@@ -180,7 +180,7 @@ export default async function RutinasLibraryPage({ searchParams }: PageProps) {
           <SparklesIcon className="size-8 text-muted-foreground" />
           <p className="mt-3 font-heading text-base">Sin resultados</p>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Probá con otros filtros o creá una rutina nueva.
+            Prueba con otros filtros o crea una rutina nueva.
           </p>
         </div>
       ) : view === "list" ? (

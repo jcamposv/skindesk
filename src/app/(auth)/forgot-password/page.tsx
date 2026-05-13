@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
             Recuperar acceso
           </p>
           <h1 className="text-3xl font-semibold tracking-tight">
-            Configurá tu contraseña
+            Configura tu contraseña
           </h1>
           <p className="text-sm text-muted-foreground">
             Te enviamos un enlace al email. Sirve para crear tu primera

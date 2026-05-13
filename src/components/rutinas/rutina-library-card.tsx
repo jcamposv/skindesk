@@ -348,7 +348,7 @@ export function RutinaLibraryCard({
   );
 }
 
-/** "Crear nueva rutina" featured card — always first in the grid. */
+/** "Nueva rutina" featured card — always first in the grid. */
 export function RutinaCreateCard() {
   return (
     <Link

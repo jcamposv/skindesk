@@ -192,7 +192,7 @@ export default async function AtlasSectionPage({
           </p>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
             {search || tag
-              ? "Probá con otra búsqueda o limpiá los filtros."
+              ? "Prueba con otra búsqueda o limpia los filtros."
               : "Esta sección estará disponible pronto."}
           </p>
         </div>

@@ -75,7 +75,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
         }
       : {
           headline: `Estás a un paso de activar ${plan.name}.`,
-          subline: `${plan.tagline}. Activá tu suscripción y empezá a usar SkinDesk hoy.`,
+          subline: `${plan.tagline}. Activa tu suscripción y empieza a usar SkinDesk hoy.`,
         };
 
   return (
@@ -90,7 +90,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
       <div className="relative flex flex-col p-6 sm:p-10">
         <header className="flex items-center justify-end gap-3">
           <span className="hidden text-sm text-muted-foreground sm:inline">
-            ¿Querés cambiar de plan?
+            ¿Quieres cambiar de plan?
           </span>
           <Button
             variant="outline"

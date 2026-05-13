@@ -133,7 +133,7 @@ export const upsertAtlasEntrySchema = z.object({
     .trim()
     .min(2, "Slug muy corto")
     .max(80, "Máximo 80 caracteres")
-    .regex(ATLAS_SLUG_REGEX, "Sólo minúsculas, números y guiones"),
+    .regex(ATLAS_SLUG_REGEX, "Solo minúsculas, números y guiones"),
   description: optionalText(600),
   bodyMd: optionalText(20000),
   tags: z.array(z.string().trim().min(1).max(40)).max(20),

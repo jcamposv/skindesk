@@ -46,7 +46,7 @@ export function paymentFailedHtml({
 
   const invoiceLine = hostedInvoiceUrl
     ? paragraph(
-        `¿Querés pagar esta factura ahora? ${link(hostedInvoiceUrl, "Ver y pagar la factura")}.`,
+        `¿Quieres pagar esta factura ahora? ${link(hostedInvoiceUrl, "Ver y pagar la factura")}.`,
         { html: true, muted: true },
       )
     : "";
@@ -66,7 +66,7 @@ export function paymentFailedHtml({
       ${invoiceLine}
       ${divider()}
       ${fineprint(
-        `¿Necesitás ayuda? Escribinos a ${link(`mailto:${SUPPORT_EMAIL}`, SUPPORT_EMAIL)}.`,
+        `¿Necesitas ayuda? Escríbenos a ${link(`mailto:${SUPPORT_EMAIL}`, SUPPORT_EMAIL)}.`,
         { html: true },
       )}
     `,

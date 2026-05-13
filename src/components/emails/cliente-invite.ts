@@ -49,12 +49,12 @@ export function clienteInviteHtml({
       )}
       ${button(inviteLink, "Activar mi portal")}
       ${paragraph(
-        "Hacé clic en el botón para crear tu contraseña y entrar por primera vez. El enlace caduca en 7 días.",
+        "Haz clic en el botón para crear tu contraseña y entrar por primera vez. El enlace caduca en 7 días.",
         { muted: true },
       )}
       ${divider()}
       ${fineprint(
-        `Si no esperabas este correo, podés ignorarlo o escribirnos para que lo eliminemos. También podés visitar ${link(appUrl, "skindesk.co")} para conocer la plataforma.`,
+        `Si no esperabas este correo, puedes ignorarlo o escribirnos para que lo eliminemos. También puedes visitar ${link(appUrl, "skindesk.co")} para conocer la plataforma.`,
         { html: true },
       )}
     `,

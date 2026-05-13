@@ -304,7 +304,7 @@ function EmptyTabState() {
         </h3>
         <p className="max-w-md text-[12.5px] text-muted-foreground">
           Agregá un servicio con monto de paquete desde la pestaña “Servicios”
-          y volvé acá para registrar los pagos manuales de la clienta.
+          y vuelve aquí para registrar los pagos manuales de la clienta.
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">

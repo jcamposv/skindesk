@@ -195,7 +195,7 @@ export default async function SharedRutinaPage({ params }: PageProps) {
 
       <footer className="border-t pt-4 text-center text-xs text-muted-foreground">
         Compartido vía SkinDesk · La rutina original no se modifica al
-        verla acá.
+        verla aquí.
       </footer>
     </div>
   );
@@ -234,11 +234,11 @@ function MembershipLocked() {
       </span>
       <div className="grid gap-1">
         <h1 className="font-heading text-xl font-medium">
-          Necesitás una membresía activa
+          Necesitas una membresía activa
         </h1>
         <p className="text-sm text-muted-foreground">
           Las rutinas compartidas entre profesionales requieren una
-          suscripción al día. Activá o renová tu plan para acceder a esta
+          suscripción al día. Activa o renová tu plan para acceder a esta
           plantilla.
         </p>
       </div>
@@ -290,7 +290,7 @@ function MomentoBlock({
           </h2>
           <p className="text-xs text-muted-foreground">
             {isAm
-              ? "Empezá tu día cuidando tu piel"
+              ? "Empieza tu día cuidando tu piel"
               : "El momento perfecto para regenerar tu piel"}
           </p>
         </div>

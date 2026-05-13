@@ -91,7 +91,7 @@ export function ProductoSheet({
               <SheetDescription>
                 {isEdit
                   ? "Actualizá la información del producto."
-                  : "Sumá un producto a tu catálogo personal."}
+                  : "Agrega un producto a tu catálogo personal."}
               </SheetDescription>
             </div>
           </div>

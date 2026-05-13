@@ -54,7 +54,7 @@ export function EmptyTab({
           className="grid gap-3 rounded-2xl border border-dashed bg-card/50 p-5 sm:p-6"
         >
           <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Acá vas a poder
+            Aquí vas a poder
           </h3>
           <ul className="grid gap-2.5 sm:grid-cols-2">
             {preview.map((item) => (

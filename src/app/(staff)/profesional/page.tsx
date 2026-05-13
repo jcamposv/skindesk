@@ -169,7 +169,7 @@ export default async function ProfesionalDashboardPage() {
     <div className="grid gap-8">
       <DashboardHero
         name={fullName}
-        subtitle="Acá tenés un resumen del negocio hoy."
+        subtitle="Aquí tienes un resumen del negocio hoy."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -223,7 +223,7 @@ export default async function ProfesionalDashboardPage() {
               total={topTreatments.total}
             />
           ) : (
-            <EmptyHint copy="Sin sesiones registradas todavía. Cargá un servicio y volvé acá." />
+            <EmptyHint copy="Sin sesiones registradas todavía. Carga un servicio y vuelve aquí." />
           )}
         </DashboardSection>
 

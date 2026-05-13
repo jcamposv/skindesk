@@ -54,13 +54,13 @@ export async function createServicioAction(
 ): Promise<ActionState<CreateServicioResult>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = servicioCreateSchema.safeParse(input);
@@ -173,13 +173,13 @@ export async function addSessionAction(
 ): Promise<ActionState<AddSessionResult>> {
   const session = await getCurrentSession();
   if (!session) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     session.profile.role !== "profesional" &&
     session.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const parsed = addSesionSchema.safeParse(input);
@@ -285,13 +285,13 @@ export async function deleteSessionPhotoAction(
 ): Promise<ActionState<{ path: string }>> {
   const authSession = await getCurrentSession();
   if (!authSession) {
-    return { success: false, message: "No autenticado." };
+    return { success: false, message: "Inicia sesión para continuar." };
   }
   if (
     authSession.profile.role !== "profesional" &&
     authSession.profile.role !== "super_admin"
   ) {
-    return { success: false, message: "No tenés permisos." };
+    return { success: false, message: "No tienes permisos." };
   }
 
   const tenantId = authSession.profile.tenant_id;

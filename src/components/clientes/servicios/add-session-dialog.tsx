@@ -291,7 +291,7 @@ function AddSessionBody({
                 Este servicio ya alcanzó el total de sesiones planificadas.
               </p>
               <p className="max-w-md text-[12px] text-muted-foreground">
-                Si querés extender el paquete, editá el total de sesiones en el
+                Si quieres extender el paquete, edita el total de sesiones en el
                 detalle del servicio antes de registrar más.
               </p>
             </div>

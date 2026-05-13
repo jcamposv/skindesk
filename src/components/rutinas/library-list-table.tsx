@@ -291,7 +291,7 @@ export function LibraryListTable({
         sortable={false}
         showPagination={false}
         emptyTitle="Sin rutinas"
-        emptyDescription="Creá tu primera plantilla para empezar."
+        emptyDescription="Crea tu primera plantilla para empezar."
         emptyIcon={RouteIcon}
       />
       <AssignRutinaDialog

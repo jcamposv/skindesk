@@ -114,7 +114,7 @@ export default async function AtlasEntryPage({ params }: PageProps) {
                 render={<Link href={`${ROUTES.atlasAdmin}/${entry.id}`} />}
               >
                 <PencilIcon className="size-3.5" />
-                Editar en CMS
+                Editar en administración
               </Button>
             ) : null}
           </div>
@@ -129,7 +129,7 @@ export default async function AtlasEntryPage({ params }: PageProps) {
               </p>
               <p className="text-xs text-[#8E6628]">
                 Esta entrada todavía no es visible para las profesionales.
-                Sólo super admin puede verla así.
+                Solo el super administrador puede verla así.
               </p>
             </div>
           </div>

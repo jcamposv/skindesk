@@ -62,11 +62,11 @@ export default async function AuthSetupPage({ searchParams }: PageProps) {
             Último paso
           </p>
           <h1 className="text-3xl font-semibold tracking-tight">
-            Creá tu contraseña
+            Crea tu contraseña
           </h1>
           <p className="text-sm text-muted-foreground">
             Para terminar tu activación elegí una contraseña — la vas a usar
-            para iniciar sesión rápidamente sin esperar el magic link cada
+            para iniciar sesión rápidamente sin esperar un enlace nuevo cada
             vez.
           </p>
         </div>

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import {
   BadgeCheckIcon,
@@ -81,7 +80,7 @@ export default async function SuperAdminPage() {
       value: NUMBER_FORMAT.format(clientas.count ?? 0),
       icon: UsersIcon,
       tone: "dustyRose",
-      description: "Cuentas de paciente",
+      description: "Clientes registrados",
     },
     {
       label: "Suscripciones activas",
@@ -109,7 +108,7 @@ export default async function SuperAdminPage() {
     <div className="grid gap-8">
       <DashboardHero
         name={fullName}
-        subtitle="Acá tenés un resumen de la plataforma hoy."
+        subtitle="Aquí tienes un resumen de la plataforma hoy."
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (

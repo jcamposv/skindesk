@@ -31,11 +31,11 @@ async function requireSuperAdmin(): Promise<{
   message: string;
 } | null> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (session.profile.role !== "super_admin") {
     return {
       success: false,
-      message: "Sólo super admin puede administrar el Atlas.",
+      message: "Solo el super administrador puede administrar el Atlas.",
     };
   }
   return null;
@@ -86,7 +86,7 @@ export async function createAtlasEntryAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -153,7 +153,7 @@ export async function updateAtlasEntryAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -403,10 +403,10 @@ export async function toggleAtlasFavoriteAction(
   shouldFavorite: boolean,
 ): Promise<ActionState<{ favorited: boolean }>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   const role = session.profile.role;
   if (role !== "super_admin" && role !== "profesional" && role !== "asistente") {
-    return { success: false, message: "Sin acceso al Atlas." };
+    return { success: false, message: "No tienes acceso al Atlas." };
   }
   const supabase = await createClient();
   if (shouldFavorite) {

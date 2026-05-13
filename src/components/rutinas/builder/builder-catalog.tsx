@@ -113,7 +113,7 @@ export function BuilderCatalog({
       <div className="flex-1 overflow-y-auto p-3">
         {filtered.length === 0 ? (
           <p className="rounded-lg border border-dashed p-6 text-center text-xs text-muted-foreground">
-            Sin productos. Probá con otro filtro o agregá al catálogo desde
+            Sin productos. Prueba con otro filtro o agregá al catálogo desde
             <span className="ml-1 font-medium">Catálogo de productos</span>.
           </p>
         ) : (

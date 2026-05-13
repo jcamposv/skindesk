@@ -40,7 +40,7 @@ export default function PagosError({
           </h2>
           <p className="text-[13px] text-muted-foreground">
             Hubo un problema leyendo el ledger. Intentá de nuevo; si persiste,
-            avisanos y mirá la consola para más detalle.
+            avísanos y mira la consola para más detalle.
           </p>
         </div>
         {error.digest ? (

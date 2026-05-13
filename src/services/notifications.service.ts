@@ -49,7 +49,7 @@ export async function sendShareInviteEmail(params: {
       senderName: params.senderName,
       shareUrl: params.shareUrl,
     },
-    subject: `${params.senderName} compartió una rutina con vos`,
+    subject: `${params.senderName} compartió una rutina contigo`,
     html: shareInviteHtml({
       rutinaName: params.rutinaName,
       senderName: params.senderName,

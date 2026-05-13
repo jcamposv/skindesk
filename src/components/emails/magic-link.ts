@@ -30,16 +30,16 @@ export function magicLinkHtml({ magicLink, appUrl }: MagicLinkProps): string {
       ${eyebrow("Acceso seguro")}
       ${heading("Iniciá sesión en SkinDesk")}
       ${paragraph(
-        "Hacé clic en el botón para entrar sin tener que tipear contraseña — el enlace caduca en 30 minutos.",
+        "Haz clic en el botón para entrar sin tener que tipear contraseña — el enlace caduca en 30 minutos.",
       )}
       ${button(magicLink, "Iniciar sesión")}
       ${paragraph(
-        `¿No te llegó? Pedí otro desde ${link(`${appUrl}/login`, "la página de inicio de sesión")}.`,
+        `¿No te llegó? Pide otro desde ${link(`${appUrl}/login`, "la página de inicio de sesión")}.`,
         { html: true, muted: true },
       )}
       ${divider()}
       ${fineprint(
-        "Si no pediste este enlace, podés ignorar este correo — nadie más tendrá acceso a tu cuenta.",
+        "Si no pediste este enlace, puedes ignorar este correo — nadie más tendrá acceso a tu cuenta.",
       )}
     `,
   });

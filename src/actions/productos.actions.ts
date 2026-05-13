@@ -106,15 +106,15 @@ export async function createProductoAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
 
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para crear productos." };
+    return { success: false, message: "No tienes permisos para crear productos." };
   }
 
   const supabase = await createClient();
@@ -157,15 +157,15 @@ export async function updateProductoAction(
   if (!parsed.success) {
     return {
       success: false,
-      message: "Revisá los campos del formulario.",
+      message: "Revisa los campos del formulario.",
       errors: parsed.error.flatten().fieldErrors,
     };
   }
 
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para editar productos." };
+    return { success: false, message: "No tienes permisos para editar productos." };
   }
 
   const supabase = await createClient();
@@ -219,9 +219,9 @@ export async function duplicateProductoAction(
   productoId: string,
 ): Promise<ActionState<{ productoId: string }>> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session) || !session.profile.tenant_id) {
-    return { success: false, message: "Sin permisos para duplicar productos." };
+    return { success: false, message: "No tienes permisos para duplicar productos." };
   }
 
   const supabase = await createClient();
@@ -293,9 +293,9 @@ export async function archiveProductoAction(
   productoId: string,
 ): Promise<ActionState> {
   const session = await getCurrentSession();
-  if (!session) return { success: false, message: "No autenticado." };
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
   if (!canEdit(session)) {
-    return { success: false, message: "Sin permisos para eliminar productos." };
+    return { success: false, message: "No tienes permisos para eliminar productos." };
   }
 
   const supabase = await createClient();

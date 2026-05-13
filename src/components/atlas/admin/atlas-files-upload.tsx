@@ -215,7 +215,7 @@ export function AtlasFilesUpload({
         <UploadCloudIcon className="size-7 text-muted-foreground" />
         <div className="text-sm font-medium">
           {dragOver
-            ? "Soltá los archivos"
+            ? "Suelta los archivos"
             : "Subir o arrastrar archivos"}
         </div>
         <div className="text-[11px] text-muted-foreground">
