@@ -7,7 +7,7 @@ interface DashboardHeroProps {
   name: string;
   /** Greeting line under the heading. */
   subtitle?: string;
-  /** Optional emphasised greeting prefix. Defaults to "¡Bienvenida". */
+  /** Optional emphasised greeting prefix. Defaults to "¡Bienvenida(o)". */
   greeting?: string;
   className?: string;
 }
@@ -23,11 +23,11 @@ interface DashboardHeroProps {
 export function DashboardHero({
   name,
   subtitle,
-  greeting = "¡Bienvenida",
+  greeting = "¡Bienvenida(o)",
   className,
 }: DashboardHeroProps) {
-  // Greeting feels personal when it's just the first name — "¡Bienvenida,
-  // Carla!" reads warmer than "¡Bienvenida, Carla Pérez González!"
+  // Greeting feels personal when it's just the first name — "¡Bienvenida(o),
+  // Carla!" reads warmer than "¡Bienvenida(o), Carla Pérez González!"
   const firstName = name.trim().split(/\s+/)[0];
 
   return (
