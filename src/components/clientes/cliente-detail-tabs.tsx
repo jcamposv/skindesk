@@ -21,6 +21,7 @@ import { EmptyTab } from "@/components/clientes/empty-tab";
 import { EvaluacionTab } from "@/components/clientes/evaluacion-tab";
 import { ObjetivosTab } from "@/components/clientes/objetivos-tab";
 import { PagosTab } from "@/components/clientes/pagos/pagos-tab";
+import { RutinasAsignadasTab } from "@/components/clientes/rutinas-asignadas-tab";
 import { ServiciosTab } from "@/components/clientes/servicios/servicios-tab";
 import {
   Sheet,
@@ -35,7 +36,10 @@ import type { StaffMember } from "@/services/staff.service";
 import type { ProfesionalValue } from "@/components/clientes/servicios/profesional-select";
 import type { AssignedService } from "@/components/clientes/servicios/types";
 import type { PaymentPlanSummary } from "@/services/pagos.service";
+import type { Database } from "@/types/database.types";
 import type { Evaluacion } from "@/types/evaluacion";
+
+type RutinaRow = Database["public"]["Tables"]["rutinas"]["Row"];
 
 interface ClienteDetailTabsProps {
   cliente: ClienteDetail;
@@ -46,6 +50,11 @@ interface ClienteDetailTabsProps {
   initialPaymentPlans: Record<string, PaymentPlanSummary>;
   currentProfesional: ProfesionalValue;
   initialTab?: TabKey;
+  /** Routines assigned to this clienta. */
+  assignedRutinas: Array<RutinaRow & { stepCount: number }>;
+  /** Tenant's library templates — used by the "Asignar desde biblioteca"
+   *  picker inside the rutinas tab. */
+  libraryRutinas: Array<RutinaRow & { stepCount: number }>;
 }
 
 /**
@@ -73,6 +82,8 @@ export function ClienteDetailTabs({
   initialPaymentPlans,
   currentProfesional,
   initialTab,
+  assignedRutinas,
+  libraryRutinas,
 }: ClienteDetailTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -181,16 +192,11 @@ export function ClienteDetailTabs({
           <ObjetivosTab cliente={cliente} evaluacion={evaluacion} />
         ) : null}
         {active === "rutinas" ? (
-          <EmptyTab
-            icon={WandSparklesIcon}
-            title="Rutinas asignadas"
-            description="Rutinas activas, productos recomendados, frecuencia, instrucciones especiales e historial de rutinas anteriores."
-            preview={[
-              "Rutina activa de mañana y noche",
-              "Productos asignados y dosis",
-              "Recordatorios automáticos",
-              "Historial de cambios y motivos",
-            ]}
+          <RutinasAsignadasTab
+            clienteId={cliente.id}
+            clientName={cliente.profile.full_name ?? "esta clienta"}
+            rutinas={assignedRutinas}
+            libraryTemplates={libraryRutinas}
           />
         ) : null}
         {active === "pagos" ? (

@@ -137,6 +137,95 @@ export async function listProductos(params: ListParams): Promise<ListResult> {
   return { items, totalItems: count ?? 0 };
 }
 
+/**
+ * Hard cap on `listProductosForBuilder`. The builder catalog ships every
+ * product in one payload so the user can drag/drop without an extra
+ * round-trip. Once a tenant exceeds this we surface a hint inside the
+ * catalog (`isCapped`) telling the user to refine the search. Bump only
+ * after we benchmark `createSignedUrls` time + browser RAM at the new
+ * ceiling.
+ */
+export const BUILDER_CATALOG_LIMIT = 200;
+
+export type BuilderProductoRow = Pick<
+  ProductoRow,
+  | "id"
+  | "name"
+  | "brand"
+  | "category"
+  | "main_ingredients"
+  | "application_instruction"
+  | "suggested_amount"
+  | "absorption_time"
+  | "frequency"
+  | "time_of_day"
+  | "photo_path"
+> & { photoUrl: string | null };
+
+export interface BuilderCatalogResult {
+  items: BuilderProductoRow[];
+  /** True when the result hit `BUILDER_CATALOG_LIMIT`. Callers should
+   *  surface a hint to refine the search. */
+  isCapped: boolean;
+  /** Number of products matching the (optional) search filter, before
+   *  the cap was applied. `null` when not computed (no search). */
+  totalMatching: number | null;
+}
+
+interface ListBuilderParams {
+  /** Server-side search across name, brand, main ingredients. */
+  search?: string;
+}
+
+/** Catalog snapshot used by the routine builder. Lightweight projection
+ *  (no clinical notes) — enough for the catalog column + step rendering.
+ *  RLS scopes to the caller's tenant. Capped at `BUILDER_CATALOG_LIMIT`. */
+export const listProductosForBuilder = cache(
+  async (params: ListBuilderParams = {}): Promise<BuilderCatalogResult> => {
+    const supabase = await createClient();
+    let query = supabase
+      .from("productos")
+      .select(
+        "id, name, brand, category, main_ingredients, application_instruction, suggested_amount, absorption_time, frequency, time_of_day, photo_path",
+        { count: "exact" },
+      )
+      .is("archived_at", null);
+
+    const term = params.search?.trim();
+    if (term && term.length > 0) {
+      // ILIKE on name + brand. Ingredients live in a text[] so we use the
+      // contains operator separately when the term looks like a single
+      // ingredient (no spaces). Commas / parens are stripped to keep the
+      // PostgREST `.or` parser happy.
+      const safe = term.replace(/[(),]/g, " ");
+      query = query.or(
+        [`name.ilike.%${safe}%`, `brand.ilike.%${safe}%`].join(","),
+      );
+    }
+
+    query = query
+      .order("name", { ascending: true })
+      .limit(BUILDER_CATALOG_LIMIT);
+
+    const { data, error, count } = await query;
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    const photoUrlByPath = await signPhotoUrls(
+      rows.map((r) => r.photo_path).filter((p): p is string => Boolean(p)),
+    );
+    const items: BuilderProductoRow[] = rows.map((row) => ({
+      ...row,
+      photoUrl: row.photo_path
+        ? photoUrlByPath.get(row.photo_path) ?? null
+        : null,
+    }));
+    const totalMatching = count ?? null;
+    const isCapped =
+      totalMatching !== null && totalMatching > BUILDER_CATALOG_LIMIT;
+    return { items, isCapped, totalMatching };
+  },
+);
+
 export const getProductoById = cache(
   async (id: string): Promise<Producto | null> => {
     const supabase = await createClient();

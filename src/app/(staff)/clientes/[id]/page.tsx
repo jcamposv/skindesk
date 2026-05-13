@@ -14,6 +14,10 @@ import { getCitasForCliente } from "@/services/citas.service";
 import { getClienteById } from "@/services/clientes.service";
 import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
 import { getPaymentPlansForCliente } from "@/services/pagos.service";
+import {
+  listLibraryRutinas,
+  listRutinasForCliente,
+} from "@/services/rutinas.service";
 import { getServiciosForCliente } from "@/services/servicios.service";
 import { getStaffForTenant } from "@/services/staff.service";
 
@@ -65,15 +69,25 @@ export default async function ClienteDetailPage({
   // Both queries are independent — `getEvaluacionForCliente` only needs
   // the URL id (which equals cliente.id when the cliente exists; RLS will
   // return null otherwise). Promise.all saves ~50ms vs awaiting in series.
-  const [cliente, evaluacion, servicios, staff, paymentPlans, citas] =
-    await Promise.all([
-      getClienteById(id),
-      getEvaluacionForCliente(id),
-      getServiciosForCliente(id),
-      getStaffForTenant(session.profile.tenant_id ?? ""),
-      getPaymentPlansForCliente(id),
-      getCitasForCliente(id),
-    ]);
+  const [
+    cliente,
+    evaluacion,
+    servicios,
+    staff,
+    paymentPlans,
+    citas,
+    assignedRutinas,
+    libraryRutinas,
+  ] = await Promise.all([
+    getClienteById(id),
+    getEvaluacionForCliente(id),
+    getServiciosForCliente(id),
+    getStaffForTenant(session.profile.tenant_id ?? ""),
+    getPaymentPlansForCliente(id),
+    getCitasForCliente(id),
+    listRutinasForCliente(id),
+    listLibraryRutinas({ pageSize: 100 }),
+  ]);
   if (!cliente) notFound();
 
   return (
@@ -104,6 +118,8 @@ export default async function ClienteDetailPage({
           professionalLabel: "",
         }}
         initialTab={parseTab(sp.tab)}
+        assignedRutinas={assignedRutinas}
+        libraryRutinas={libraryRutinas.items}
       />
     </div>
   );

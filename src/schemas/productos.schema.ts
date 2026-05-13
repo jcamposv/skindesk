@@ -44,6 +44,36 @@ export const PRODUCTO_CATEGORIA_LABELS: Record<ProductoCategoria, string> = {
   balsamo_labios: "Bálsamo labios",
 };
 
+/**
+ * Verb shown above the producto on a step card / PDF ("LIMPIAR", "TRATAR",
+ * "PROTEGER"). Lives next to the canonical category list so the PDF
+ * template, builder, and future client-portal share one source of truth.
+ */
+export const PRODUCTO_CATEGORIA_ACTION: Record<ProductoCategoria, string> = {
+  limpiador: "LIMPIAR",
+  desmaquillante: "LIMPIAR",
+  agua_micelar: "LIMPIAR",
+  tonico: "TONIFICAR",
+  serum: "TRATAR",
+  ampolleta: "TRATAR",
+  tratamiento_especifico: "TRATAR",
+  regenerante: "TRATAR",
+  exfoliante: "EXFOLIAR",
+  mascarilla: "MASCARILLA",
+  hidratante: "HIDRATAR",
+  spf: "PROTEGER",
+  contorno_ojos: "CONTORNO",
+  bruma: "REFRESCAR",
+  balsamo_labios: "LABIOS",
+};
+
+export function productoActionLabel(category: string | null): string {
+  if (!category) return "APLICAR";
+  return (
+    PRODUCTO_CATEGORIA_ACTION[category as ProductoCategoria] ?? "APLICAR"
+  );
+}
+
 /** Standard skin types (the ones rendered as chips, minus "Todas" and "Otro"
  *  which are interaction sugar — `Todas` expands to all of these at submit
  *  time, `Otro` lands in `customSkinTypes`). */

@@ -414,6 +414,53 @@ export type Database = {
           },
         ]
       }
+      notification_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          kind: Database["public"]["Enums"]["notification_kind"]
+          payload: Json
+          provider_id: string | null
+          recipient: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["notification_status"]
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["notification_kind"]
+          payload?: Json
+          provider_id?: string | null
+          recipient: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["notification_kind"]
+          payload?: Json
+          provider_id?: string | null
+          recipient?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_plans: {
         Row: {
           cliente_id: string
@@ -692,6 +739,7 @@ export type Database = {
           custom_skin_types: string[]
           frequency: string | null
           id: string
+          imported_from_share: boolean
           ingredients_inci: string | null
           main_ingredients: string[]
           main_ingredients_text: string
@@ -719,6 +767,7 @@ export type Database = {
           custom_skin_types?: string[]
           frequency?: string | null
           id?: string
+          imported_from_share?: boolean
           ingredients_inci?: string | null
           main_ingredients?: string[]
           main_ingredients_text?: string
@@ -748,6 +797,7 @@ export type Database = {
           custom_skin_types?: string[]
           frequency?: string | null
           id?: string
+          imported_from_share?: boolean
           ingredients_inci?: string | null
           main_ingredients?: string[]
           main_ingredients_text?: string
@@ -830,6 +880,295 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routine_imports: {
+        Row: {
+          created_at: string
+          id: string
+          imported_productos: number
+          included_missing: boolean
+          missing_producto_count: number
+          source_rutina_id: string
+          source_tenant_id: string
+          target_professional_id: string | null
+          target_rutina_id: string
+          target_tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imported_productos?: number
+          included_missing?: boolean
+          missing_producto_count?: number
+          source_rutina_id: string
+          source_tenant_id: string
+          target_professional_id?: string | null
+          target_rutina_id: string
+          target_tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imported_productos?: number
+          included_missing?: boolean
+          missing_producto_count?: number
+          source_rutina_id?: string
+          source_tenant_id?: string
+          target_professional_id?: string | null
+          target_rutina_id?: string
+          target_tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_imports_source_rutina_id_fkey"
+            columns: ["source_rutina_id"]
+            isOneToOne: false
+            referencedRelation: "rutinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routine_imports_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routine_imports_target_professional_id_fkey"
+            columns: ["target_professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routine_imports_target_rutina_id_fkey"
+            columns: ["target_rutina_id"]
+            isOneToOne: false
+            referencedRelation: "rutinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "routine_imports_target_tenant_id_fkey"
+            columns: ["target_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rutina_steps: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          custom_absorption_time: string | null
+          custom_amount: string | null
+          custom_frequency: string | null
+          custom_instruction: string | null
+          custom_time_of_day:
+            | Database["public"]["Enums"]["rutina_momento"]
+            | null
+          id: string
+          notes: string | null
+          producto_id: string
+          rutina_id: string
+          step_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          custom_absorption_time?: string | null
+          custom_amount?: string | null
+          custom_frequency?: string | null
+          custom_instruction?: string | null
+          custom_time_of_day?:
+            | Database["public"]["Enums"]["rutina_momento"]
+            | null
+          id?: string
+          notes?: string | null
+          producto_id: string
+          rutina_id: string
+          step_order: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          custom_absorption_time?: string | null
+          custom_amount?: string | null
+          custom_frequency?: string | null
+          custom_instruction?: string | null
+          custom_time_of_day?:
+            | Database["public"]["Enums"]["rutina_momento"]
+            | null
+          id?: string
+          notes?: string | null
+          producto_id?: string
+          rutina_id?: string
+          step_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rutina_steps_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutina_steps_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutina_steps_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutina_steps_rutina_id_fkey"
+            columns: ["rutina_id"]
+            isOneToOne: false
+            referencedRelation: "rutinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutina_steps_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rutinas: {
+        Row: {
+          archived_at: string | null
+          client_message: string | null
+          cliente_id: string | null
+          created_at: string
+          created_by: string | null
+          from_template_id: string | null
+          general_notes: string | null
+          id: string
+          kind: Database["public"]["Enums"]["rutina_kind"]
+          main_objective: string | null
+          momento: Database["public"]["Enums"]["rutina_momento"]
+          name: string
+          professional_id: string | null
+          share_token: string | null
+          share_token_created_at: string | null
+          share_token_expires_at: string | null
+          share_token_last_accessed_at: string | null
+          skin_condition: string | null
+          skin_type: string | null
+          tags: string[]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          client_message?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          from_template_id?: string | null
+          general_notes?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["rutina_kind"]
+          main_objective?: string | null
+          momento?: Database["public"]["Enums"]["rutina_momento"]
+          name: string
+          professional_id?: string | null
+          share_token?: string | null
+          share_token_created_at?: string | null
+          share_token_expires_at?: string | null
+          share_token_last_accessed_at?: string | null
+          skin_condition?: string | null
+          skin_type?: string | null
+          tags?: string[]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          client_message?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          from_template_id?: string | null
+          general_notes?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["rutina_kind"]
+          main_objective?: string | null
+          momento?: Database["public"]["Enums"]["rutina_momento"]
+          name?: string
+          professional_id?: string | null
+          share_token?: string | null
+          share_token_created_at?: string | null
+          share_token_expires_at?: string | null
+          share_token_last_accessed_at?: string | null
+          skin_condition?: string | null
+          skin_type?: string | null
+          tags?: string[]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rutinas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutinas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutinas_from_template_id_fkey"
+            columns: ["from_template_id"]
+            isOneToOne: false
+            referencedRelation: "rutinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutinas_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutinas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rutinas_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1252,6 +1591,81 @@ export type Database = {
           },
         ]
       }
+      productos_public: {
+        Row: {
+          absorption_time: string | null
+          additional_tags: string[] | null
+          application_instruction: string | null
+          archived_at: string | null
+          brand: string | null
+          category: Database["public"]["Enums"]["producto_categoria"] | null
+          created_at: string | null
+          custom_skin_types: string[] | null
+          frequency: string | null
+          id: string | null
+          main_ingredients: string[] | null
+          name: string | null
+          photo_path: string | null
+          skin_types: string[] | null
+          suggested_amount: string | null
+          tenant_id: string | null
+          time_of_day: Database["public"]["Enums"]["producto_tiempo_dia"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          absorption_time?: string | null
+          additional_tags?: string[] | null
+          application_instruction?: string | null
+          archived_at?: string | null
+          brand?: string | null
+          category?: Database["public"]["Enums"]["producto_categoria"] | null
+          created_at?: string | null
+          custom_skin_types?: string[] | null
+          frequency?: string | null
+          id?: string | null
+          main_ingredients?: string[] | null
+          name?: string | null
+          photo_path?: string | null
+          skin_types?: string[] | null
+          suggested_amount?: string | null
+          tenant_id?: string | null
+          time_of_day?:
+            | Database["public"]["Enums"]["producto_tiempo_dia"]
+            | null
+          updated_at?: string | null
+        }
+        Update: {
+          absorption_time?: string | null
+          additional_tags?: string[] | null
+          application_instruction?: string | null
+          archived_at?: string | null
+          brand?: string | null
+          category?: Database["public"]["Enums"]["producto_categoria"] | null
+          created_at?: string | null
+          custom_skin_types?: string[] | null
+          frequency?: string | null
+          id?: string | null
+          main_ingredients?: string[] | null
+          name?: string | null
+          photo_path?: string | null
+          skin_types?: string[] | null
+          suggested_amount?: string | null
+          tenant_id?: string | null
+          time_of_day?:
+            | Database["public"]["Enums"]["producto_tiempo_dia"]
+            | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "productos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       productos_stats: {
@@ -1265,6 +1679,7 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      touch_share_token: { Args: { p_token: string }; Returns: undefined }
     }
     Enums: {
       app_role: "super_admin" | "profesional" | "asistente" | "clienta"
@@ -1277,6 +1692,13 @@ export type Database = {
       cliente_status: "nueva" | "seguimiento" | "activa" | "inactiva"
       evaluacion_status: "borrador" | "completada"
       frequency_key: "semanal" | "quincenal" | "mensual" | "personalizada"
+      notification_kind: "share_invite" | "rutina_assigned"
+      notification_status:
+        | "queued"
+        | "sent"
+        | "failed"
+        | "delivered"
+        | "bounced"
       payment_method: "efectivo" | "transferencia" | "tarjeta" | "codi" | "otro"
       payment_status: "pending" | "partial" | "paid" | "cancelled"
       plan_slug: "basico" | "pro" | "clinica"
@@ -1297,6 +1719,8 @@ export type Database = {
         | "bruma"
         | "balsamo_labios"
       producto_tiempo_dia: "am_pm" | "am" | "pm"
+      rutina_kind: "template" | "assignment"
+      rutina_momento: "am" | "pm" | "both"
       service_status: "active" | "paused" | "completed" | "cancelled"
       service_type: "facial" | "corporal" | "laser" | "other"
       session_status: "completed" | "pending" | "scheduled"
@@ -1899,6 +2323,8 @@ export const Constants = {
       cliente_status: ["nueva", "seguimiento", "activa", "inactiva"],
       evaluacion_status: ["borrador", "completada"],
       frequency_key: ["semanal", "quincenal", "mensual", "personalizada"],
+      notification_kind: ["share_invite", "rutina_assigned"],
+      notification_status: ["queued", "sent", "failed", "delivered", "bounced"],
       payment_method: ["efectivo", "transferencia", "tarjeta", "codi", "otro"],
       payment_status: ["pending", "partial", "paid", "cancelled"],
       plan_slug: ["basico", "pro", "clinica"],
@@ -1920,6 +2346,8 @@ export const Constants = {
         "balsamo_labios",
       ],
       producto_tiempo_dia: ["am_pm", "am", "pm"],
+      rutina_kind: ["template", "assignment"],
+      rutina_momento: ["am", "pm", "both"],
       service_status: ["active", "paused", "completed", "cancelled"],
       service_type: ["facial", "corporal", "laser", "other"],
       session_status: ["completed", "pending", "scheduled"],

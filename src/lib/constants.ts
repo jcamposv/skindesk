@@ -27,6 +27,8 @@ export const ROUTES = {
   pagos: "/pagos",
   /** Catálogo de productos — repositorio personal del profesional. */
   productos: "/productos",
+  /** Biblioteca de rutinas — plantillas reutilizables del profesional. */
+  rutinas: "/rutinas",
 } as const;
 
 export const PUBLIC_ROUTES: readonly string[] = [
