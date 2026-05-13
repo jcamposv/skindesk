@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, getCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { BillingPeriod, Plan } from "@/lib/plans";
 
@@ -53,6 +53,10 @@ export function PlanCard({ plan, price, savingsLabel }: PlanCardProps) {
   const formatted = formatMoney(amountMajor, price.currency, {
     maximumFractionDigits: 0,
   });
+  // Disambiguates the `$` symbol — MXN, USD, COP, CLP, ARS all render
+  // as `$` in their native locale, so we surface the ISO code + name
+  // explicitly under the amount.
+  const currency = getCurrency(price.currency);
   const periodSuffix = price.period === "month" ? "/mes" : "/año";
   const checkoutHref = `/checkout?plan=${plan.slug}&period=${price.period}`;
 
@@ -71,9 +75,12 @@ export function PlanCard({ plan, price, savingsLabel }: PlanCardProps) {
         ) : null}
         <CardTitle className="text-2xl">{plan.name}</CardTitle>
         <CardDescription>{plan.tagline}</CardDescription>
-        <div className="mt-3 flex items-baseline gap-1">
+        <div className="mt-3 flex items-baseline gap-1.5">
           <span className="text-4xl font-semibold tracking-tight tabular-nums">
             {formatted}
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {currency.currencyCode}
           </span>
           <span className="text-sm text-muted-foreground">{periodSuffix}</span>
           {savingsLabel ? (
@@ -82,11 +89,10 @@ export function PlanCard({ plan, price, savingsLabel }: PlanCardProps) {
             </span>
           ) : null}
         </div>
-        {plan.trialDays > 0 ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {plan.trialDays} días de prueba gratis
-          </p>
-        ) : null}
+        <p className="mt-1 text-xs text-muted-foreground">
+          Precios en {currency.currencyName.toLowerCase()}
+          {plan.trialDays > 0 ? ` · ${plan.trialDays} días de prueba gratis` : ""}
+        </p>
       </CardHeader>
       <CardContent className="flex-1">
         <ul className="space-y-2 text-sm">

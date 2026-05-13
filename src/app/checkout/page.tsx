@@ -7,7 +7,7 @@ import { CheckoutForm } from "@/components/forms/checkout-form";
 import { AuthHero } from "@/components/shared/auth-hero";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, getCurrency } from "@/lib/currency";
 import { ROUTES } from "@/lib/constants";
 import {
   isBillingPeriod,
@@ -65,6 +65,9 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
   const formatted = formatMoney(resolved.unitAmount / 100, resolved.currency, {
     maximumFractionDigits: 0,
   });
+  // Disambiguates the `$` symbol so the user sees the actual currency
+  // (MXN, USD, COP, etc.) before confirming the charge.
+  const resolvedCurrency = getCurrency(resolved.currency);
   const periodSuffix = period === "month" ? "/mes" : "/año";
 
   const heroCopy =
@@ -116,8 +119,11 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                   <h1 className="text-3xl font-semibold tracking-tight">
                     {plan.name}
                   </h1>
-                  <span className="text-lg font-medium tabular-nums">
+                  <span className="flex items-baseline gap-1 text-lg font-medium tabular-nums">
                     {formatted}
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {resolvedCurrency.currencyCode}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       {periodSuffix}
                     </span>
@@ -125,6 +131,9 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {plan.tagline}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Te cobramos en {resolvedCurrency.currencyName.toLowerCase()}.
                 </p>
                 {plan.trialDays > 0 ? (
                   <p className="mt-2 text-xs text-accent-foreground">
