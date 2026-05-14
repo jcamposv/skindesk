@@ -189,19 +189,27 @@ function stepToRow(
 /**
  * Sync the rutina's steps to match `incoming` without nuking everything:
  *   1. Delete rows whose id is missing from the incoming payload.
- *   2. Shift every remaining existing row to a negative step_order slot
+ *   2. Shift every remaining existing row to a high-numbered "park" slot
  *      so the (rutina_id, step_order) unique constraint can't collide
  *      with the final updates that follow.
  *   3. Walk the incoming array: update each existing row to its final
  *      values, insert each new row.
  *
- * Why the negative-slot detour: the unique constraint is immediate, so
- * we can't directly `update step_order = 3` if some other row currently
- * has 3. Moving to negative-only space frees every positive slot.
+ * Why the park-slot detour: the unique constraint is immediate, so we
+ * can't directly `update step_order = 3` if some other row currently has
+ * 3. Moving to a high-numbered range (1_000_000+) frees every realistic
+ * positive slot — the CHECK constraint on `step_order >= 1` rules out
+ * the previous negative-slot approach, which is what was causing the
+ * "violates check constraint rutina_steps_step_order_check" error on
+ * edit.
  *
  * Returns an error message on failure or `null` on success.
  */
 type SupabaseAny = Awaited<ReturnType<typeof createClient>>;
+
+// Far above any realistic step count so the temporary "park" slots can't
+// collide with `incoming`'s 1..N positive assignments below.
+const PARK_OFFSET = 1_000_000;
 
 async function diffSteps(
   supabase: SupabaseAny,
@@ -233,16 +241,16 @@ async function diffSteps(
     if (delErr) return delErr.message;
   }
 
-  // 2. Bump remaining rows out of the way so step_order updates can't
-  //    collide with each other on the unique (rutina_id, step_order)
-  //    constraint. Negative slots are safe because incoming uses 1..N.
+  // 2. Park remaining rows on slots >= 1_000_000 so the final reassign
+  //    can hit any positive 1..N without breaking the unique constraint
+  //    on (rutina_id, step_order). Stays >= 1 so the CHECK passes.
   const remaining = [...existingById.keys()].filter((id) =>
     incomingIds.has(id),
   );
   for (let i = 0; i < remaining.length; i++) {
     const { error: bumpErr } = await supabase
       .from("rutina_steps")
-      .update({ step_order: -(i + 1) })
+      .update({ step_order: PARK_OFFSET + i + 1 })
       .eq("id", remaining[i]!);
     if (bumpErr) return bumpErr.message;
   }
@@ -283,6 +291,34 @@ export async function createRutinaAction(
   payload: unknown,
 ): Promise<ActionState<{ rutinaId: string }>> {
   return upsertRutina(payload);
+}
+
+// ---------------------------------------------------------------------------
+// Detail fetch — used by the library Sheet (lazy load on "Ver" click)
+// ---------------------------------------------------------------------------
+
+/** Thin server-action wrapper around `getRutinaWithSteps` so the library
+ *  grid's client-side Sheet can lazy-load the full routine on demand.
+ *  RLS scopes results to the caller's tenant. */
+export async function getRutinaDetailAction(
+  rutinaId: string,
+): Promise<ActionState<import("@/services/rutinas.service").RutinaWithSteps>> {
+  const session = await getCurrentSession();
+  if (!session) return { success: false, message: "Inicia sesión para continuar." };
+  try {
+    const { getRutinaWithSteps } = await import("@/services/rutinas.service");
+    const rutina = await getRutinaWithSteps(rutinaId);
+    if (!rutina) {
+      return { success: false, message: "No encontramos esta rutina." };
+    }
+    return { success: true, data: rutina };
+  } catch (err) {
+    return {
+      success: false,
+      message:
+        err instanceof Error ? err.message : "Error al cargar la rutina.",
+    };
+  }
 }
 
 export async function updateRutinaAction(

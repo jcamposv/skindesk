@@ -53,9 +53,20 @@ interface ListLibraryParams {
   skinType?: string;
 }
 
+/** Minimal step preview embedded on each library item so the compact card
+ *  can render a numbered list (first 3 by step_order) without a second
+ *  round-trip per card. */
+export interface LibraryStepPreview {
+  step_order: number;
+  producto_name: string;
+}
+
 export interface LibraryListResult {
   items: Array<
-    Database["public"]["Tables"]["rutinas"]["Row"] & { stepCount: number }
+    Database["public"]["Tables"]["rutinas"]["Row"] & {
+      stepCount: number;
+      stepsPreview: LibraryStepPreview[];
+    }
   >;
   totalItems: number;
 }
@@ -75,9 +86,25 @@ export async function listLibraryRutinas(
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
+  // One round-trip: full rutinas row + step count + the first ~6 steps
+  // ordered by step_order. We use a second embed (`steps_preview`) for the
+  // ordered list since PostgREST can't aggregate + sort in the same alias.
+  // Limited at 6 (capped via embedded `limit`) so a 20-step routine doesn't
+  // dump 20 rows into the response — the card only needs 3, the spare 3 cover
+  // future "show first 5" tweaks without a service change.
   let query = supabase
     .from("rutinas")
-    .select("*, rutina_steps(count)", { count: "exact" })
+    .select(
+      `*,
+       rutina_steps(count),
+       steps_preview:rutina_steps(step_order, producto:productos(name))`,
+      { count: "exact" },
+    )
+    .order("step_order", {
+      referencedTable: "steps_preview",
+      ascending: true,
+    })
+    .limit(6, { referencedTable: "steps_preview" })
     .eq("kind", "template")
     .is("archived_at", null);
 
@@ -102,14 +129,29 @@ export async function listLibraryRutinas(
   if (error) throw new Error(error.message);
 
   const items = (data ?? []).map((row) => {
-    const stepCount = Array.isArray(row.rutina_steps)
-      ? (row.rutina_steps[0]?.count ?? 0)
-      : 0;
-    const { rutina_steps: _omit, ...rest } = row as RutinaRow & {
+    const raw = row as RutinaRow & {
       rutina_steps?: { count: number }[];
+      steps_preview?: Array<{
+        step_order: number;
+        producto: { name: string | null } | { name: string | null }[] | null;
+      }>;
     };
-    void _omit;
-    return { ...(rest as RutinaRow), stepCount };
+    const stepCount = Array.isArray(raw.rutina_steps)
+      ? (raw.rutina_steps[0]?.count ?? 0)
+      : 0;
+    const stepsPreview: LibraryStepPreview[] = (raw.steps_preview ?? [])
+      .map((s) => {
+        const prod = Array.isArray(s.producto) ? s.producto[0] : s.producto;
+        return {
+          step_order: s.step_order,
+          producto_name: prod?.name ?? "Producto",
+        };
+      })
+      .sort((a, b) => a.step_order - b.step_order);
+    const { rutina_steps: _a, steps_preview: _b, ...rest } = raw;
+    void _a;
+    void _b;
+    return { ...(rest as RutinaRow), stepCount, stepsPreview };
   });
 
   return { items, totalItems: count ?? 0 };

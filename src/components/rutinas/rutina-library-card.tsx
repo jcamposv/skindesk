@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -37,32 +37,44 @@ import {
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
-  gradientForRutina,
   RUTINA_MOMENTO_SHORT,
   RUTINA_TAG_LABELS,
   type RutinaMomento,
   type RutinaTag,
 } from "@/schemas/rutinas.schema";
+import type { LibraryStepPreview } from "@/services/rutinas.service";
 import type { Database } from "@/types/database.types";
 
 type RutinaRow = Database["public"]["Tables"]["rutinas"]["Row"];
 
+export type LibraryRutina = RutinaRow & {
+  stepCount: number;
+  stepsPreview: LibraryStepPreview[];
+};
+
 interface RutinaLibraryCardProps {
-  rutina: RutinaRow & { stepCount: number };
+  rutina: LibraryRutina;
   onAssign: (rutinaId: string) => void;
+  onView: (rutinaId: string) => void;
   /** When false (asistente or inactive membership), the "Generar link"
    *  + share-by-email items are hidden from the kebab. */
   canShare: boolean;
 }
 
 /**
- * Library card. Visual gradient by hashed name, momento badge AM/PM/Both,
- * step count, skin type + tags. Click navigates to the builder in edit
- * mode. Kebab carries duplicate / share / delete + assign.
+ * Compact library card. Replaces the gradient-hero design with a
+ * scannable layout: name + momento badge on top, meta subline, numbered
+ * step preview (first 3), then footer with Ver / Asignar.
+ *
+ * Memoized so a search keystroke that re-runs the parent only re-renders
+ * cards whose `rutina` reference actually changed (react-best-practices
+ * `rerender-memo`). Handler props from the grid are stable via
+ * `useCallback`.
  */
-export function RutinaLibraryCard({
+function RutinaLibraryCardImpl({
   rutina,
   onAssign,
+  onView,
   canShare,
 }: RutinaLibraryCardProps) {
   const router = useRouter();
@@ -70,9 +82,10 @@ export function RutinaLibraryCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
 
-  const gradient = gradientForRutina(rutina.name);
   const momento = rutina.momento as RutinaMomento;
   const editHref = `${ROUTES.rutinas}/${rutina.id}/editar`;
+  const visibleSteps = rutina.stepsPreview.slice(0, 3);
+  const hiddenCount = Math.max(0, rutina.stepCount - visibleSteps.length);
 
   function handleDuplicate() {
     startTransition(async () => {
@@ -106,7 +119,6 @@ export function RutinaLibraryCard({
         toast.error(res.message ?? "No se pudo generar el link.");
         return;
       }
-      // Canonical URL built server-side via NEXT_PUBLIC_APP_URL.
       const url = res.data.shareUrl;
       try {
         await navigator.clipboard.writeText(url);
@@ -137,93 +149,104 @@ export function RutinaLibraryCard({
       )}
       data-pending={pending ? "" : undefined}
     >
-      {/* Visual band */}
-      <Link
-        href={editHref}
-        className={cn(
-          "relative flex aspect-[5/3] w-full items-end overflow-hidden bg-gradient-to-br p-4",
-          gradient,
-        )}
-      >
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-foreground backdrop-blur">
-          {momento === "am" ? (
-            <SunIcon className="size-3 text-[#C47A2B]" />
-          ) : momento === "pm" ? (
-            <MoonIcon className="size-3 text-[#6B4FA0]" />
-          ) : (
-            <>
-              <SunIcon className="size-3 text-[#C47A2B]" />
-              <MoonIcon className="size-3 text-[#6B4FA0]" />
-            </>
-          )}
-          {RUTINA_MOMENTO_SHORT[momento]}
-        </span>
-        {rutina.share_token ? (
-          // Visible owner-facing reminder that this rutina has an active
-          // share link. Click → revoke flow is in the kebab; the badge is
-          // pure signal so the owner doesn't have to open the menu to
-          // check status. Tooltip surfaces last-accessed when available.
-          <span
-            className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#5C6E6C] px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white backdrop-blur"
-            title={
-              rutina.share_token_last_accessed_at
-                ? `Último acceso: ${new Intl.DateTimeFormat("es", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }).format(new Date(rutina.share_token_last_accessed_at))}`
-                : "Link compartible activo"
-            }
-          >
-            <ShareIcon className="size-2.5" />
-            Compartida
-          </span>
-        ) : null}
-        <div>
-          <h3 className="font-heading text-xl font-semibold leading-tight text-foreground">
+      {/* Header — name + momento badge + kebab */}
+      <header className="flex items-start gap-2 px-4 pt-3.5">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-heading text-[15px] font-semibold leading-tight text-foreground">
             {rutina.name}
           </h3>
-          {rutina.main_objective ? (
-            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/80">
-              {rutina.main_objective}
-            </p>
-          ) : null}
+          <p className="mt-0.5 truncate text-xs text-foreground/70">
+            {[
+              rutina.skin_type ? `Piel ${rutina.skin_type}` : null,
+              rutina.skin_condition,
+              rutina.main_objective,
+              `${rutina.stepCount} ${rutina.stepCount === 1 ? "paso" : "pasos"}`,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
         </div>
-      </Link>
+        <MomentoBadge momento={momento} />
+        <ActionsMenu
+          canShare={canShare}
+          hasShareToken={Boolean(rutina.share_token)}
+          editHref={editHref}
+          onDuplicate={handleDuplicate}
+          onShare={handleShare}
+          onShareEmail={() => setEmailOpen(true)}
+          onRevoke={handleRevoke}
+          onDelete={() => setConfirmDelete(true)}
+        />
+      </header>
 
-      {/* Meta */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-foreground/80">
-          <span className="font-semibold tabular-nums text-foreground">
-            {rutina.stepCount}{" "}
-            {rutina.stepCount === 1 ? "paso" : "pasos"}
-          </span>
-          {rutina.skin_type ? (
-            <>
-              <span className="text-foreground/40">·</span>
-              <span className="font-medium">Piel {rutina.skin_type}</span>
-            </>
-          ) : null}
-        </div>
-
-        {rutina.tags.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {rutina.tags.slice(0, 3).map((t) => (
+      {/* Step preview list */}
+      <ol className="mt-2 grid gap-1 px-4 pb-3">
+        {visibleSteps.length === 0 ? (
+          <li className="text-xs italic text-foreground/55">
+            Sin pasos guardados todavía
+          </li>
+        ) : (
+          visibleSteps.map((s) => (
+            <li
+              key={s.step_order}
+              className="flex items-center gap-2 text-sm text-foreground/85"
+            >
               <span
-                key={t}
-                className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2.5 py-0.5 text-xs font-semibold text-[#4F605C]"
+                aria-hidden="true"
+                className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#FBEFE7] text-[11px] font-bold text-[#7A3D24]"
               >
-                {RUTINA_TAG_LABELS[t as RutinaTag] ?? t}
+                {s.step_order}
               </span>
-            ))}
-            {rutina.tags.length > 3 ? (
-              <span className="text-xs font-medium text-foreground/65">
-                +{rutina.tags.length - 3}
-              </span>
-            ) : null}
-          </div>
+              <span className="truncate">{s.producto_name}</span>
+            </li>
+          ))
+        )}
+        {hiddenCount > 0 ? (
+          <li className="ml-7 text-xs font-medium text-foreground/60">
+            +{hiddenCount} {hiddenCount === 1 ? "paso más" : "pasos más"}
+          </li>
         ) : null}
+      </ol>
 
-        <footer className="mt-auto flex items-center justify-between gap-2">
+      {/* Tags + share status row (only renders if there's something to show) */}
+      {rutina.tags.length > 0 || rutina.share_token ? (
+        <div className="flex flex-wrap items-center gap-1.5 px-4 pb-2">
+          {rutina.share_token ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-[#5C6E6C] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white"
+              title="Link compartible activo"
+            >
+              <ShareIcon className="size-2.5" />
+              Compartida
+            </span>
+          ) : null}
+          {rutina.tags.slice(0, 3).map((t) => (
+            <span
+              key={t}
+              className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-xs font-medium text-[#4F605C]"
+            >
+              {RUTINA_TAG_LABELS[t as RutinaTag] ?? t}
+            </span>
+          ))}
+          {rutina.tags.length > 3 ? (
+            <span className="text-xs font-medium text-foreground/65">
+              +{rutina.tags.length - 3}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* Footer — actions */}
+      <footer className="mt-auto flex items-center justify-between gap-2 border-t bg-muted/30 px-4 py-2.5">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="gap-1.5"
+          onClick={() => onView(rutina.id)}
+        >
+          Ver
+        </Button>
+        <div className="flex items-center gap-1.5">
           <Button
             size="sm"
             variant="outline"
@@ -233,83 +256,25 @@ export function RutinaLibraryCard({
             <PencilIcon className="size-3.5" />
             Editar
           </Button>
-
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              size="sm"
-              variant="cta"
-              className="gap-1.5"
-              onClick={() => onAssign(rutina.id)}
-              disabled={pending}
-            >
-              <SendIcon className="size-3.5" />
-              Asignar
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    aria-label="Más acciones"
-                  >
-                    <MoreVerticalIcon className="size-4" />
-                  </Button>
-                }
-              />
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDuplicate}>
-                  <CopyIcon className="size-4" />
-                  Duplicar
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      `${ROUTES.rutinas}/${rutina.id}/pdf`,
-                      "_blank",
-                      "noopener",
-                    )
-                  }
-                >
-                  <DownloadIcon className="size-4" />
-                  Descargar PDF
-                </DropdownMenuItem>
-                {canShare ? (
-                  <DropdownMenuItem onClick={handleShare}>
-                    <Link2Icon className="size-4" />
-                    Generar link de compartir
-                  </DropdownMenuItem>
-                ) : null}
-                {canShare ? (
-                  <DropdownMenuItem onClick={() => setEmailOpen(true)}>
-                    <MailIcon className="size-4" />
-                    Compartir por email
-                  </DropdownMenuItem>
-                ) : null}
-                {canShare && rutina.share_token ? (
-                  <DropdownMenuItem onClick={handleRevoke}>
-                    <Link2OffIcon className="size-4" />
-                    Revocar link
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setConfirmDelete(true)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2Icon className="size-4" />
-                  Eliminar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </footer>
-      </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="cta"
+            className="gap-1.5"
+            onClick={() => onAssign(rutina.id)}
+            disabled={pending}
+          >
+            <SendIcon className="size-3.5" />
+            Asignar
+          </Button>
+        </div>
+      </footer>
 
       {confirmDelete ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-card/95 p-4 text-center backdrop-blur">
-          <p className="text-[15px] font-semibold text-foreground">¿Eliminar esta rutina?</p>
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-card/95 p-4 text-center backdrop-blur">
+          <p className="text-[15px] font-semibold text-foreground">
+            ¿Eliminar esta rutina?
+          </p>
           <p className="text-sm leading-relaxed text-foreground/75">
             Las asignaciones a clientas mantienen su copia.
           </p>
@@ -348,21 +313,130 @@ export function RutinaLibraryCard({
   );
 }
 
+export const RutinaLibraryCard = memo(RutinaLibraryCardImpl);
+
+// ─── Subcomponents ──────────────────────────────────────────────────────────
+
+function MomentoBadge({ momento }: { momento: RutinaMomento }) {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-foreground ring-1 ring-border">
+      {momento === "am" ? (
+        <SunIcon className="size-3 text-[#C47A2B]" />
+      ) : momento === "pm" ? (
+        <MoonIcon className="size-3 text-[#6B4FA0]" />
+      ) : (
+        <>
+          <SunIcon className="size-3 text-[#C47A2B]" />
+          <MoonIcon className="size-3 text-[#6B4FA0]" />
+        </>
+      )}
+      {RUTINA_MOMENTO_SHORT[momento]}
+    </span>
+  );
+}
+
+interface ActionsMenuProps {
+  canShare: boolean;
+  hasShareToken: boolean;
+  editHref: string;
+  onDuplicate: () => void;
+  onShare: () => void;
+  onShareEmail: () => void;
+  onRevoke: () => void;
+  onDelete: () => void;
+}
+
+function ActionsMenu({
+  canShare,
+  hasShareToken,
+  editHref,
+  onDuplicate,
+  onShare,
+  onShareEmail,
+  onRevoke,
+  onDelete,
+}: ActionsMenuProps) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label="Más acciones"
+            className="-mt-1 -mr-1 shrink-0 text-foreground/65 hover:text-foreground"
+          >
+            <MoreVerticalIcon className="size-4" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem render={<Link href={editHref} />}>
+          <PencilIcon className="size-4" />
+          Editar
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onDuplicate}>
+          <CopyIcon className="size-4" />
+          Duplicar
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={
+            <a
+              href={editHref.replace("/editar", "/pdf")}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <DownloadIcon className="size-4" />
+          Descargar PDF
+        </DropdownMenuItem>
+        {canShare ? (
+          <DropdownMenuItem onClick={onShare}>
+            <Link2Icon className="size-4" />
+            Generar link de compartir
+          </DropdownMenuItem>
+        ) : null}
+        {canShare ? (
+          <DropdownMenuItem onClick={onShareEmail}>
+            <MailIcon className="size-4" />
+            Compartir por email
+          </DropdownMenuItem>
+        ) : null}
+        {canShare && hasShareToken ? (
+          <DropdownMenuItem onClick={onRevoke}>
+            <Link2OffIcon className="size-4" />
+            Revocar link
+          </DropdownMenuItem>
+        ) : null}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onDelete}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2Icon className="size-4" />
+          Eliminar
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 /** "Nueva rutina" featured card — always first in the grid. */
 export function RutinaCreateCard() {
   return (
     <Link
       href={`${ROUTES.rutinas}/nueva`}
       className={cn(
-        "group flex aspect-[5/3] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed text-center transition-all",
+        "group flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed py-10 text-center transition-all",
         "border-[#D2A96A]/50 bg-[#F8EFD7]/40 text-[#7C5E1F] hover:border-[#D2A96A] hover:bg-[#F8EFD7]/70 hover:shadow-[0_8px_28px_-12px_rgba(212,169,106,0.4)]",
       )}
     >
-      <span className="flex size-12 items-center justify-center rounded-full bg-[#D2A96A] text-white shadow-sm transition-transform group-hover:scale-110">
+      <span className="flex size-11 items-center justify-center rounded-full bg-[#D2A96A] text-white shadow-sm transition-transform group-hover:scale-110">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
