@@ -45,9 +45,20 @@ export type ClienteDetail = ClienteListRow & {
 };
 
 /**
- * Server-paginated list. RLS scopes rows to caller's tenant. Hits the
- * `clientes_tenant_status_created_idx` composite index for the
- * tenant + status + ORDER BY created_at DESC pattern.
+ * Server-paginated list. RLS scopes rows to caller's tenant.
+ *
+ * Reads from the `clientes_list_view` view (security_invoker), which
+ * computes `services_active`, `last_appointment_at`, `next_appointment_at`
+ * in SQL via lateral subqueries — the columns of the same name on the
+ * underlying `clientes` table are stale cache placeholders that no
+ * trigger maintains. The view inherits the FK on `profile_id` from the
+ * base table, so PostgREST keeps resolving the `profile:profiles!inner`
+ * embedded join.
+ *
+ * Pagination + status filter still hits the
+ * `clientes_tenant_status_created_idx` composite index on the underlying
+ * table; the per-row aggregate subqueries hit
+ * `servicios (cliente_id, status)` and `citas (cliente_id, start_at DESC)`.
  */
 export async function listClientes(
   supabase: DB,
@@ -63,7 +74,7 @@ export async function listClientes(
   const to = from + pageSize - 1;
 
   let query = supabase
-    .from("clientes")
+    .from("clientes_list_view")
     .select(
       `id, status, birth_date, services_active, last_appointment_at, next_appointment_at, created_at,
        profile:profiles!inner(id, full_name, email, phone, avatar_url, avatar_path)`,

@@ -16,6 +16,7 @@ import {
   getClienteStatusCounts,
   listClientes,
 } from "@/services/clientes.service";
+import { getStaffForTenant } from "@/services/staff.service";
 
 export const metadata: Metadata = {
   title: "Clientes",
@@ -82,9 +83,13 @@ export default async function ClientesPage({ searchParams }: PageProps) {
   const status = parseStatus(sp.filter_status);
 
   const supabase = await createClient();
-  const [list, counts] = await Promise.all([
+  // Staff list powers the "Nueva cita" row action (kebab → opens the agenda
+  // sheet pre-filled with the row's clienta). React.cache() inside the
+  // service dedupes if anything else asks for staff in the same request.
+  const [list, counts, staff] = await Promise.all([
     listClientes(supabase, { page, pageSize, search, status }),
     getClienteStatusCounts(supabase),
+    getStaffForTenant(session.profile.tenant_id ?? ""),
   ]);
 
   const canCreate =
@@ -138,7 +143,15 @@ export default async function ClientesPage({ searchParams }: PageProps) {
 
       {/* Table card */}
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
-        <ClientesTable rows={list.rows} total={list.total} />
+        <ClientesTable
+          rows={list.rows}
+          total={list.total}
+          staff={staff}
+          currentProfesional={{
+            id: session.profile.id,
+            full_name: session.profile.full_name ?? "",
+          }}
+        />
       </div>
     </div>
   );

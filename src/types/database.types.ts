@@ -435,6 +435,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "citas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "citas_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -629,6 +636,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "evaluaciones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: true
+            referencedRelation: "clientes_list_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "evaluaciones_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -753,6 +767,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_plans_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_plans_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -852,6 +873,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
             referencedColumns: ["id"]
           },
           {
@@ -1374,6 +1402,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "rutinas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "rutinas_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -1495,6 +1530,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "servicios_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "servicios_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -1600,6 +1642,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesiones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes_list_view"
             referencedColumns: ["id"]
           },
           {
@@ -1796,6 +1845,60 @@ export type Database = {
       }
     }
     Views: {
+      clientes_list_view: {
+        Row: {
+          birth_date: string | null
+          created_at: string | null
+          id: string | null
+          last_appointment_at: string | null
+          next_appointment_at: string | null
+          profile_id: string | null
+          services_active: Json | null
+          status: Database["public"]["Enums"]["cliente_status"] | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_appointment_at?: never
+          next_appointment_at?: never
+          profile_id?: string | null
+          services_active?: never
+          status?: Database["public"]["Enums"]["cliente_status"] | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_appointment_at?: never
+          next_appointment_at?: never
+          profile_id?: string | null
+          services_active?: never
+          status?: Database["public"]["Enums"]["cliente_status"] | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes_status_counts: {
         Row: {
           count: number | null
