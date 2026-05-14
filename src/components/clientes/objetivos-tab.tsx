@@ -7,7 +7,6 @@ import {
   CheckCircle2Icon,
   ClipboardListIcon,
   LayersIcon,
-  MapPinIcon,
   PencilIcon,
   PlusIcon,
   ScanFaceIcon,
@@ -19,7 +18,6 @@ import {
 import { toast } from "sonner";
 
 import { upsertEvaluacionAction } from "@/actions/evaluaciones.actions";
-import { FacialMap } from "@/components/evaluaciones/facial-map";
 import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -115,17 +113,6 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
       </div>
 
       <ResumenClinicoCard evaluacion={evaluacion} />
-
-      {evaluacion.diagnostico.mapaFacial.length > 0 ? (
-        <SectionCard
-          icon={MapPinIcon}
-          title="Mapa facial"
-          tone="copper"
-          hint={`${evaluacion.diagnostico.mapaFacial.length} alteración${evaluacion.diagnostico.mapaFacial.length === 1 ? "" : "es"} marcada${evaluacion.diagnostico.mapaFacial.length === 1 ? "" : "s"} en el rostro.`}
-        >
-          <FacialMap mode="view" value={evaluacion.diagnostico.mapaFacial} />
-        </SectionCard>
-      ) : null}
 
       <SectionCard
         icon={TargetIcon}
