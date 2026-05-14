@@ -29,6 +29,9 @@ export const ROUTES = {
   productos: "/productos",
   /** Biblioteca de rutinas — plantillas reutilizables del profesional. */
   rutinas: "/rutinas",
+  /** Constructor de rutinas — entrada directa al builder para crear una
+   *  rutina desde cero, sin pasar por la biblioteca. */
+  rutinasNueva: "/rutinas/nueva",
   /** Atlas dermocosmético — biblioteca clínica curada (read-only para staff). */
   atlas: "/atlas",
   /** CMS del Atlas — solo super_admin. */
