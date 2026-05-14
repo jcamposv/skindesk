@@ -56,11 +56,13 @@ export function ProductoCard({
         "hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.12)]",
       )}
     >
-      {/* Visual */}
+      {/* Visual — 3:2 keeps catalog density high (was 4:5 originally, then
+          4:3, still too tall for the meta below; user feedback: "muy alta,
+          deberia ser más pequeña entonces caben más en menos espacio"). */}
       <button
         type="button"
         onClick={() => onEdit(producto)}
-        className="relative aspect-[4/5] w-full overflow-hidden bg-[#F4F1EC] focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/40"
+        className="relative aspect-[3/2] w-full overflow-hidden bg-[#F4F1EC] focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/40"
         aria-label={`Editar ${producto.name}`}
       >
         {producto.photoUrl ? (
@@ -72,7 +74,7 @@ export function ProductoCard({
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center p-6">
+          <div className="flex h-full w-full items-center justify-center p-4">
             <ProductoIllustration category={producto.category} />
           </div>
         )}

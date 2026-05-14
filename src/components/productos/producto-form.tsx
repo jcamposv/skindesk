@@ -610,7 +610,12 @@ function MainIngredientsField({
   function setSlot(idx: number, raw: string) {
     const next = [...slots];
     next[idx] = raw;
-    onChange(next.map((s) => s.trim()).filter((s) => s.length > 0));
+    // Preserve internal whitespace so the user can type multi-word
+    // ingredients like "Vitamin C" or "Sodium Hyaluronate". `.trim()`
+    // on every keystroke ate the trailing space the moment the user
+    // pressed it, collapsing "Vitamin C" into "VitaminC". The schema
+    // trims at submit time — no need to do it here.
+    onChange(next.filter((s) => s.trim().length > 0));
   }
 
   return (
