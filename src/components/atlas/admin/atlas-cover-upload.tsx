@@ -144,7 +144,7 @@ export function AtlasCoverUpload({
             <span className="text-xs font-medium">
               {dragOver ? "Suelta la imagen" : "Subir o arrastrar portada"}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs font-medium text-foreground/75">
               JPG, PNG o WEBP · máx 5 MB
             </span>
           </div>

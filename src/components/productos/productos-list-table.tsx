@@ -184,7 +184,7 @@ function ProductNameCell({ producto }: { producto: Producto }) {
 }
 
 function SkinTypesCell({ items }: { items: string[] }) {
-  if (items.length === 0) return <span className="text-muted-foreground/70">—</span>;
+  if (items.length === 0) return <span className="text-foreground/70">—</span>;
   const visible = items.slice(0, 2);
   const rest = items.length - visible.length;
   return (
@@ -192,13 +192,13 @@ function SkinTypesCell({ items }: { items: string[] }) {
       {visible.map((t) => (
         <span
           key={t}
-          className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-[11px] font-medium text-[#4F605C]"
+          className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-xs font-medium text-[#4F605C]"
         >
           {PRODUCTO_SKIN_TYPE_LABELS[t as ProductoSkinType] ?? t}
         </span>
       ))}
       {rest > 0 ? (
-        <span className="rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+        <span className="rounded-full border border-dashed border-border px-2 py-0.5 text-xs font-semibold text-foreground/80">
           +{rest}
         </span>
       ) : null}

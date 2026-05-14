@@ -55,7 +55,7 @@ export function BuilderMeta() {
     <section className="grid gap-3 rounded-xl border bg-card p-4">
       {/* Tags */}
       <div className="grid gap-2">
-        <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           Etiquetas de la rutina
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -72,7 +72,7 @@ export function BuilderMeta() {
             .map((custom) => (
               <span
                 key={custom}
-                className="inline-flex items-center gap-1 rounded-full border border-[#5C6E6C]/40 bg-[#E7ECEA] px-2.5 py-1 text-[11.5px] font-medium text-[#4F605C]"
+                className="inline-flex items-center gap-1 rounded-full border border-[#5C6E6C]/40 bg-[#E7ECEA] px-2.5 py-1 text-sm font-semibold text-[#4F605C]"
               >
                 {custom}
                 <button
@@ -91,7 +91,7 @@ export function BuilderMeta() {
 
       {/* Skin type chips */}
       <div className="grid gap-2">
-        <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           Tipo de piel
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -110,17 +110,17 @@ export function BuilderMeta() {
       {/* Objective + general notes */}
       <div className="grid items-start gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <label className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold uppercase tracking-wider text-foreground/80">
             Objetivo principal
           </label>
           <Input
             {...register("mainObjective")}
             placeholder="Ej: Reducir brillo y controlar la grasa"
-            className="h-9"
+            className="h-10"
           />
         </div>
         <div className="grid gap-1.5">
-          <label className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+          <label className="text-xs font-bold uppercase tracking-wider text-foreground/80">
             Notas generales para la clienta
           </label>
           <Textarea
@@ -148,18 +148,18 @@ function TagChip({ label, active, onClick, tone = "sage" }: TagChipProps) {
     tone === "rose"
       ? {
           on: "border-[#C58F8A] bg-[#F8EAE9] text-[#7B3D3D]",
-          off: "border-border/70 bg-card text-muted-foreground hover:border-[#C58F8A]/50 hover:bg-[#F8EAE9]/40",
+          off: "border-border/70 bg-card text-foreground/75 hover:border-[#C58F8A]/50 hover:bg-[#F8EAE9]/40 hover:text-foreground",
         }
       : {
           on: "border-[#5C6E6C] bg-[#E7ECEA] text-[#4F605C]",
-          off: "border-border/70 bg-card text-muted-foreground hover:border-[#5C6E6C]/50 hover:bg-[#F4F1EC]",
+          off: "border-border/70 bg-card text-foreground/75 hover:border-[#5C6E6C]/50 hover:bg-[#F4F1EC] hover:text-foreground",
         };
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition-colors",
+        "rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors",
         active ? palette.on : palette.off,
       )}
     >
@@ -173,7 +173,7 @@ function CustomTagInput({ onAdd }: { onAdd: (v: string) => void }) {
     <input
       type="text"
       placeholder="+ Etiqueta personalizada"
-      className="rounded-full border border-dashed border-border/70 bg-card px-2.5 py-1 text-[11.5px] font-medium text-muted-foreground placeholder:text-muted-foreground/70 focus:border-[#5C6E6C] focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
+      className="rounded-full border border-dashed border-border/70 bg-card px-3 py-1.5 text-sm font-medium text-foreground placeholder:text-foreground/55 focus:border-[#5C6E6C] focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
       onKeyDown={(e) => {
         if (e.key === "Enter") {
           e.preventDefault();

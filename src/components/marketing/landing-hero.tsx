@@ -24,7 +24,7 @@ export function LandingHero() {
       <div className="relative grid items-center gap-12 px-6 py-16 md:grid-cols-[1.05fr_1fr] md:gap-16 md:px-10 md:py-20 lg:gap-20 lg:py-24">
         {/* Left — copy + CTA */}
         <div className="max-w-xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D2A96A]/15 px-3 py-1 text-[11px] font-medium text-[#F0DAB1] ring-1 ring-[#D2A96A]/40 backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D2A96A]/15 px-3 py-1 text-xs font-medium text-[#F0DAB1] ring-1 ring-[#D2A96A]/40 backdrop-blur">
             <SparklesIcon className="size-3 text-[#D2A96A]" aria-hidden />
             Software clínico para cosmetología
           </span>
@@ -129,7 +129,7 @@ export function LandingHero() {
                 />
               </span>
               <div className="pr-2 text-left">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
                   Nuevo
                 </p>
                 <p className="text-sm font-medium text-foreground">

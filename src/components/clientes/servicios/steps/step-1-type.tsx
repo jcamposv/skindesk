@@ -31,7 +31,7 @@ export function Step1Type({ value, onChange }: Step1Props) {
         <h3 className="font-heading text-base font-medium tracking-tight">
           ¿Qué tipo de servicio quieres agregar?
         </h3>
-        <p className="text-[12.5px] text-muted-foreground">
+        <p className="text-sm text-foreground/75">
           Cada tipo de servicio tiene su propio mapa, parámetros y campos clínicos.
         </p>
       </div>
@@ -67,7 +67,7 @@ export function Step1Type({ value, onChange }: Step1Props) {
                   <span className="block text-[13px] font-semibold text-foreground">
                     {SERVICE_TYPE_LABEL[type]}
                   </span>
-                  <span className="mt-0.5 block text-[11.5px] leading-snug text-muted-foreground">
+                  <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
                     {SERVICE_TYPE_TAGLINE[type]}
                   </span>
                 </span>

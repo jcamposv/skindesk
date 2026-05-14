@@ -138,13 +138,13 @@ function RegisterPaymentBody({
       <form onSubmit={form.handleSubmit(onValid)} className="flex flex-col">
         <header className="flex items-start justify-between gap-3 border-b px-5 pt-4 pb-3">
           <div className="min-w-0">
-            <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
               Registrar pago
             </p>
             <DialogPrimitive.Title className="font-heading text-base font-medium tracking-tight">
               {service.name}
             </DialogPrimitive.Title>
-            <p className="truncate text-[12px] text-muted-foreground">
+            <p className="truncate text-sm text-foreground/75">
               Saldo pendiente:{" "}
               <span className="font-semibold text-foreground">
                 {formatExact(plan.balance)}
@@ -168,7 +168,7 @@ function RegisterPaymentBody({
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Monto cobrado
                 </FormLabel>
                 <CurrencyInput
@@ -189,7 +189,7 @@ function RegisterPaymentBody({
             name="method"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Método de pago
                 </FormLabel>
                 <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
@@ -201,7 +201,7 @@ function RegisterPaymentBody({
                         type="button"
                         onClick={() => field.onChange(m)}
                         className={cn(
-                          "rounded-md border px-2 py-1.5 text-[12px] font-medium transition-colors",
+                          "rounded-md border px-2 py-1.5 text-sm font-medium transition-colors",
                           isActive
                             ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                             : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40",
@@ -223,7 +223,7 @@ function RegisterPaymentBody({
               name="paidAt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Fecha del pago
                   </FormLabel>
                   <Input
@@ -241,7 +241,7 @@ function RegisterPaymentBody({
               name="concept"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Concepto (opcional)
                   </FormLabel>
                   <Input
@@ -261,7 +261,7 @@ function RegisterPaymentBody({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Notas internas (opcional)
                 </FormLabel>
                 <textarea

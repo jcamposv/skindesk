@@ -21,7 +21,7 @@ export function UrlSelectFilter({
 }: UrlSelectFilterProps) {
   return (
     <label className="grid gap-1">
-      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+      <span className="text-xs uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <select

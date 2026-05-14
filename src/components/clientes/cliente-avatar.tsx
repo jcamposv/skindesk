@@ -45,7 +45,7 @@ interface ClienteAvatarProps {
 }
 
 const SIZE_CLASSES: Record<NonNullable<ClienteAvatarProps["size"]>, string> = {
-  sm: "size-7 text-[11px]",
+  sm: "size-7 text-xs",
   md: "size-9 text-xs",
   lg: "size-11 text-sm",
   xl: "size-20 text-xl",

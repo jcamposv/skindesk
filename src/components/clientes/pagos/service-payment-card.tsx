@@ -94,7 +94,7 @@ export function ServicePaymentCard({
             <p className="font-heading text-[14px] font-medium tracking-tight">
               {service.name}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs font-medium text-foreground/75">
               {service.totalSessions}{" "}
               {service.totalSessions === 1 ? "sesión" : "sesiones"} ·{" "}
               {format(plan.totalAmount)} paquete
@@ -103,7 +103,7 @@ export function ServicePaymentCard({
         </div>
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
             statusVisual.tone,
           )}
         >
@@ -140,7 +140,7 @@ export function ServicePaymentCard({
               <button
                 type="button"
                 className={cn(
-                  "group flex items-center gap-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground",
+                  "group flex items-center gap-1.5 text-sm text-foreground/75 transition-colors hover:text-foreground",
                   !hasTransactions && "pointer-events-none opacity-60",
                 )}
                 disabled={!hasTransactions}
@@ -161,7 +161,7 @@ export function ServicePaymentCard({
                 return (
                   <li
                     key={tx.id}
-                    className="group/tx flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-[12px]"
+                    className="group/tx flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-sm"
                   >
                     <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                       <CalendarIcon className="size-3.5" />
@@ -182,7 +182,7 @@ export function ServicePaymentCard({
                     <button
                       type="button"
                       onClick={() => onDeleteTransaction(service.id, tx.id)}
-                      className="ml-auto rounded-md p-1 text-muted-foreground/60 opacity-0 transition-opacity hover:bg-muted hover:text-destructive group-hover/tx:opacity-100"
+                      className="ml-auto rounded-md p-1 text-foreground/65 opacity-0 transition-opacity hover:bg-muted hover:text-destructive group-hover/tx:opacity-100"
                       aria-label="Eliminar pago"
                     >
                       <Trash2Icon className="size-3.5" />
@@ -225,7 +225,7 @@ function MoneyCell({
 }) {
   return (
     <div className="grid gap-0.5">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/70/80">
         {label}
       </p>
       <p

@@ -64,10 +64,10 @@ export function BuilderCatalog({
   return (
     <aside className="flex h-full min-h-0 flex-col border-r bg-card">
       <header className="flex items-center justify-between border-b px-4 py-3">
-        <h2 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           Catálogo
         </h2>
-        <span className="text-[11px] text-muted-foreground tabular-nums">
+        <span className="text-xs font-semibold text-foreground/75 tabular-nums">
           {filtered.length}
         </span>
       </header>
@@ -104,7 +104,7 @@ export function BuilderCatalog({
       {cappedAt !== null ? (
         // The catalog query was capped server-side. Tell the user how many
         // products are not visible and nudge them to refine the search.
-        <p className="border-b bg-[#FBEFE7]/60 px-4 py-2 text-[11px] text-[#8C4A30]">
+        <p className="border-b bg-[#FBEFE7]/60 px-4 py-2 text-xs font-medium leading-relaxed text-[#7A3D24]">
           Mostrando los primeros {productos.length} de {cappedAt} productos.
           Refiná la búsqueda para encontrar uno específico.
         </p>
@@ -112,9 +112,9 @@ export function BuilderCatalog({
 
       <div className="flex-1 overflow-y-auto p-3">
         {filtered.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-6 text-center text-xs text-muted-foreground">
+          <p className="rounded-lg border border-dashed p-6 text-center text-sm leading-relaxed text-foreground/75">
             Sin productos. Prueba con otro filtro o agregá al catálogo desde
-            <span className="ml-1 font-medium">Catálogo de productos</span>.
+            <span className="ml-1 font-semibold text-foreground">Catálogo de productos</span>.
           </p>
         ) : (
           <div className="grid gap-2">
@@ -149,10 +149,10 @@ const CategoryChip = memo(function CategoryChip({
       type="button"
       onClick={onSelect}
       className={cn(
-        "shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium transition-colors",
+        "shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
         active
           ? "border-[#5C6E6C] bg-[#E7ECEA] text-[#4F605C]"
-          : "border-border/70 bg-card text-muted-foreground hover:border-[#5C6E6C]/40 hover:bg-[#F4F1EC]",
+          : "border-border/70 bg-card text-foreground/75 hover:border-[#5C6E6C]/40 hover:bg-[#F4F1EC] hover:text-foreground",
       )}
     >
       {label}
@@ -201,8 +201,8 @@ const CatalogProductCard = memo(function CatalogProductCard({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[12.5px] font-semibold">{producto.name}</p>
-        <p className="truncate text-[10.5px] text-muted-foreground">
+        <p className="truncate text-sm font-semibold text-foreground">{producto.name}</p>
+        <p className="truncate text-xs text-foreground/75">
           {producto.brand || "—"}
         </p>
         {producto.mainIngredients.length > 0 ? (
@@ -210,13 +210,13 @@ const CatalogProductCard = memo(function CatalogProductCard({
             {producto.mainIngredients.slice(0, 2).map((ing) => (
               <span
                 key={ing}
-                className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-1.5 text-[9.5px] font-semibold text-[#8C4A30]"
+                className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-2 py-0.5 text-[11px] font-semibold text-[#7A3D24]"
               >
                 {ing}
               </span>
             ))}
             {producto.mainIngredients.length > 2 ? (
-              <span className="text-[9.5px] text-muted-foreground">
+              <span className="text-[11px] font-medium text-foreground/65">
                 +{producto.mainIngredients.length - 2}
               </span>
             ) : null}

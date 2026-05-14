@@ -96,7 +96,7 @@ export default async function EditAtlasEntryPage({ params }: PageProps) {
       </div>
 
       <header className="grid gap-1">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground/80">
           {ATLAS_SECTION_LABELS[entry.section]} ·{" "}
           {ATLAS_ENTRY_STATUS_LABELS[entry.status]}
         </span>

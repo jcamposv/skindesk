@@ -131,7 +131,7 @@ export function BuilderStepCard({
         {/* Step number badge */}
         <span
           className={cn(
-            "flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white",
+            "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white tabular-nums",
             "bg-gradient-to-br from-[#5C6E6C] to-[#4F605C]",
           )}
         >
@@ -157,19 +157,19 @@ export function BuilderStepCard({
 
         {/* Identity + tags */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold">
+          <p className="truncate text-[15px] font-semibold text-foreground">
             {step.producto.name}
           </p>
-          <p className="truncate text-[11.5px] text-muted-foreground">
+          <p className="truncate text-sm text-foreground/75">
             {step.producto.brand || "—"} ·{" "}
             {PRODUCTO_CATEGORIA_LABELS[step.producto.category]}
           </p>
           {step.producto.mainIngredients.length > 0 ? (
-            <div className="mt-1 flex flex-wrap gap-1">
+            <div className="mt-1.5 flex flex-wrap gap-1">
               {step.producto.mainIngredients.slice(0, 3).map((ing) => (
                 <span
                   key={ing}
-                  className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-1.5 py-0.5 text-[9.5px] font-semibold text-[#8C4A30]"
+                  className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-2 py-0.5 text-[11px] font-semibold text-[#7A3D24]"
                 >
                   {ing}
                 </span>
@@ -181,7 +181,7 @@ export function BuilderStepCard({
         {/* Right side: timing + actions */}
         <div className="flex flex-col items-end gap-2">
           {!isLast ? (
-            <span className="rounded-full bg-[#F4F1EC] px-2 py-0.5 text-[10px] font-semibold text-[#4F605C]">
+            <span className="rounded-full bg-[#F4F1EC] px-2.5 py-1 text-xs font-bold text-[#4F605C]">
               ⏱{" "}
               {PRODUCTO_ABSORPTION_LABELS[absorption] ?? "—"}
             </span>
@@ -192,24 +192,24 @@ export function BuilderStepCard({
               variant="ghost"
               onClick={() => onEdit(step)}
               aria-label="Editar paso"
-              className="text-muted-foreground"
+              className="text-foreground/65 hover:text-foreground"
             >
-              <PencilIcon className="size-3.5" />
+              <PencilIcon className="size-4" />
             </Button>
             <Button
               size="icon-sm"
               variant="ghost"
               onClick={() => onRemove(dragKey)}
               aria-label="Quitar paso"
-              className="text-muted-foreground hover:text-destructive"
+              className="text-foreground/65 hover:text-destructive"
             >
-              <XIcon className="size-3.5" />
+              <XIcon className="size-4" />
             </Button>
             <span
-              className="flex size-7 cursor-grab items-center justify-center text-muted-foreground active:cursor-grabbing"
+              className="flex size-8 cursor-grab items-center justify-center text-foreground/65 active:cursor-grabbing"
               aria-label="Mover paso"
             >
-              <GripVerticalIcon className="size-3.5" />
+              <GripVerticalIcon className="size-4" />
             </span>
           </div>
         </div>

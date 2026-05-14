@@ -83,14 +83,14 @@ export function Step3Laser({
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <div className="lg:sticky lg:top-0 lg:self-start">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
               Zonas tratadas
             </p>
             <Controller
               control={form.control}
               name={p("payload.data.view")}
               render={({ field }) => (
-                <div className="inline-flex overflow-hidden rounded-full border border-border/60 bg-card text-[11px]">
+                <div className="inline-flex overflow-hidden rounded-full border border-border/60 bg-card text-xs">
                   {(["front", "back"] as const).map((v) => {
                     const isActive = (field.value ?? "front") === v;
                     return (
@@ -140,7 +140,7 @@ export function Step3Laser({
         </div>
 
         <div className="grid content-start gap-3">
-          <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
             Parámetros de la sesión
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -149,7 +149,7 @@ export function Step3Laser({
               name={p("payload.data.fluence")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Fluencia (J/cm²)
                   </FormLabel>
                   <Input
@@ -167,7 +167,7 @@ export function Step3Laser({
               name={p("payload.data.pulseWidth")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Ancho de pulso (ms)
                   </FormLabel>
                   <Input
@@ -185,7 +185,7 @@ export function Step3Laser({
               name={p("payload.data.wavelength")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Longitud de onda (nm)
                   </FormLabel>
                   <Input
@@ -203,7 +203,7 @@ export function Step3Laser({
               name={p("payload.data.shotCount")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Conteo de disparos
                   </FormLabel>
                   <Input
@@ -221,7 +221,7 @@ export function Step3Laser({
               name={p("payload.data.powerLevel")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Nivel de potencia
                   </FormLabel>
                   <Input
@@ -239,7 +239,7 @@ export function Step3Laser({
               name={p("payload.data.reductionPct")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     % reducción estimada
                   </FormLabel>
                   <Input
@@ -257,7 +257,7 @@ export function Step3Laser({
               name={p("durationMin")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Duración (min)
                   </FormLabel>
                   <NumericInput
@@ -291,7 +291,7 @@ export function Step3Laser({
             name={p("payload.data.reaction")}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Reacción cutánea
                 </FormLabel>
                 <div className="flex flex-wrap gap-1.5">
@@ -304,8 +304,8 @@ export function Step3Laser({
                         onClick={() => field.onChange(r)}
                         className={
                           isActive
-                            ? "rounded-full border border-[#BB7154] bg-[#F6E0D6] px-2.5 py-1 text-[11px] font-medium text-[#8C4A30]"
-                            : "rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] text-muted-foreground hover:border-[#BB7154]/40"
+                            ? "rounded-full border border-[#BB7154] bg-[#F6E0D6] px-2.5 py-1 text-xs font-medium text-[#8C4A30]"
+                            : "rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-medium text-foreground/75 hover:border-[#BB7154]/40"
                         }
                       >
                         {REACTION_LABEL[r]}
@@ -325,7 +325,7 @@ export function Step3Laser({
         name={p("payload.data.nextParams")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Parámetros recomendados para próxima sesión
             </FormLabel>
             <textarea
@@ -345,7 +345,7 @@ export function Step3Laser({
         name={p("payload.data.postCare")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Cuidados post-tratamiento
             </FormLabel>
             <textarea
@@ -365,7 +365,7 @@ export function Step3Laser({
         name={p("recommendations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Recomendaciones
             </FormLabel>
             <textarea
@@ -385,7 +385,7 @@ export function Step3Laser({
         name={p("notes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Notas de sesión
             </FormLabel>
             <textarea
@@ -453,7 +453,7 @@ function DiagnosisBlock({
 
   return (
     <div className="grid gap-3 rounded-xl border border-[#D2A96A]/30 bg-[#F8EFD7]/30 p-4">
-      <p className="text-[10.5px] font-medium uppercase tracking-wider text-[#7C5E1F]">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-[#7C5E1F]">
         Diagnóstico inicial · una vez por servicio
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -462,7 +462,7 @@ function DiagnosisBlock({
           name={dx("fitzpatrick")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Fototipo Fitzpatrick
               </FormLabel>
               <div className="flex flex-wrap gap-1">
@@ -474,7 +474,7 @@ function DiagnosisBlock({
                       type="button"
                       onClick={() => field.onChange(f)}
                       className={cn(
-                        "h-8 min-w-8 rounded-md border px-2 text-[11px] font-semibold transition-colors",
+                        "h-8 min-w-8 rounded-md border px-2 text-xs font-semibold transition-colors",
                         isActive
                           ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                           : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40",
@@ -494,7 +494,7 @@ function DiagnosisBlock({
           name={dx("equipment")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Equipo láser
               </FormLabel>
               <select
@@ -516,7 +516,7 @@ function DiagnosisBlock({
           name={dx("hairColor")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Color del vello
               </FormLabel>
               <Input
@@ -534,7 +534,7 @@ function DiagnosisBlock({
           name={dx("hairThickness")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Grosor del vello
               </FormLabel>
               <select
@@ -557,7 +557,7 @@ function DiagnosisBlock({
         name={dx("contraindications")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Contraindicaciones / antecedentes
             </FormLabel>
             <textarea
@@ -576,7 +576,7 @@ function DiagnosisBlock({
         name={dx("observations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Observaciones iniciales
             </FormLabel>
             <textarea

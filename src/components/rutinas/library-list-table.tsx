@@ -355,7 +355,7 @@ function RutinaNameCell({ rutina }: { rutina: RutinaWithCount }) {
     >
       <span
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-foreground/60",
+          "flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-foreground/75",
           gradientForRutina(rutina.name),
         )}
       >
@@ -366,7 +366,7 @@ function RutinaNameCell({ rutina }: { rutina: RutinaWithCount }) {
           <p className="truncate text-sm font-medium">{rutina.name}</p>
           {rutina.share_token ? (
             <span
-              className="inline-flex items-center gap-1 rounded-full bg-[#E7ECEA] px-1.5 py-0.5 text-[9.5px] font-semibold text-[#4F605C]"
+              className="inline-flex items-center gap-1 rounded-full bg-[#E7ECEA] px-1.5 py-0.5 text-[11px] font-semibold text-[#4F605C]"
               title={
                 rutina.share_token_last_accessed_at
                   ? `Último acceso: ${new Intl.DateTimeFormat("es", {
@@ -396,7 +396,7 @@ function MomentoCell({ rutina }: { rutina: RutinaWithCount }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
         momento === "am"
           ? "bg-[#FBF0E0] text-[#7C5E1F]"
           : momento === "pm"
@@ -421,7 +421,7 @@ function MomentoCell({ rutina }: { rutina: RutinaWithCount }) {
 
 function TagsCell({ tags }: { tags: string[] }) {
   if (!tags || tags.length === 0)
-    return <span className="text-muted-foreground/70">—</span>;
+    return <span className="text-foreground/70">—</span>;
   const visible = tags.slice(0, 2);
   const rest = tags.length - visible.length;
   return (
@@ -429,13 +429,13 @@ function TagsCell({ tags }: { tags: string[] }) {
       {visible.map((t) => (
         <span
           key={t}
-          className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-[10.5px] font-medium text-[#4F605C]"
+          className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-[11px] font-medium text-[#4F605C]"
         >
           {RUTINA_TAG_LABELS[t as RutinaTag] ?? t}
         </span>
       ))}
       {rest > 0 ? (
-        <span className="rounded-full border border-dashed border-border px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground">
+        <span className="rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
           +{rest}
         </span>
       ) : null}

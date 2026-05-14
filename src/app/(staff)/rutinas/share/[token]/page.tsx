@@ -115,7 +115,7 @@ export default async function SharedRutinaPage({ params }: PageProps) {
   return (
     <div className="mx-auto grid max-w-5xl gap-6 py-4">
       <header className="grid gap-3">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-[11px] font-medium text-[#6B4FA0]">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-xs font-medium text-[#6B4FA0]">
           <RouteIcon className="size-3" />
           Plantilla compartida
         </span>
@@ -131,17 +131,17 @@ export default async function SharedRutinaPage({ params }: PageProps) {
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E7ECEA] px-3 py-1 text-[11.5px] font-semibold text-[#4F605C]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E7ECEA] px-3 py-1 text-xs font-semibold text-[#4F605C]">
               {showAm ? <SunIcon className="size-3" /> : null}
               {showPm ? <MoonIcon className="size-3" /> : null}
               {RUTINA_MOMENTO_LABELS[momento]}
             </span>
             {rutina.skin_type ? (
-              <span className="rounded-full border bg-card px-3 py-1 text-[11.5px] font-medium text-muted-foreground">
+              <span className="rounded-full border bg-card px-3 py-1 text-sm font-medium text-foreground/85">
                 Piel {rutina.skin_type}
               </span>
             ) : null}
-            <span className="rounded-full border bg-card px-3 py-1 text-[11.5px] font-medium tabular-nums text-muted-foreground">
+            <span className="rounded-full border bg-card px-3 py-1 text-xs font-medium tabular-nums text-muted-foreground">
               {rutina.steps.length}{" "}
               {rutina.steps.length === 1 ? "paso" : "pasos"}
             </span>
@@ -169,7 +169,7 @@ export default async function SharedRutinaPage({ params }: PageProps) {
             <CopyIcon className="size-3.5" />
             Descargar PDF
           </Button>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-medium text-foreground/75">
             Sin datos de clienta
           </span>
         </div>
@@ -184,7 +184,7 @@ export default async function SharedRutinaPage({ params }: PageProps) {
 
       {rutina.general_notes?.trim() ? (
         <section className="rounded-xl border bg-[#E7ECEA]/60 p-4">
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-[#4F605C]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#4F605C]">
             Notas generales
           </h3>
           <p className="mt-1 text-sm text-foreground/90">
@@ -360,7 +360,7 @@ function StepCard({
             className="object-cover"
           />
         ) : (
-          <div className="grid h-full place-items-center text-[10px] text-muted-foreground">
+          <div className="grid h-full place-items-center text-xs font-medium text-foreground/75">
             Producto
           </div>
         )}
@@ -394,16 +394,16 @@ function StepCard({
         {step.producto.brand &&
         step.producto.brand.trim().toUpperCase() !==
           step.producto.name.trim().toUpperCase() ? (
-          <p className="truncate text-[10.5px] text-muted-foreground">
+          <p className="truncate text-xs font-medium text-foreground/75">
             {step.producto.brand}
           </p>
         ) : null}
         {description ? (
-          <p className="mt-1.5 line-clamp-3 text-[11.5px] text-foreground/80">
+          <p className="mt-1.5 line-clamp-3 text-xs text-foreground/80">
             {description}
           </p>
         ) : null}
-        <p className="mt-1.5 text-[10.5px] text-muted-foreground">
+        <p className="mt-1.5 text-xs font-medium text-foreground/75">
           ⏱ {PRODUCTO_ABSORPTION_LABELS[absorption] ?? "—"}
         </p>
       </div>

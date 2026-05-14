@@ -261,7 +261,7 @@ function AddSessionBody({
               <Icon className="size-5" />
             </span>
             <div className="min-w-0">
-              <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
                 {SERVICE_TYPE_LABEL[service.serviceType]}
               </p>
               <DialogPrimitive.Title className="font-heading text-base font-medium tracking-tight">
@@ -269,7 +269,7 @@ function AddSessionBody({
                   ? `Servicio completado · ${service.totalSessions} de ${service.totalSessions}`
                   : `Sesión ${nextSessionNumber} de ${service.totalSessions}`}
               </DialogPrimitive.Title>
-              <p className="truncate text-[12px] text-muted-foreground">
+              <p className="truncate text-sm text-foreground/75">
                 {service.name}
               </p>
             </div>
@@ -290,7 +290,7 @@ function AddSessionBody({
               <p className="text-[13px] font-medium text-foreground">
                 Este servicio ya alcanzó el total de sesiones planificadas.
               </p>
-              <p className="max-w-md text-[12px] text-muted-foreground">
+              <p className="max-w-md text-sm text-foreground/75">
                 Si quieres extender el paquete, edita el total de sesiones en el
                 detalle del servicio antes de registrar más.
               </p>
@@ -353,7 +353,7 @@ function SessionMetaBlock({ staff }: { staff: StaffMember[] }) {
 
   return (
     <div className="grid gap-3 rounded-xl border bg-card p-4">
-      <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
         Datos de la sesión
       </p>
       <div className="grid gap-3 sm:grid-cols-3">
@@ -362,7 +362,7 @@ function SessionMetaBlock({ staff }: { staff: StaffMember[] }) {
           name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Fecha de la sesión
               </FormLabel>
               <Input
@@ -401,7 +401,7 @@ function SessionMetaBlock({ staff }: { staff: StaffMember[] }) {
           name="nextSuggestion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Próxima cita sugerida
               </FormLabel>
               <Input

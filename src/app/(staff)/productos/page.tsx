@@ -121,7 +121,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
       {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-[11px] font-medium text-[#7C5E1F]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-xs font-medium text-[#7C5E1F]">
             <PackageIcon className="size-3" />
             Tu catálogo
           </span>

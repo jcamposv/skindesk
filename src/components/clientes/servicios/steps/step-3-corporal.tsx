@@ -51,7 +51,7 @@ export function Step3Corporal({
     <div className="grid gap-4">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <div className="lg:sticky lg:top-0 lg:self-start">
-          <p className="mb-2 text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground/75">
             Mapa corporal · zonas tratadas
           </p>
           <Controller
@@ -82,7 +82,7 @@ export function Step3Corporal({
               name={p("payload.data.measurementsBefore")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Medidas antes (cm)
                   </FormLabel>
                   <Input
@@ -100,7 +100,7 @@ export function Step3Corporal({
               name={p("payload.data.measurementsAfter")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Medidas después (cm)
                   </FormLabel>
                   <Input
@@ -118,7 +118,7 @@ export function Step3Corporal({
               name={p("payload.data.weight")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Peso (opcional, kg)
                   </FormLabel>
                   <Input
@@ -136,7 +136,7 @@ export function Step3Corporal({
               name={p("durationMin")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Duración (min)
                   </FormLabel>
                   <NumericInput
@@ -192,7 +192,7 @@ export function Step3Corporal({
           name={p("payload.data.technique")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Técnica utilizada
               </FormLabel>
               <select
@@ -245,7 +245,7 @@ export function Step3Corporal({
         name={p("payload.data.observations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Observaciones
             </FormLabel>
             <textarea
@@ -265,7 +265,7 @@ export function Step3Corporal({
         name={p("recommendations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Recomendaciones post-tratamiento
             </FormLabel>
             <textarea
@@ -285,7 +285,7 @@ export function Step3Corporal({
         name={p("notes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Notas de sesión
             </FormLabel>
             <textarea
@@ -359,7 +359,7 @@ function PostOpBlock({
 
   return (
     <div className="grid gap-3 rounded-xl border border-[#D2A96A]/30 bg-[#F8EFD7]/30 p-4">
-      <p className="text-[10.5px] font-medium uppercase tracking-wider text-[#7C5E1F]">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-[#7C5E1F]">
         Post-operatorio · datos clínicos
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -368,7 +368,7 @@ function PostOpBlock({
           name={p("payload.data.postOp.surgeryType")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Tipo de cirugía
               </FormLabel>
               <Input
@@ -386,7 +386,7 @@ function PostOpBlock({
           name={p("payload.data.postOp.surgeryDate")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Fecha de cirugía
               </FormLabel>
               <Input
@@ -404,7 +404,7 @@ function PostOpBlock({
           name={p("payload.data.postOp.doctorName")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Médico tratante
               </FormLabel>
               <Input
@@ -436,7 +436,7 @@ function PostOpBlock({
         name={p("payload.data.postOp.contraindications")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Contraindicaciones
             </FormLabel>
             <textarea
@@ -455,7 +455,7 @@ function PostOpBlock({
         name={p("payload.data.postOp.drainageNotes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Notas de drenaje
             </FormLabel>
             <textarea

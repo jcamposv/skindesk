@@ -54,7 +54,7 @@ export function SessionDetailExpanded({
       >
         {hasMap ? (
           <div>
-            <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/75">
               Zonas tratadas en esta sesión
             </p>
             <SessionMapReadOnly session={session} serviceType={serviceType} />
@@ -62,7 +62,7 @@ export function SessionDetailExpanded({
         ) : null}
 
         <div className="grid content-start gap-3">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
             Detalle clínico
           </p>
           <SessionFieldsTable session={session} serviceType={serviceType} />
@@ -92,10 +92,10 @@ export function SessionDetailExpanded({
 
       {session.recommendations ? (
         <div>
-          <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-foreground/75">
             Recomendaciones para casa
           </p>
-          <p className="rounded-md bg-muted/40 px-3 py-2 text-[12px] italic text-foreground/80">
+          <p className="rounded-md bg-muted/40 px-3 py-2 text-sm italic text-foreground/80">
             “{session.recommendations}”
           </p>
         </div>
@@ -380,10 +380,10 @@ function Row({
         <Icon className="size-2.5" />
       </span>
       <div className="min-w-0">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/80">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/75/80">
           {label}
         </p>
-        <p className="text-[12px] text-foreground/85">{value}</p>
+        <p className="text-sm text-foreground/85">{value}</p>
       </div>
     </div>
   );
@@ -409,7 +409,7 @@ function PhotoStrip({
 
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-foreground/75">
         Fotos · {label}
       </p>
       <div className="flex flex-wrap gap-2">

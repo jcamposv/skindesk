@@ -135,7 +135,7 @@ export function AtlasHtmlViewer({ src, title }: AtlasHtmlViewerProps) {
         />
       </div>
 
-      <p className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+      <p className="flex items-start gap-1.5 text-xs font-medium text-foreground/75">
         <AlertTriangleIcon className="mt-0.5 size-3 shrink-0 text-[#D2A96A]" />
         Esta guía corre dentro de un sandbox: no puede leer cookies, sesiones
         ni datos de SkinDesk.

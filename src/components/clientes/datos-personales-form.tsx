@@ -149,7 +149,7 @@ export function DatosPersonalesForm({ cliente }: DatosPersonalesFormProps) {
                   disabled
                 />
               </FormControl>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs font-medium text-foreground/75">
                 Para cambiar el email re-invitamos a la clienta — próximamente.
               </p>
             </FormItem>

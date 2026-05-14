@@ -59,12 +59,12 @@ export function ClienteCitasWidget({
           </h2>
           <Link
             href={ROUTES.agenda}
-            className="text-[11px] font-medium text-[#5C6E6C] hover:underline"
+            className="text-xs font-medium text-[#5C6E6C] hover:underline"
           >
             Abrir agenda
           </Link>
         </header>
-        <p className="mt-2 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+        <p className="mt-2 flex items-center gap-1.5 text-sm text-foreground/75">
           <CalendarOffIcon className="size-3.5" aria-hidden />
           Esta clienta no tiene citas agendadas todavía.
         </p>
@@ -103,12 +103,12 @@ function CitaList({
 }) {
   return (
     <div className="grid gap-2">
-      <h3 className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-foreground/80">
         {icon}
         {title}
       </h3>
       {items.length === 0 ? (
-        <p className="text-[12px] text-muted-foreground">{emptyCopy}</p>
+        <p className="text-sm text-foreground/75">{emptyCopy}</p>
       ) : (
         <ul className="grid gap-1.5">
           {items.map((c) => (
@@ -125,10 +125,10 @@ function CitaRow({ cita }: { cita: AgendaCita }) {
   return (
     <li className="flex items-start justify-between gap-2 rounded-md border border-border/40 bg-background px-2.5 py-1.5">
       <div className="min-w-0">
-        <p className="truncate text-[12.5px] font-medium leading-tight">
+        <p className="truncate text-[15px] font-semibold text-foreground leading-tight">
           {cita.servicioName ?? cita.title ?? "Cita"}
         </p>
-        <p className="truncate text-[11px] text-muted-foreground">
+        <p className="truncate text-xs font-medium text-foreground/75">
           {DAY_FMT.format(start)} · {TIME_FMT.format(start)}
           {cita.professionalName ? ` · ${cita.professionalName}` : ""}
         </p>

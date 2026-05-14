@@ -59,8 +59,8 @@ export function AtlasSectionCard({
         </h3>
         <p
           className={cn(
-            "text-[11px]",
-            empty ? "text-muted-foreground/70" : "text-muted-foreground",
+            "text-xs",
+            empty ? "text-foreground/70" : "text-muted-foreground",
           )}
         >
           {empty
@@ -68,7 +68,7 @@ export function AtlasSectionCard({
             : `${publishedCount} ${publishedCount === 1 ? "guía" : "guías"}`}
         </p>
       </div>
-      <ArrowRightIcon className="size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/80" />
+      <ArrowRightIcon className="size-4 shrink-0 text-foreground/65 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/80" />
     </Link>
   );
 }

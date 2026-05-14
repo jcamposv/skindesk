@@ -55,10 +55,10 @@ export function BuilderPhonePreview({
   return (
     <aside className="flex h-full min-h-0 flex-col border-l bg-card">
       <header className="border-b px-4 py-3">
-        <h2 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           Vista de la clienta
         </h2>
-        <p className="mt-0.5 text-[11px] text-muted-foreground/80">
+        <p className="mt-0.5 text-xs font-medium text-foreground/65">
           Así lo verá en su portal
         </p>
       </header>

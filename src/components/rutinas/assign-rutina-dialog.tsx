@@ -123,7 +123,7 @@ export function AssignRutinaDialog({
                   <p className="truncate text-sm font-medium">
                     {preselectedName ?? "Clienta seleccionada"}
                   </p>
-                  <p className="text-[10.5px] text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground/75">
                     Confirmá el envío para que la vea en su portal.
                   </p>
                 </div>

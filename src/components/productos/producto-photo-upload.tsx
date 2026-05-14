@@ -187,7 +187,7 @@ export function ProductoPhotoUpload({
                 <UploadCloudIcon className="size-3.5" />
                 {dragOver ? "Suelta la imagen" : "Subir o arrastrar foto"}
               </span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs font-medium text-foreground/75">
                 JPG, PNG o WEBP · máx 5 MB
               </span>
             </div>
@@ -230,7 +230,7 @@ export function ProductoPhotoUpload({
       />
 
       {!hasPreview ? (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs font-medium text-foreground/75">
           También puedes arrastrar la imagen. Si no subes foto, mostramos la
           ilustración por categoría.
         </p>

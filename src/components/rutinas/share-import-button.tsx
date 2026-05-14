@@ -122,13 +122,13 @@ export function ShareImportButton({
 
             {hasMissing ? (
               <div className="grid gap-2 rounded-md border bg-[#FBEFE7]/40 p-3">
-                <p className="flex items-center gap-2 text-[12.5px] font-medium text-[#8C4A30]">
+                <p className="flex items-center gap-2 text-[15px] font-semibold text-foreground text-[#8C4A30]">
                   <PackagePlusIcon className="size-4" />
                   Te faltan {missing.length}{" "}
                   {missing.length === 1 ? "producto" : "productos"} para
                   los demás pasos:
                 </p>
-                <ul className="grid max-h-32 gap-1 overflow-y-auto pl-1 text-[12px] text-foreground/80">
+                <ul className="grid max-h-32 gap-1 overflow-y-auto pl-1 text-sm text-foreground/80">
                   {missing.map((p) => (
                     <li key={p.sourceId} className="flex items-baseline gap-1.5">
                       <span className="text-muted-foreground">·</span>
@@ -138,7 +138,7 @@ export function ShareImportButton({
                           — {p.brand}
                         </span>
                       ) : null}
-                      <span className="text-[10.5px] uppercase tracking-wide text-muted-foreground">
+                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                         {PRODUCTO_CATEGORIA_LABELS[
                           p.category as ProductoCategoria
                         ] ?? p.category}
@@ -146,7 +146,7 @@ export function ShareImportButton({
                     </li>
                   ))}
                 </ul>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs font-medium text-foreground/75">
                   Las fotos y las notas clínicas no se copian — son
                   específicas de cada profesional. Vas a poder subir tus
                   fotos y completar las notas después en tu catálogo.

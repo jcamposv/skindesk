@@ -351,7 +351,7 @@ function CitaEventCard({ event }: { event: CalendarEvent }) {
     <div className="flex h-full min-w-0 flex-col gap-0.5 overflow-hidden leading-tight">
       <div className="flex min-w-0 items-center gap-1">
         <span
-          className="inline-flex shrink-0 items-center rounded-full px-1.5 py-[1px] text-[9px] font-semibold uppercase tracking-wider"
+          className="inline-flex shrink-0 items-center rounded-full px-1.5 py-[1px] text-[10px] font-semibold uppercase tracking-wider"
           style={{
             backgroundColor: STATUS_PILL_BG[c.status],
             color: STATUS_TEXT[c.status],
@@ -359,12 +359,12 @@ function CitaEventCard({ event }: { event: CalendarEvent }) {
         >
           {STATUS_LABEL[c.status]}
         </span>
-        <span className="min-w-0 flex-1 truncate text-[12px] font-medium">
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">
           {c.clienteName}
         </span>
       </div>
       {c.servicioName ? (
-        <span className="truncate text-[10.5px] opacity-75">
+        <span className="truncate text-[11px] opacity-75">
           {c.servicioName}
         </span>
       ) : null}
@@ -387,10 +387,10 @@ function ResourceHeaderCell({
     .join("");
   return (
     <div className="flex flex-col items-center gap-1 py-2">
-      <span className="flex size-7 items-center justify-center rounded-full bg-[#F6E0D6] text-[10.5px] font-semibold text-[#8C4A30] ring-1 ring-[#BB7154]/20">
+      <span className="flex size-7 items-center justify-center rounded-full bg-[#F6E0D6] text-[11px] font-semibold text-[#8C4A30] ring-1 ring-[#BB7154]/20">
         {initials || "·"}
       </span>
-      <span className="text-[11px] font-medium text-foreground/80">
+      <span className="text-xs font-medium text-foreground/80">
         {name}
       </span>
     </div>

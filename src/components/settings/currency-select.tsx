@@ -95,7 +95,7 @@ export function CurrencyOption({
         <span className="font-medium text-foreground">{countryName}</span>
         <span className="text-muted-foreground"> — {currencyName}</span>
       </span>
-      <span className="ml-1 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10.5px] font-semibold tracking-wider text-foreground/80">
+      <span className="ml-1 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] font-semibold tracking-wider text-foreground/80">
         {currencyCode}
       </span>
     </span>

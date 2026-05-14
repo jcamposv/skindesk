@@ -64,7 +64,7 @@ export function RutinasAsignadasTab({
     <div className="grid gap-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-[11px] font-medium text-[#6B4FA0]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-xs font-medium text-[#6B4FA0]">
             <WandSparklesIcon className="size-3" />
             Rutinas
           </span>
@@ -192,7 +192,7 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
     >
       <Link href={editHref} className="block p-4">
         <div className="flex items-start justify-between gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10.5px] font-semibold text-foreground/80 backdrop-blur">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-semibold text-foreground/80 backdrop-blur">
             {momento === "am" ? (
               <SunIcon className="size-3 text-[#C47A2B]" />
             ) : momento === "pm" ? (
@@ -205,7 +205,7 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
             )}
             {RUTINA_MOMENTO_SHORT[momento]}
           </span>
-          <span className="text-[10.5px] font-medium text-foreground/60">
+          <span className="text-[11px] font-medium text-foreground/75">
             asignada el{" "}
             {new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(
               new Date(rutina.created_at),
@@ -223,7 +223,7 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
           </p>
         ) : null}
 
-        <p className="mt-3 text-[11px] font-medium tabular-nums text-foreground/70">
+        <p className="mt-3 text-xs font-medium tabular-nums text-foreground/70">
           {rutina.stepCount} {rutina.stepCount === 1 ? "paso" : "pasos"}
         </p>
       </Link>
@@ -244,7 +244,7 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
             type="button"
             size="icon-sm"
             variant="ghost"
-            className="text-foreground/60 hover:bg-white/40"
+            className="text-foreground/75 hover:bg-white/40"
             aria-label="Descargar PDF"
             render={
               <a
@@ -261,7 +261,7 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
             size="icon-sm"
             variant="ghost"
             onClick={() => setConfirmDelete(true)}
-            className="text-foreground/60 hover:bg-white/40 hover:text-destructive"
+            className="text-foreground/75 hover:bg-white/40 hover:text-destructive"
             aria-label="Eliminar rutina"
           >
             <Trash2Icon className="size-3.5" />

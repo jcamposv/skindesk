@@ -275,17 +275,17 @@ function BuilderInner({
 
             <div id="rutina-steps-anchor" className="mt-4 grid gap-3">
               <div className="flex items-center justify-between">
-                <h2 className="flex items-center gap-1.5 font-heading text-base font-medium">
+                <h2 className="flex items-center gap-1.5 font-heading text-lg font-semibold text-foreground">
                   Pasos de la rutina
                   <span
                     aria-hidden="true"
-                    className="text-[13px] text-[#BB7154]"
+                    className="text-base text-[#BB7154]"
                     title="Requerido — al menos 1 paso"
                   >
                     *
                   </span>
                 </h2>
-                <p className="text-xs text-muted-foreground tabular-nums">
+                <p className="text-sm text-foreground/75 tabular-nums">
                   <span className="font-semibold text-foreground">
                     {steps.length}
                   </span>{" "}
@@ -300,10 +300,10 @@ function BuilderInner({
               {steps.length === 0 ? (
                 <div className="grid place-items-center rounded-xl border-2 border-dashed border-[#BB7154]/40 bg-[#FBEFE7]/30 px-4 py-6 text-center">
                   <PackagePlusIcon className="size-7 text-[#BB7154]" />
-                  <p className="mt-2 text-sm font-medium text-[#8C4A30]">
+                  <p className="mt-2 text-base font-semibold text-[#7A3D24]">
                     Tu rutina todavía no tiene pasos
                   </p>
-                  <p className="mt-1 max-w-md text-xs text-[#8C4A30]/80">
+                  <p className="mt-1 max-w-md text-sm leading-relaxed text-[#7A3D24]/90">
                     Agregá productos desde el catálogo (panel izquierdo)
                     tocando <strong>+</strong> o arrastrandolos hasta aquí.
                     Necesitas al menos 1 paso para guardar o asignar la
@@ -335,10 +335,10 @@ function BuilderInner({
               onDragLeave={handleDropZoneLeave}
               onDrop={handleDropZoneDrop}
               className={cn(
-                "mt-3 grid place-items-center rounded-xl border-2 border-dashed p-6 text-center text-sm transition-all",
+                "mt-3 grid place-items-center rounded-xl border-2 border-dashed p-6 text-center text-sm font-medium transition-all",
                 dragOver
-                  ? "border-[#D2A96A] bg-[#F8EFD7]/40 text-[#7C5E1F]"
-                  : "border-border bg-card text-muted-foreground",
+                  ? "border-[#D2A96A] bg-[#F8EFD7]/40 text-[#5E4615]"
+                  : "border-border bg-card text-foreground/75",
               )}
             >
               <PackagePlusIcon className="size-6" />

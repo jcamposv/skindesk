@@ -45,7 +45,7 @@ function AutosaveIndicatorInner({
     return (
       <span
         aria-live="polite"
-        className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-[11.5px] font-medium text-[#7C5E1F]"
+        className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-xs font-medium text-[#7C5E1F]"
       >
         <Loader2Icon className="size-3 animate-spin" />
         Guardando…
@@ -58,7 +58,7 @@ function AutosaveIndicatorInner({
       <div className="inline-flex items-center gap-1.5">
         <span
           aria-live="polite"
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-[11.5px] font-medium text-[#8C4A30]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-xs font-medium text-[#8C4A30]"
         >
           <CloudUploadIcon className="size-3" />
           Cambios sin guardar
@@ -68,7 +68,7 @@ function AutosaveIndicatorInner({
           variant="ghost"
           size="sm"
           onClick={onSaveNow}
-          className="h-7 gap-1 px-2 text-[11.5px]"
+          className="h-7 gap-1 px-2 text-xs"
         >
           <SaveIcon className="size-3" />
           Guardar ahora
@@ -80,7 +80,7 @@ function AutosaveIndicatorInner({
   return (
     <span
       aria-live="polite"
-      className="inline-flex items-center gap-1.5 rounded-full bg-[#E7ECEA] px-2.5 py-1 text-[11.5px] font-medium text-[#4F605C]"
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#E7ECEA] px-2.5 py-1 text-xs font-medium text-[#4F605C]"
     >
       <CheckIcon className="size-3" />
       Guardado{relative ? ` · ${relative}` : ""}

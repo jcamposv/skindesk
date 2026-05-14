@@ -58,20 +58,20 @@ export function ServiceCard({
           <Icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
             {SERVICE_TYPE_LABEL[service.serviceType]}
           </p>
           <h3 className="mt-0.5 truncate font-heading text-base font-medium tracking-tight text-foreground">
             {service.name}
           </h3>
-          <p className="mt-0.5 flex items-center gap-1 text-[11.5px] text-muted-foreground">
+          <p className="mt-0.5 flex items-center gap-1 text-sm text-foreground/75">
             <CalendarDaysIcon className="size-3" />
             Inicio · {startDate} · {FREQUENCY_LABEL[service.frequency]}
           </p>
         </div>
         <span
           className={cn(
-            "inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px] font-medium",
+            "inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
             status.classes,
           )}
         >
@@ -82,7 +82,7 @@ export function ServiceCard({
 
       {/* Progress */}
       <div className="grid gap-2">
-        <div className="flex items-center justify-between text-[11.5px] text-muted-foreground">
+        <div className="flex items-center justify-between text-sm text-foreground/75">
           <span>
             Sesión <span className="font-semibold text-foreground">{completed}</span> de {service.totalSessions}
           </span>
@@ -114,7 +114,7 @@ export function ServiceCard({
                     ? "bg-[#BB7154] text-white"
                     : isScheduled
                       ? "border-2 border-dashed border-[#BB7154] text-[#8C4A30]"
-                      : "border border-border/60 bg-muted/40 text-muted-foreground/70",
+                      : "border border-border/60 bg-muted/40 text-foreground/70",
                 )}
                 title={
                   isCompleted
@@ -137,7 +137,7 @@ export function ServiceCard({
           {service.tags.slice(0, 6).map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full bg-[#F4F1EC] px-2 py-0.5 text-[10.5px] font-medium text-foreground/75"
+              className="inline-flex items-center rounded-full bg-[#F4F1EC] px-2 py-0.5 text-[11px] font-medium text-foreground/75"
             >
               {tag}
             </span>
@@ -149,11 +149,11 @@ export function ServiceCard({
       <footer className="mt-auto flex items-center justify-between gap-2 border-t border-border/60 pt-3">
         <div className="min-w-0">
           {next ? (
-            <p className="truncate text-[11.5px] text-muted-foreground">
+            <p className="truncate text-sm text-foreground/75">
               <span className="font-medium text-foreground/80">Próxima:</span> {next}
             </p>
           ) : (
-            <p className="truncate text-[11.5px] text-muted-foreground">
+            <p className="truncate text-sm text-foreground/75">
               Sin próxima cita programada.
             </p>
           )}
@@ -163,7 +163,7 @@ export function ServiceCard({
             type="button"
             size="sm"
             variant="outline"
-            className="h-8 gap-1 px-2.5 text-[12px]"
+            className="h-8 gap-1 px-2.5 text-sm"
             onClick={() => onShowHistory(service.id)}
           >
             <HistoryIcon className="size-3.5" />
@@ -172,7 +172,7 @@ export function ServiceCard({
           <Button
             type="button"
             size="sm"
-            className="h-8 gap-1 bg-[#BB7154] px-2.5 text-[12px] text-white shadow-sm hover:bg-[#A56146]"
+            className="h-8 gap-1 bg-[#BB7154] px-2.5 text-sm text-white shadow-sm hover:bg-[#A56146]"
             onClick={() => onAddSession(service.id)}
             disabled={service.status === "completed" || service.status === "cancelled"}
           >

@@ -48,7 +48,7 @@ export function PeriodToggle({
   return (
     <div
       className={cn(
-        "relative inline-flex items-center rounded-full border bg-card p-1 text-[12.5px] transition-opacity",
+        "relative inline-flex items-center rounded-full border bg-card p-1 text-sm transition-opacity",
         isPending && "opacity-70",
       )}
       role="group"
@@ -96,7 +96,7 @@ function PeriodButton({
       {suffix ? (
         <span
           className={cn(
-            "rounded-full px-1.5 py-0.5 text-[10.5px] font-semibold",
+            "rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
             active
               ? "bg-background/15 text-background"
               : "bg-accent/15 text-accent-foreground",

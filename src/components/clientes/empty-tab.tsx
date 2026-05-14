@@ -36,7 +36,7 @@ export function EmptyTab({
               <h2 className="font-heading text-xl font-medium tracking-tight">
                 {title}
               </h2>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-[11px] font-medium text-[#7C5E1F]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F8EFD7] px-2.5 py-1 text-xs font-medium text-[#7C5E1F]">
                 <ClockIcon className="size-3" />
                 {pill}
               </span>

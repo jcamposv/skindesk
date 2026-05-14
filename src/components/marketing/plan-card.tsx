@@ -84,7 +84,7 @@ export function PlanCard({ plan, price, savingsLabel }: PlanCardProps) {
           </span>
           <span className="text-sm text-muted-foreground">{periodSuffix}</span>
           {savingsLabel ? (
-            <span className="ml-2 inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-medium text-accent-foreground">
+            <span className="ml-2 inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent-foreground">
               {savingsLabel}
             </span>
           ) : null}

@@ -80,7 +80,7 @@ export function ProfesionalSelect({
     return (
       <div className={cn("grid gap-1", className)}>
         {label ? (
-          <label className="text-[11px] font-medium text-muted-foreground">
+          <label className="text-xs font-semibold text-foreground/80">
             {label}
           </label>
         ) : null}
@@ -110,7 +110,7 @@ export function ProfesionalSelect({
   return (
     <div className={cn("grid gap-1", className)}>
       {label ? (
-        <label className="text-[11px] font-medium text-muted-foreground">
+        <label className="text-xs font-semibold text-foreground/80">
           {label}
         </label>
       ) : null}

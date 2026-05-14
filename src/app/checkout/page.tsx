@@ -121,7 +121,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                   </h1>
                   <span className="flex items-baseline gap-1 text-lg font-medium tabular-nums">
                     {formatted}
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {resolvedCurrency.currencyCode}
                     </span>
                     <span className="text-sm text-muted-foreground">

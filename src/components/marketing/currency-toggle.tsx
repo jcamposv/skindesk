@@ -103,7 +103,7 @@ function MarketingCurrencySelect({
 export function CurrencyBadge({ code }: { code: string }) {
   const descriptor = getCurrency(code);
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-[12px]">
+    <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm">
       <CurrencyOption
         flag={descriptor.flag}
         countryName={descriptor.countryName}

@@ -31,7 +31,7 @@ export function ChipMultiSelect({
   return (
     <div className="grid gap-2">
       {label ? (
-        <label className="text-[12px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           {label}
         </label>
       ) : null}
@@ -49,7 +49,7 @@ export function ChipMultiSelect({
         ))}
       </div>
       {hint ? (
-        <p className="text-[10.5px] text-muted-foreground/80">{hint}</p>
+        <p className="text-xs font-medium text-foreground/75/80">{hint}</p>
       ) : null}
     </div>
   );

@@ -241,7 +241,7 @@ function PhotoZonePickerImpl({
               onClick={() => !readOnly && onToggle(zone.id)}
               disabled={readOnly}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                 isSelected
                   ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                   : "border-border/60 bg-card/80 text-muted-foreground hover:border-[#BB7154]/40 hover:bg-[#FBEFE7]/60",
@@ -309,7 +309,7 @@ function ZoneLabel({ zone, viewH, isSelected, readOnly, onClick }: ZoneLabelProp
           onClick={onClick}
           disabled={readOnly}
           className={cn(
-            "pointer-events-auto inline-flex items-center rounded-full border bg-card/95 px-3 py-1 text-[12.5px] font-medium leading-none tracking-tight shadow-sm backdrop-blur transition-all",
+            "pointer-events-auto inline-flex items-center rounded-full border bg-card/95 px-3 py-1 text-[15px] font-semibold text-foreground leading-none tracking-tight shadow-sm backdrop-blur transition-all",
             isSelected
               ? "border-[#BB7154] bg-[#FBEFE7] text-[#8C4A30] scale-[1.04] shadow-md"
               : "border-border/60 text-foreground/75 hover:border-foreground/30",

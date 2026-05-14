@@ -201,6 +201,7 @@ export const CONDICIONES_APARATOLOGIA = [
   "Placas / tornillos",
   "Implantes faciales/corporales",
   "Dispositivos electrónicos",
+  "Ortodoncia",
 ] as const;
 
 export const PROFESIONALES_SALUD = [
@@ -325,7 +326,7 @@ export interface HabitosData {
 
 // ─── Step 4: Diagnóstico de piel ─────────────────────────────────────────────
 
-export const BIOTIPOS = ["Normal", "Mixta", "Grasa", "Seca / alípica", "Sensible"] as const;
+export const BIOTIPOS = ["Normal", "Mixta", "Grasa", "Seca / alípica"] as const;
 
 export const FITZPATRICK = [
   { num: 1, color: "#F5DEB3", desc: "Muy claro, siempre quema" },

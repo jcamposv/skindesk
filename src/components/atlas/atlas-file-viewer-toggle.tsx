@@ -81,7 +81,7 @@ export function AtlasFileViewerToggle({
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{fileName}</p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs font-medium text-foreground/75">
             {ATLAS_FILE_KIND_LABELS[kind]} · {formatBytes(sizeBytes)}
           </p>
         </div>

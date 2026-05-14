@@ -41,7 +41,7 @@ export default async function AtlasLandingPage() {
           visit. */}
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="grid gap-1.5">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#EAE6DC] px-2.5 py-1 text-[11px] font-medium text-[#5C6E6C]">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#EAE6DC] px-2.5 py-1 text-xs font-medium text-[#5C6E6C]">
             <BookOpenIcon className="size-3" />
             Biblioteca clínica
           </span>
@@ -58,7 +58,7 @@ export default async function AtlasLandingPage() {
             <span className="font-heading text-2xl font-medium tabular-nums text-[#5C6E6C]">
               {totalPublished}
             </span>
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {totalPublished === 1 ? "guía publicada" : "guías publicadas"}
             </span>
           </div>

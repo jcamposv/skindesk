@@ -262,16 +262,16 @@ function StickySubTabs({
                 aria-selected={isActive}
                 onClick={() => onChange(t.key)}
                 className={cn(
-                  "inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30",
+                  "inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30",
                   isActive
-                    ? "bg-card font-medium text-[#5C6E6C] shadow-sm"
-                    : "text-muted-foreground hover:bg-card/60 hover:text-foreground",
+                    ? "bg-card font-semibold text-[#4F605C] shadow-sm"
+                    : "text-foreground/70 hover:bg-card/60 hover:text-foreground",
                 )}
               >
                 <Icon
                   className={cn(
-                    "size-3.5",
-                    isActive ? "text-[#BB7154]" : "opacity-70",
+                    "size-4",
+                    isActive ? "text-[#BB7154]" : "opacity-80",
                   )}
                 />
                 {t.label}

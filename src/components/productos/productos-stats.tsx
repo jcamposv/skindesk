@@ -63,7 +63,7 @@ export function ProductosStatsStrip({ stats }: ProductosStatsProps) {
             <Icon className="size-5" />
           </span>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
               {label}
             </p>
             <p className="font-heading text-xl font-medium tabular-nums">

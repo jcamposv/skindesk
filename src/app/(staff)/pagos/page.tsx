@@ -138,7 +138,7 @@ export default async function PagosPage({ searchParams }: PageProps) {
     <div className="grid gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-[11px] font-medium text-[#8C4A30]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-xs font-medium text-[#8C4A30]">
             <SparklesIcon className="size-3" />
             Vista financiera global
           </span>

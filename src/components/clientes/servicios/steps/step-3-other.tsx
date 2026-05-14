@@ -46,7 +46,7 @@ export function Step3Other({
           name={p("payload.data.category")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Categoría libre
               </FormLabel>
               <Input
@@ -64,7 +64,7 @@ export function Step3Other({
           name={p("payload.data.objective")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Objetivo principal
               </FormLabel>
               <Input
@@ -82,7 +82,7 @@ export function Step3Other({
           name={p("payload.data.treatedArea")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Zona tratada
               </FormLabel>
               <Input
@@ -100,7 +100,7 @@ export function Step3Other({
           name={p("durationMin")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Duración (min)
               </FormLabel>
               <NumericInput
@@ -121,7 +121,7 @@ export function Step3Other({
         name={p("payload.data.protocolNotes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Protocolo aplicado
             </FormLabel>
             <textarea
@@ -170,7 +170,7 @@ export function Step3Other({
         name={p("notes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Notas de sesión
             </FormLabel>
             <textarea
@@ -190,7 +190,7 @@ export function Step3Other({
         name={p("recommendations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Recomendaciones para casa
             </FormLabel>
             <textarea

@@ -29,7 +29,7 @@ export function Step2Catalog({ serviceType, value, onChange }: Step2Props) {
         <h3 className="font-heading text-base font-medium tracking-tight">
           Elegí el servicio de {SERVICE_TYPE_LABEL[serviceType].toLowerCase()}
         </h3>
-        <p className="text-[12.5px] text-muted-foreground">
+        <p className="text-sm text-foreground/75">
           Catálogo personalizable. Si no está aquí, puedes crearlo desde Configuración.
         </p>
       </div>
@@ -62,19 +62,19 @@ export function Step2Catalog({ serviceType, value, onChange }: Step2Props) {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                    <span className="text-[12.5px] font-semibold text-foreground">
+                    <span className="text-sm font-semibold text-foreground">
                       {item.name}
                     </span>
                     {item.isPostOp ? (
-                      <span className="inline-flex items-center rounded-full bg-[#F8EAE9] px-1.5 py-0.5 text-[9px] font-medium text-[#7B3D3D]">
+                      <span className="inline-flex items-center rounded-full bg-[#F8EAE9] px-1.5 py-0.5 text-[10px] font-medium text-[#7B3D3D]">
                         Post-op
                       </span>
                     ) : null}
                   </span>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">
+                  <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
                     {item.description}
                   </span>
-                  <span className="mt-1 block text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                  <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-foreground/70/70">
                     Sugerido · {item.defaultSessions} sesiones
                   </span>
                 </span>

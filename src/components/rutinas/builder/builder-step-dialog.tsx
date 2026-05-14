@@ -114,7 +114,7 @@ function StepDialogInner({
 
         <div className="grid max-h-[60vh] gap-4 overflow-y-auto py-2">
           <div className="grid gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label className="text-sm font-semibold text-foreground/85">
               Instrucción de aplicación
             </label>
             <Textarea
@@ -131,7 +131,7 @@ function StepDialogInner({
           </div>
 
           <div className="grid gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label className="text-sm font-semibold text-foreground/85">
               Cantidad sugerida
             </label>
             <Input
@@ -147,7 +147,7 @@ function StepDialogInner({
           </div>
 
           <div className="grid gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label className="text-sm font-semibold text-foreground/85">
               Tiempo de absorción antes del siguiente paso
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -164,10 +164,10 @@ function StepDialogInner({
                       })
                     }
                     className={cn(
-                      "rounded-full border px-3 py-1 text-[11.5px] font-medium transition-colors",
+                      "rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors",
                       active
                         ? "border-[#5C6E6C] bg-[#E7ECEA] text-[#4F605C]"
-                        : "border-border/70 bg-card text-muted-foreground hover:border-[#5C6E6C]/40",
+                        : "border-border/70 bg-card text-foreground/75 hover:border-[#5C6E6C]/40 hover:text-foreground",
                     )}
                   >
                     {PRODUCTO_ABSORPTION_LABELS[t]}
@@ -179,7 +179,7 @@ function StepDialogInner({
 
           <div className="grid items-start gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground">
+              <label className="text-sm font-semibold text-foreground/85">
                 Frecuencia
               </label>
               <select
@@ -190,7 +190,7 @@ function StepDialogInner({
                     value: dbEnumToForm(e.target.value, PRODUCTO_FREQUENCIES),
                   })
                 }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[0.9375rem] text-foreground focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
               >
                 <option value="">— Heredar del producto</option>
                 {PRODUCTO_FREQUENCIES.map((f) => (
@@ -202,7 +202,7 @@ function StepDialogInner({
             </div>
 
             <div className="grid gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground">
+              <label className="text-sm font-semibold text-foreground/85">
                 Momento del día
               </label>
               <select
@@ -213,7 +213,7 @@ function StepDialogInner({
                     value: dbEnumToForm(e.target.value, RUTINA_MOMENTOS),
                   })
                 }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[0.9375rem] text-foreground focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/30"
               >
                 <option value="">— Heredar de la rutina</option>
                 {RUTINA_MOMENTOS.map((m) => (
@@ -226,7 +226,7 @@ function StepDialogInner({
           </div>
 
           <div className="grid gap-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label className="text-sm font-semibold text-foreground/85">
               Notas adicionales (visibles para la clienta)
             </label>
             <Textarea

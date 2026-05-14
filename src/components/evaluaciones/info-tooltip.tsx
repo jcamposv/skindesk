@@ -48,7 +48,7 @@ export function InfoTooltip({
                 setOpen((v) => !v);
               }}
               className={cn(
-                "inline-flex shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/40",
+                "inline-flex shrink-0 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/40",
                 className,
               )}
             >
@@ -59,7 +59,7 @@ export function InfoTooltip({
         <TooltipContent
           side="top"
           align="start"
-          className="max-w-[260px] text-[11.5px] leading-snug"
+          className="max-w-[280px] text-[13px] leading-relaxed"
         >
           {content}
         </TooltipContent>

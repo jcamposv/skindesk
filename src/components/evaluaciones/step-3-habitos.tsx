@@ -141,7 +141,7 @@ export function Step3Habitos() {
                 aria-selected={active}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                  "flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
                   active
                     ? "bg-[#F4F1EC] text-[#5C6E6C] shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
@@ -202,7 +202,7 @@ function AlimentacionCard() {
       tone="aqua"
     >
       <fieldset className="grid gap-2">
-        <legend className="text-[11.5px] font-medium text-muted-foreground">
+        <legend className="text-sm font-medium text-foreground/85">
           ¿Cómo considerás tu alimentación?
         </legend>
         {ALIMENTACION_OPCIONES.map((opt) => {
@@ -242,12 +242,14 @@ function AlimentacionCard() {
               <div className="min-w-0 flex-1">
                 <p
                   className={
-                    active ? "text-sm font-medium" : "text-sm text-foreground"
+                    active
+                      ? "text-[15px] font-semibold text-foreground"
+                      : "text-[15px] font-medium text-foreground"
                   }
                 >
                   {opt.label}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-sm leading-relaxed text-foreground/75">
                   {opt.description}
                 </p>
               </div>
@@ -263,7 +265,7 @@ function AlimentacionCard() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             Digestión intestinal
           </label>
           <div className="flex gap-1.5">
@@ -285,7 +287,7 @@ function AlimentacionCard() {
           </div>
         </div>
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             Litros de agua al día
           </label>
           <Controller
@@ -343,7 +345,7 @@ function ActividadCard() {
   return (
     <SectionCard icon={ActivityIcon} title="Actividad física y suplementos" tone="aqua">
       <div className="grid gap-2">
-        <span className="text-[12.5px] font-medium">Actividad física</span>
+        <span className="text-[15px] font-semibold text-foreground">Actividad física</span>
         <Controller
           control={form.control}
           name="habitos.actividadFisica.hace"
@@ -394,7 +396,7 @@ function ActividadCard() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Suplementos
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -506,8 +508,8 @@ function SustanciaRow({ row }: { row: SustanciaRowDef }) {
   return (
     <li className="grid items-center gap-3 bg-card px-3 py-2.5 sm:grid-cols-[120px_minmax(0,140px)_minmax(0,1fr)]">
       <div className="flex items-center gap-2">
-        {Icon ? <Icon className="size-3.5 text-muted-foreground" /> : null}
-        <span className="text-[13px] font-medium">{row.label}</span>
+        {Icon ? <Icon className="size-4 text-foreground/70" /> : null}
+        <span className="text-[15px] font-semibold text-foreground">{row.label}</span>
       </div>
       <Controller
         control={form.control}
@@ -568,12 +570,12 @@ function SeccionMujerCollapsible() {
       title="Salud hormonal y reproductiva"
       tone="rose"
       headerAccessory={
-        <span className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
           {aplica ? `${completedCount}/7 completadas` : "No aplica"}
         </span>
       }
     >
-      <label className="flex items-center gap-2 text-[12.5px]">
+      <label className="flex items-center gap-2 text-[15px] font-medium text-foreground">
         <Controller
           control={form.control}
           name="habitos.mujer.aplicable"
@@ -597,7 +599,7 @@ function SeccionMujerCollapsible() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex items-center justify-between rounded-lg border border-dashed border-border/60 px-3 py-2 text-left text-[12px] text-muted-foreground hover:border-foreground/30 hover:bg-muted/30"
+            className="flex items-center justify-between rounded-lg border border-dashed border-border/60 px-3 py-2 text-left text-sm font-medium text-foreground/75 hover:border-foreground/30 hover:bg-muted/30"
           >
             <span>
               {open ? "Cerrar sección" : "Abrir formulario completo (7 campos)"}
@@ -640,7 +642,7 @@ function MujerFields() {
     <>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             Edad inicio periodo / menopausia
           </label>
           <Controller
@@ -656,7 +658,7 @@ function MujerFields() {
           />
         </div>
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             ¿Cómo son sus períodos?
           </label>
           <div className="flex gap-1.5">
@@ -683,7 +685,7 @@ function MujerFields() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             ¿Padece cólicos?
           </label>
           <div className="flex gap-1.5">
@@ -707,7 +709,7 @@ function MujerFields() {
           </div>
         </div>
         <div className="grid gap-1.5">
-          <label className="text-[11.5px] font-medium text-muted-foreground">
+          <label className="text-sm font-medium text-foreground/85">
             ¿Cuántos embarazos ha tenido?
           </label>
           <Controller
@@ -729,7 +731,7 @@ function MujerFields() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-2">
-          <span className="text-[12.5px] font-medium">¿Embarazada actualmente?</span>
+          <span className="text-[15px] font-semibold text-foreground">¿Embarazada actualmente?</span>
           <Controller
             control={form.control}
             name="habitos.mujer.embarazadaActualmente.si"
@@ -756,7 +758,7 @@ function MujerFields() {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <span className="text-[12.5px] font-medium">¿Lactancia?</span>
+          <span className="text-[15px] font-semibold text-foreground">¿Lactancia?</span>
           <Controller
             control={form.control}
             name="habitos.mujer.lactancia.si"
@@ -781,7 +783,7 @@ function MujerFields() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Método anticonceptivo actual
         </label>
         <Controller
@@ -790,7 +792,7 @@ function MujerFields() {
           render={({ field }) => (
             <select
               {...field}
-              className="h-10 rounded-md border border-input bg-transparent px-3 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="h-10 rounded-md border border-input bg-transparent px-3 text-[0.9375rem] text-foreground transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               <option value="">Seleccionar…</option>
               {ANTICONCEPTIVOS.map((a) => (
@@ -804,7 +806,7 @@ function MujerFields() {
       </div>
 
       <div className="grid gap-2">
-        <span className="text-[12.5px] font-medium">
+        <span className="text-[15px] font-semibold text-foreground">
           Anticonceptivos de emergencia (últimos 6 meses)
         </span>
         <Controller
@@ -844,7 +846,7 @@ function SolSpfCard() {
   return (
     <SectionCard icon={SunIcon} title="Exposición solar y SPF" tone="copper">
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Exposición al sol
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -868,7 +870,7 @@ function SolSpfCard() {
         </div>
       </div>
       <div className="grid gap-2">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           ¿Usa protector solar?
         </label>
         <Controller
@@ -880,7 +882,7 @@ function SolSpfCard() {
         />
       </div>
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Retoques al día
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -947,7 +949,7 @@ function LimpiezaMaquillajeCard() {
       tone="copper"
     >
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Lavados de rostro al día
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -970,7 +972,7 @@ function LimpiezaMaquillajeCard() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           ¿Usa maquillaje?
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -1016,7 +1018,7 @@ function LimpiezaMaquillajeCard() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Herramientas
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -1032,7 +1034,7 @@ function LimpiezaMaquillajeCard() {
             </Chip>
           ))}
         </div>
-        <label className="mt-1 text-[11.5px] font-medium text-muted-foreground">
+        <label className="mt-1 text-sm font-medium text-foreground/85">
           ¿Cuántas veces al mes las lava?
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -1139,7 +1141,7 @@ function SkinReactivityCard() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           ¿Ha tenido reacciones a productos en el rostro?
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -1197,7 +1199,7 @@ interface RadioChipsProps {
 function RadioChips({ label, options, value, onChange }: RadioChipsProps) {
   return (
     <div className="grid gap-1.5">
-      <label className="text-[11.5px] font-medium text-muted-foreground">{label}</label>
+      <label className="text-sm font-medium text-foreground/85">{label}</label>
       <div className="flex flex-wrap gap-1.5">
         {options.map(([v, txt]) => (
           <Chip
@@ -1223,7 +1225,7 @@ function RutinaFacialCard() {
     <SectionCard icon={SparklesIcon} title="Rutina facial actual" tone="copper">
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="grid gap-1.5">
-          <label className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-muted-foreground">
+          <label className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/85">
             <SunIcon className="size-3.5 text-[#D2A96A]" />
             Rutina de día (AM)
           </label>
@@ -1240,7 +1242,7 @@ function RutinaFacialCard() {
           />
         </div>
         <div className="grid gap-1.5">
-          <label className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-muted-foreground">
+          <label className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/85">
             <MoonIcon className="size-3.5 text-[#5C6E6C]" />
             Rutina de noche (PM)
           </label>
@@ -1257,7 +1259,7 @@ function RutinaFacialCard() {
           />
         </div>
       </div>
-      <p className="text-[10.5px] text-muted-foreground">
+      <p className="text-xs leading-relaxed text-foreground/75">
         Tip: incluí marcas y activos. Sirve para evitar incompatibilidades en
         el plan de cabina.
       </p>

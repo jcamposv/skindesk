@@ -100,7 +100,7 @@ export function SlotAvailability({
   if (isChecking && result == null) {
     return (
       <p
-        className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground"
+        className="flex items-center gap-1.5 text-sm text-foreground/75"
         aria-live="polite"
       >
         <Loader2Icon className="size-3.5 animate-spin" aria-hidden />
@@ -115,7 +115,7 @@ export function SlotAvailability({
   if (professionalId == null) {
     return (
       <p
-        className="text-[11.5px] text-muted-foreground"
+        className="text-sm text-foreground/75"
         aria-live="polite"
       >
         Asigná un profesional para validar la disponibilidad.
@@ -126,7 +126,7 @@ export function SlotAvailability({
   if (result.available) {
     return (
       <p
-        className="flex items-center gap-1.5 rounded-md bg-[#EEF3F1] px-2 py-1.5 text-[11.5px] font-medium text-[#4F605C]"
+        className="flex items-center gap-1.5 rounded-md bg-[#EEF3F1] px-2 py-1.5 text-xs font-medium text-[#4F605C]"
         aria-live="polite"
       >
         <CheckCircle2Icon className="size-3.5" aria-hidden />
@@ -145,7 +145,7 @@ export function SlotAvailability({
   const first = result.conflicts[0];
   return (
     <div className="grid gap-2" aria-live="polite">
-      <div className="flex items-start gap-1.5 rounded-md bg-[#FBE4E0] px-2 py-1.5 text-[11.5px] font-medium text-[#7A3F3C]">
+      <div className="flex items-start gap-1.5 rounded-md bg-[#FBE4E0] px-2 py-1.5 text-xs font-medium text-[#7A3F3C]">
         <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
         <span className="min-w-0">
           Conflicto
@@ -169,7 +169,7 @@ export function SlotAvailability({
 
       {result.suggestions.length > 0 ? (
         <div className="grid gap-1">
-          <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
             Próximos horarios disponibles
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -179,7 +179,7 @@ export function SlotAvailability({
                 type="button"
                 onClick={() => handlePick(s)}
                 className={cn(
-                  "rounded-md border border-[#5C6E6C]/30 bg-[#EEF3F1] px-2.5 py-1 text-[11.5px] font-medium text-[#4F605C] transition-colors",
+                  "rounded-md border border-[#5C6E6C]/30 bg-[#EEF3F1] px-2.5 py-1 text-xs font-medium text-[#4F605C] transition-colors",
                   "hover:border-[#5C6E6C]/60 hover:bg-[#E0EAE6]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/40",
                 )}

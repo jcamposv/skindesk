@@ -289,11 +289,11 @@ function FacialMapImpl({ value, onChange, mode, className }: FacialMapProps) {
           </svg>
         </div>
 
-        <p className="mt-3 text-center text-[11.5px] text-muted-foreground">
+        <p className="mt-3 text-center text-sm font-medium text-foreground/80">
           {isEdit && activeCode ? (
             <>
               Toca una zona para anotar
-              <span className="ml-1 inline-flex items-center gap-1 rounded-md bg-[#BB7154] px-1.5 text-[10.5px] font-bold text-white">
+              <span className="ml-1 inline-flex items-center gap-1 rounded-md bg-[#BB7154] px-2 py-0.5 text-xs font-bold text-white">
                 {activeCode}
               </span>
             </>
@@ -421,14 +421,14 @@ function Legend({ mode, value, activeCode, onSelectCode }: LegendProps) {
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
       <header className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           {isEdit ? "Selecciona un código" : "Códigos en el mapa"}
         </p>
         {isEdit && activeCode ? (
           <button
             type="button"
             onClick={() => onSelectCode(null)}
-            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-semibold text-foreground/75 transition-colors hover:border-foreground/20 hover:text-foreground"
           >
             <XIcon className="size-3" /> Soltar
           </button>
@@ -461,7 +461,7 @@ function Legend({ mode, value, activeCode, onSelectCode }: LegendProps) {
             >
               <span
                 className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white",
+                  "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white",
                   used || isActive ? "bg-[#BB7154]" : "bg-[#5C6E6C]",
                 )}
               >
@@ -469,8 +469,8 @@ function Legend({ mode, value, activeCode, onSelectCode }: LegendProps) {
               </span>
               <span
                 className={cn(
-                  "min-w-0 truncate text-[11.5px]",
-                  isActive ? "font-medium text-foreground" : "text-muted-foreground",
+                  "min-w-0 truncate text-sm",
+                  isActive ? "font-semibold text-foreground" : "font-medium text-foreground/80",
                 )}
               >
                 {label}
@@ -500,12 +500,12 @@ function PinEditor({ pin, onClose, onChangeNote, onDelete }: PinEditorProps) {
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
       <header className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="flex size-7 items-center justify-center rounded-md bg-[#BB7154] text-[11px] font-bold text-white">
+          <span className="flex size-8 items-center justify-center rounded-md bg-[#BB7154] text-sm font-bold text-white">
             {pin.code}
           </span>
           <div>
-            <p className="text-sm font-medium leading-tight">{label}</p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[15px] font-semibold leading-tight text-foreground">{label}</p>
+            <p className="text-xs font-medium text-foreground/70 tabular-nums">
               ({pin.x}, {pin.y})
             </p>
           </div>
@@ -520,7 +520,7 @@ function PinEditor({ pin, onClose, onChangeNote, onDelete }: PinEditorProps) {
         </button>
       </header>
 
-      <label className="text-[11px] font-medium text-muted-foreground">
+      <label className="text-sm font-semibold text-foreground/85">
         Nota clínica (opcional)
       </label>
       <textarea

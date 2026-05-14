@@ -92,7 +92,7 @@ export function StatCard({
             {value}
           </p>
           {meta ? (
-            <p className="mt-1.5 text-[11px] font-medium tabular-nums opacity-85">
+            <p className="mt-1.5 text-xs font-medium tabular-nums opacity-85">
               {meta}
             </p>
           ) : null}

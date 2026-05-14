@@ -54,7 +54,7 @@ function ServicesCell({ value }: { value: unknown }) {
     ? (value.filter((v) => typeof v === "string") as string[])
     : [];
   if (list.length === 0) {
-    return <span className="text-muted-foreground/70">—</span>;
+    return <span className="text-foreground/70">—</span>;
   }
   const visible = list.slice(0, 2);
   const rest = list.length - visible.length;
@@ -63,13 +63,13 @@ function ServicesCell({ value }: { value: unknown }) {
       {visible.map((s) => (
         <span
           key={s}
-          className="inline-flex items-center rounded-full bg-[#F1ECE3] px-2 py-0.5 text-[11px] font-medium text-[#5C6E6C]"
+          className="inline-flex items-center rounded-full bg-[#F1ECE3] px-2 py-0.5 text-xs font-medium text-[#5C6E6C]"
         >
           {s}
         </span>
       ))}
       {rest > 0 ? (
-        <span className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+        <span className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-xs font-semibold text-foreground/80">
           +{rest}
         </span>
       ) : null}
@@ -156,7 +156,7 @@ export function ClientesTable({ rows, total }: ClientesTableProps) {
         header: "Próxima cita",
         cell: ({ row }) => {
           const v = row.original.next_appointment_at;
-          if (!v) return <span className="text-muted-foreground/70">—</span>;
+          if (!v) return <span className="text-foreground/70">—</span>;
           return (
             <span className="inline-flex items-center rounded-full bg-[#E7ECEA] px-2.5 py-1 text-xs font-medium tabular-nums text-[#4F605C]">
               {formatDate(v)}

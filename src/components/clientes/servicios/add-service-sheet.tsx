@@ -164,7 +164,7 @@ function AddServiceBody({
           <DialogPrimitive.Title className="font-heading text-base font-medium tracking-tight">
             Agregar servicio
           </DialogPrimitive.Title>
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-sm text-foreground/75">
             Asigná un tratamiento a la clienta y registra la primera sesión.
           </p>
         </div>
@@ -231,7 +231,7 @@ function AddServiceBody({
                 <ArrowLeftIcon className="size-3.5" />
                 {step === 1 ? "Cancelar" : "Atrás"}
               </Button>
-              <div className="hidden text-[11.5px] text-muted-foreground sm:block">
+              <div className="hidden text-sm text-foreground/75 sm:block">
                 Paso <span className="font-semibold text-foreground">{step}</span>{" "}
                 de 3
               </div>
@@ -349,7 +349,7 @@ function Step3FormShell({
             <ArrowLeftIcon className="size-3.5" />
             Atrás
           </Button>
-          <div className="hidden text-[11.5px] text-muted-foreground sm:block">
+          <div className="hidden text-sm text-foreground/75 sm:block">
             Paso <span className="font-semibold text-foreground">3</span> de 3
           </div>
           <Button
@@ -550,7 +550,7 @@ function VerticalRail({
                 />
                 <span
                   className={cn(
-                    "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors",
+                    "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors",
                     isActive && "bg-[#BB7154] text-white",
                     isDone && "bg-[#5C6E6C] text-white",
                     !isActive && !isDone && "bg-muted text-muted-foreground",
@@ -561,13 +561,13 @@ function VerticalRail({
                 <div className="min-w-0">
                   <p
                     className={cn(
-                      "text-[12.5px] font-medium leading-tight",
+                      "text-[15px] font-semibold text-foreground leading-tight",
                       isActive ? "text-foreground" : "text-muted-foreground",
                     )}
                   >
                     {s.label}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground/80">
+                  <p className="mt-0.5 text-xs font-medium text-foreground/75/80">
                     {s.description}
                   </p>
                 </div>
@@ -580,7 +580,7 @@ function VerticalRail({
       <div className="border-t border-border/60" aria-hidden />
 
       <div className="grid gap-3">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
           Tu selección
         </p>
         <SummaryRow
@@ -613,13 +613,13 @@ function VerticalRail({
                 <div className="min-w-0">
                   <p
                     className={cn(
-                      "text-[11px] font-medium leading-tight",
+                      "text-xs font-medium leading-tight",
                       visual.iconColor,
                     )}
                   >
                     {SERVICE_TYPE_LABEL[serviceType]}
                   </p>
-                  <p className="text-[10px] text-foreground/60">
+                  <p className="text-[10px] text-foreground/75">
                     Form clínico adaptado a este tipo.
                   </p>
                 </div>
@@ -635,12 +635,12 @@ function VerticalRail({
 function SummaryRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="grid gap-0.5">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/70/70">
         {label}
       </p>
       <p
         className={cn(
-          "text-[12.5px] leading-tight",
+          "text-sm leading-tight",
           value ? "text-foreground" : "italic text-muted-foreground/50",
         )}
       >
@@ -672,7 +672,7 @@ function HorizontalStepper({
             <div className="flex w-full items-center gap-1.5">
               <span
                 className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors",
+                  "flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors",
                   isActive && "bg-[#BB7154] text-white",
                   isDone && "bg-[#5C6E6C] text-white",
                   isFuture && "bg-muted text-muted-foreground",
@@ -683,13 +683,13 @@ function HorizontalStepper({
               <div className="min-w-0">
                 <p
                   className={cn(
-                    "text-[11px] font-medium leading-tight",
+                    "text-xs font-medium leading-tight",
                     isActive ? "text-foreground" : "text-muted-foreground",
                   )}
                 >
                   {s.label}
                 </p>
-                <p className="truncate text-[10px] text-muted-foreground">
+                <p className="truncate text-xs font-medium text-foreground/75">
                   {s.key === 1 && serviceType
                     ? SERVICE_TYPE_LABEL[serviceType]
                     : null}

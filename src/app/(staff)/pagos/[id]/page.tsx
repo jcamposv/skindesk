@@ -141,7 +141,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
         </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Pago registrado
             </p>
             <h1 className="font-heading mt-1 text-2xl font-medium tracking-tight sm:text-3xl">
@@ -155,7 +155,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
             {status ? (
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium",
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium",
                   STATUS_VISUAL[status].tone,
                 )}
               >
@@ -169,7 +169,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
               </span>
             ) : null}
             {isVoided ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-[12px] font-medium text-destructive">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-sm font-medium text-destructive">
                 <BanIcon className="size-3.5" />
                 Pago anulado
               </span>
@@ -183,14 +183,14 @@ export default async function PagoDetailPage({ params }: PageProps) {
           aria-label="Pago anulado"
           className="grid gap-1 rounded-2xl border border-destructive/30 bg-destructive/5 p-4"
         >
-          <p className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-wider text-destructive">
+          <p className="inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wider text-destructive">
             <BanIcon className="size-3.5" />
             Anulado el {tx.voidedAt ? formatTimestamp(tx.voidedAt) : "—"}
           </p>
           {tx.voidReason ? (
             <p className="text-[13px] text-destructive/90">{tx.voidReason}</p>
           ) : null}
-          <p className="text-[11.5px] text-destructive/70">
+          <p className="text-xs text-destructive/70">
             Este pago no cuenta en los rollups del plan, pero queda en el
             registro para auditoría.
           </p>
@@ -244,7 +244,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
 
           {tx.notes ? (
             <div className="mt-2 rounded-xl border border-dashed bg-muted/30 p-3">
-              <p className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <StickyNoteIcon className="size-3.5" />
                 Notas
               </p>
@@ -314,7 +314,7 @@ export default async function PagoDetailPage({ params }: PageProps) {
                 >
                   {tx.servicio.name}
                 </p>
-                <p className="text-[12px] text-muted-foreground">
+                <p className="text-sm text-foreground/75">
                   {SERVICE_TYPE_LABEL[tx.servicio.serviceType]}
                   {sessions && sessions.total > 0
                     ? ` · ${sessions.completed} / ${sessions.total} ${sessions.total === 1 ? "sesión" : "sesiones"}`
@@ -389,7 +389,7 @@ function DetailRow({
 }) {
   return (
     <div className="grid gap-0.5">
-      <dt className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+      <dt className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
         {label}
       </dt>
       <dd className="inline-flex items-center gap-1.5 text-[13.5px] text-foreground/90">

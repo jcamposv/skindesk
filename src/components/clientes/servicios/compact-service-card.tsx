@@ -64,7 +64,7 @@ export function CompactServiceCard({
           </p>
           <span
             className={cn(
-              "inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0 text-[9.5px] font-medium",
+              "inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0 text-[11px] font-medium",
               status.classes,
             )}
           >
@@ -72,7 +72,7 @@ export function CompactServiceCard({
             {status.label}
           </span>
         </div>
-        <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+        <p className="mt-0.5 flex items-center gap-1 truncate text-xs font-medium text-foreground/75">
           <span>{SERVICE_TYPE_LABEL[service.serviceType]}</span>
           <span aria-hidden className="opacity-40">·</span>
           <CalendarDaysIcon className="size-2.5" />
@@ -84,7 +84,7 @@ export function CompactServiceCard({
         </p>
       </div>
 
-      <span className="hidden shrink-0 items-center gap-1 rounded-md border border-border/60 px-2 py-1 text-[10.5px] font-medium text-muted-foreground transition-colors group-hover:border-[#BB7154]/30 group-hover:bg-card group-hover:text-[#8C4A30] sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-md border border-border/60 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors group-hover:border-[#BB7154]/30 group-hover:bg-card group-hover:text-[#8C4A30] sm:inline-flex">
         <HistoryIcon className="size-3" />
         Historial
       </span>

@@ -374,7 +374,7 @@ function UploadDialog({
                   alt="Vista previa"
                   className="size-28 rounded-full object-cover ring-4 ring-[#F6E0D6]"
                 />
-                <p className="max-w-full truncate text-[12px] text-muted-foreground">
+                <p className="max-w-full truncate text-sm text-foreground/75">
                   {file?.name}
                 </p>
                 <button
@@ -383,7 +383,7 @@ function UploadDialog({
                     e.stopPropagation();
                     clearSelection();
                   }}
-                  className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                  className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card px-2.5 py-0.5 text-xs font-semibold text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
                 >
                   <XIcon className="size-3" />
                   Elegir otra
@@ -400,10 +400,10 @@ function UploadDialog({
                 <p className="text-[13px] font-medium">
                   Arrastra una imagen aquí
                 </p>
-                <p className="text-[11.5px] text-muted-foreground">
+                <p className="text-sm text-foreground/75">
                   o haz clic para elegirla desde tu computadora
                 </p>
-                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-[11.5px] font-medium text-foreground/80 ring-1 ring-border/60">
+                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-xs font-medium text-foreground/80 ring-1 ring-border/60">
                   <ImagePlusIcon className="size-3" />
                   Seleccionar archivo
                 </span>
@@ -412,7 +412,7 @@ function UploadDialog({
           </div>
 
           {currentUrl && !file ? (
-            <p className="text-center text-[11px] text-muted-foreground">
+            <p className="text-center text-xs font-medium text-foreground/75">
               Tienes una foto cargada. Subí una nueva para reemplazarla.
             </p>
           ) : null}

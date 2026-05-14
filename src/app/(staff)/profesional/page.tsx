@@ -290,7 +290,7 @@ function DemoBadge({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground hover:bg-muted"
+      className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-foreground/75 hover:bg-muted"
     >
       Demo
       <ArrowRightIcon className="size-3" aria-hidden />
@@ -300,7 +300,7 @@ function DemoBadge({ href }: { href: string }) {
 
 function EmptyHint({ copy }: { copy: string }) {
   return (
-    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-4 text-center text-[12px] text-muted-foreground">
+    <p className="rounded-lg border border-dashed bg-muted/30 px-3 py-4 text-center text-sm text-foreground/75">
       {copy}
     </p>
   );

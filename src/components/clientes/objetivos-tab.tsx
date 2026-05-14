@@ -87,7 +87,7 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
           <h2 className="font-heading text-sm font-medium tracking-tight text-[#8C4A30]">
             Objetivos clínicos
           </h2>
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-sm text-foreground/75">
             {hasPlan
               ? "Plan activo derivado del diagnóstico de la clienta."
               : "Definí el objetivo y los tratamientos sugeridos para esta clienta."}
@@ -140,7 +140,7 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
               <SparklesIcon className="size-4" />
             </span>
             <p className="text-[13px] font-medium">Sin plan definido todavía</p>
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-sm text-foreground/75">
               Usa el botón <span className="font-medium">Crear plan</span> de
               arriba para empezar.
             </p>
@@ -252,7 +252,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
                 }
               />
               {alergias.detalle ? (
-                <p className="text-[12px] text-muted-foreground">
+                <p className="text-sm text-foreground/75">
                   {alergias.detalle}
                 </p>
               ) : null}
@@ -268,11 +268,11 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
       </div>
 
       <div>
-        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/80">
           Alteraciones detectadas
         </p>
         {alteraciones.length === 0 ? (
-          <p className="text-[12.5px] text-muted-foreground">
+          <p className="text-sm text-foreground/75">
             Sin alteraciones registradas en el diagnóstico.
           </p>
         ) : (
@@ -280,7 +280,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
             {alteraciones.map((a, i) => (
               <span
                 key={`${i}-${a}`}
-                className="inline-flex items-center rounded-full bg-[#FBEFE7] px-3 py-1 text-[12px] font-medium text-[#8C4A30]"
+                className="inline-flex items-center rounded-full bg-[#FBEFE7] px-3 py-1 text-sm font-medium text-[#8C4A30]"
               >
                 {a}
               </span>
@@ -291,7 +291,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
 
       {topCodes.length > 0 ? (
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/80">
             Mapa facial · alteraciones más frecuentes
           </p>
           <ul className="grid gap-1.5 sm:grid-cols-2">
@@ -301,7 +301,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
               return (
                 <li
                   key={code}
-                  className="flex items-center gap-2 rounded-lg border border-border/40 bg-card px-2.5 py-1.5 text-[12.5px]"
+                  className="flex items-center gap-2 rounded-lg border border-border/40 bg-card px-2.5 py-1.5 text-sm"
                 >
                   <span className="flex size-6 items-center justify-center rounded-md bg-[#BB7154] text-[10px] font-bold text-white">
                     {code}
@@ -309,7 +309,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
                   <span className="min-w-0 flex-1 truncate text-foreground/85">
                     {label}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs font-medium text-foreground/75">
                     ×{count}
                   </span>
                 </li>
@@ -330,7 +330,7 @@ interface SummaryColumnProps {
 function SummaryColumn({ title, children }: SummaryColumnProps) {
   return (
     <div className="grid gap-1.5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-[#5C6E6C]">
+      <p className="text-xs font-bold uppercase tracking-wider text-[#4F605C]">
         {title}
       </p>
       {/* `flex-wrap` so multiple pills sit inline (left-aligned) instead of
@@ -350,7 +350,7 @@ function SummaryPill({ icon: Icon, text, tone = "default" }: SummaryPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-[11.5px] leading-none",
+        "inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs leading-none",
         tone === "sage"
           ? "border-[#5C6E6C]/20 bg-[#E7ECEA]/60 text-[#4F605C]"
           : tone === "rose"
@@ -371,7 +371,7 @@ function PlanSummary({ plan }: { plan: PlanData }) {
     <div className="grid gap-4">
       {plan.objetivoPrincipal ? (
         <div className="rounded-xl border-l-2 border-[#BB7154] bg-[#FBF9F4] px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
             Objetivo del tratamiento
           </p>
           <p className="mt-1 text-[13.5px] text-foreground">
@@ -382,14 +382,14 @@ function PlanSummary({ plan }: { plan: PlanData }) {
 
       {plan.tratamientos.length > 0 ? (
         <div>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/80">
             Tratamientos sugeridos
           </p>
           <div className="flex flex-wrap gap-1.5">
             {plan.tratamientos.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center rounded-full bg-[#E7ECEA] px-3 py-1 text-[12px] font-medium text-[#4F605C]"
+                className="inline-flex items-center rounded-full bg-[#E7ECEA] px-3 py-1 text-sm font-medium text-[#4F605C]"
               >
                 {t}
               </span>
@@ -409,7 +409,7 @@ function PlanSummary({ plan }: { plan: PlanData }) {
 
       {plan.notasClinicas ? (
         <div>
-          <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-1 text-xs font-bold uppercase tracking-wider text-foreground/80">
             Notas clínicas
           </p>
           <p className="rounded-xl bg-muted/40 px-3 py-2 text-[13px] text-foreground/85">
@@ -424,7 +424,7 @@ function PlanSummary({ plan }: { plan: PlanData }) {
 function SmallStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border bg-card px-3 py-2.5">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
         {label}
       </p>
       <p className="mt-0.5 text-[13.5px] font-medium text-foreground">{value}</p>
@@ -488,7 +488,7 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="grid gap-5">
           <div className="grid gap-1.5">
-            <label className="text-[12px] font-medium text-muted-foreground">
+            <label className="text-sm font-medium text-foreground/85">
               Objetivo del tratamiento
             </label>
             <Input
@@ -505,7 +505,7 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
           </div>
 
           <div className="grid gap-1.5">
-            <label className="text-[12px] font-medium text-muted-foreground">
+            <label className="text-sm font-medium text-foreground/85">
               Tratamientos en cabina sugeridos
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -525,7 +525,7 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
-              <label className="text-[12px] font-medium text-muted-foreground">
+              <label className="text-sm font-medium text-foreground/85">
                 Número de sesiones
               </label>
               <select
@@ -544,7 +544,7 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
               </select>
             </div>
             <div className="grid gap-1.5">
-              <label className="text-[12px] font-medium text-muted-foreground">
+              <label className="text-sm font-medium text-foreground/85">
                 Frecuencia
               </label>
               <select
@@ -565,7 +565,7 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
           </div>
 
           <div className="grid gap-1.5">
-            <label className="text-[12px] font-medium text-muted-foreground">
+            <label className="text-sm font-medium text-foreground/85">
               Notas clínicas / observaciones
             </label>
             <Textarea

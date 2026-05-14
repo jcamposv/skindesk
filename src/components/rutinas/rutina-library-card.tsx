@@ -145,7 +145,7 @@ export function RutinaLibraryCard({
           gradient,
         )}
       >
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 backdrop-blur">
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-foreground backdrop-blur">
           {momento === "am" ? (
             <SunIcon className="size-3 text-[#C47A2B]" />
           ) : momento === "pm" ? (
@@ -164,7 +164,7 @@ export function RutinaLibraryCard({
           // pure signal so the owner doesn't have to open the menu to
           // check status. Tooltip surfaces last-accessed when available.
           <span
-            className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#5C6E6C] px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur"
+            className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#5C6E6C] px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white backdrop-blur"
             title={
               rutina.share_token_last_accessed_at
                 ? `Último acceso: ${new Intl.DateTimeFormat("es", {
@@ -179,11 +179,11 @@ export function RutinaLibraryCard({
           </span>
         ) : null}
         <div>
-          <h3 className="font-heading text-lg font-medium leading-tight text-foreground/90">
+          <h3 className="font-heading text-xl font-semibold leading-tight text-foreground">
             {rutina.name}
           </h3>
           {rutina.main_objective ? (
-            <p className="mt-1 line-clamp-2 text-[11.5px] text-foreground/60">
+            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/80">
               {rutina.main_objective}
             </p>
           ) : null}
@@ -192,15 +192,15 @@ export function RutinaLibraryCard({
 
       {/* Meta */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-medium tabular-nums">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-foreground/80">
+          <span className="font-semibold tabular-nums text-foreground">
             {rutina.stepCount}{" "}
             {rutina.stepCount === 1 ? "paso" : "pasos"}
           </span>
           {rutina.skin_type ? (
             <>
-              <span className="text-muted-foreground/40">·</span>
-              <span>Piel {rutina.skin_type}</span>
+              <span className="text-foreground/40">·</span>
+              <span className="font-medium">Piel {rutina.skin_type}</span>
             </>
           ) : null}
         </div>
@@ -210,13 +210,13 @@ export function RutinaLibraryCard({
             {rutina.tags.slice(0, 3).map((t) => (
               <span
                 key={t}
-                className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-[11px] font-medium text-[#4F605C]"
+                className="rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2.5 py-0.5 text-xs font-semibold text-[#4F605C]"
               >
                 {RUTINA_TAG_LABELS[t as RutinaTag] ?? t}
               </span>
             ))}
             {rutina.tags.length > 3 ? (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs font-medium text-foreground/65">
                 +{rutina.tags.length - 3}
               </span>
             ) : null}
@@ -309,8 +309,8 @@ export function RutinaLibraryCard({
 
       {confirmDelete ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-card/95 p-4 text-center backdrop-blur">
-          <p className="text-sm font-medium">¿Eliminar esta rutina?</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[15px] font-semibold text-foreground">¿Eliminar esta rutina?</p>
+          <p className="text-sm leading-relaxed text-foreground/75">
             Las asignaciones a clientas mantienen su copia.
           </p>
           <div className="flex gap-2">
@@ -375,8 +375,8 @@ export function RutinaCreateCard() {
         </svg>
       </span>
       <div>
-        <p className="font-heading text-sm font-medium">Crear nueva rutina</p>
-        <p className="mt-1 text-[11px] text-[#7C5E1F]/70">
+        <p className="font-heading text-base font-semibold">Crear nueva rutina</p>
+        <p className="mt-1 text-sm text-[#5E4615]">
           Construí paso a paso usando tu catálogo
         </p>
       </div>

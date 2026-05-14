@@ -198,7 +198,7 @@ export function ServiciosTab({
               <h2 className="font-heading text-lg font-medium tracking-tight">
                 Mis servicios
               </h2>
-              <p className="text-[12.5px] text-muted-foreground">
+              <p className="text-sm text-foreground/75">
                 Servicios contratados, progreso por sesión y formularios clínicos
                 por tipo de tratamiento.
               </p>
@@ -246,7 +246,7 @@ export function ServiciosTab({
               type="button"
               onClick={() => setFilter(f)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
                 isActive
                   ? "border-[#BB7154] bg-[#F6E0D6] font-medium text-[#8C4A30]"
                   : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40 hover:bg-[#FBEFE7]/20",
@@ -330,10 +330,10 @@ export function ServiciosTab({
                     <FolderOpenIcon className="size-4" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[12.5px] font-medium text-foreground">
+                    <span className="block text-[15px] font-semibold text-foreground text-foreground">
                       Histórico
                     </span>
-                    <span className="block text-[11px] text-muted-foreground">
+                    <span className="block text-xs font-medium text-foreground/75">
                       {historicCount}{" "}
                       {historicCount === 1 ? "servicio" : "servicios"} ·
                       completados y cancelados
@@ -436,7 +436,7 @@ function GroupSection({
         <h3 className="font-heading text-[13px] font-medium tracking-tight text-foreground">
           {visual.label}
         </h3>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs font-medium text-foreground/75">
           · {count} {count === 1 ? "servicio" : "servicios"}
         </span>
         <span aria-hidden className="ml-2 h-px flex-1 bg-border/60" />
@@ -483,10 +483,10 @@ function StatTile({
         {value}
       </span>
       <div className="min-w-0">
-        <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
           {label}
         </p>
-        <p className="truncate text-[12.5px] text-foreground/85">
+        <p className="truncate text-sm text-foreground/85">
           {value === 0
             ? "Sin servicios todavía"
             : `${value} ${value === 1 ? "registro" : "registros"}`}
@@ -514,7 +514,7 @@ function EmptyState({
         <h3 className="font-heading text-base">
           {filtered ? "No hay servicios de este tipo." : "Aún no hay servicios asignados."}
         </h3>
-        <p className="max-w-md text-[12.5px] text-muted-foreground">
+        <p className="max-w-md text-sm text-foreground/75">
           {filtered
             ? "Cambia el filtro o agregá un servicio nuevo para esta clienta."
             : "Cuando agregues un servicio vas a poder registrar sesiones, controlar el avance y guardar fotos antes/después."}

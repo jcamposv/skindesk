@@ -44,7 +44,7 @@ export default function PagosError({
           </p>
         </div>
         {error.digest ? (
-          <p className="font-mono text-[10.5px] text-muted-foreground/70">
+          <p className="font-mono text-xs font-medium text-foreground/75/70">
             digest: {error.digest}
           </p>
         ) : null}

@@ -62,9 +62,12 @@
     --secondary: oklch(0.701 0.067 25);
     --secondary-foreground: oklch(0.145 0 0);
     /* SkinDesk brand: muted #A6B7AA (Aquatone) — used as a light fill, with
-       Aquatone itself reserved for muted-foreground text. */
+       Aquatone itself reserved for muted-foreground text. Foreground is
+       darkened from oklch(0.45 …) to oklch(0.36 …) so subtitles, helper
+       text, and clinical form labels read as near-black instead of light
+       gray — a clinic-use readability requirement. */
     --muted: oklch(0.94 0.012 153);
-    --muted-foreground: oklch(0.45 0.018 153);
+    --muted-foreground: oklch(0.36 0.018 153);
     /* SkinDesk brand: accent #D2A96A (Artemis warm honey) */
     --accent: oklch(0.758 0.094 77);
     --accent-foreground: oklch(0.145 0 0);
@@ -103,7 +106,7 @@
     --secondary: oklch(0.65 0.07 25);          /* dusty rose */
     --secondary-foreground: oklch(0.145 0 0);
     --muted: oklch(0.27 0.008 153);
-    --muted-foreground: oklch(0.78 0.018 153); /* aquatone-ish on dark */
+    --muted-foreground: oklch(0.83 0.018 153); /* aquatone-ish on dark, lifted for clinical readability */
     --accent: oklch(0.71 0.095 77);            /* artemis */
     --accent-foreground: oklch(0.145 0 0);
     --destructive: oklch(0.68 0.105 42);       /* warm copper, lifted */

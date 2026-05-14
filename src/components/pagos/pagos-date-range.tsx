@@ -49,7 +49,7 @@ export function PagosDateRange({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2 text-[12.5px] transition-opacity",
+        "flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm transition-opacity",
         isPending && "opacity-60",
       )}
     >
@@ -64,7 +64,7 @@ export function PagosDateRange({
           value={initialFrom}
           max={initialTo || undefined}
           onChange={(e) => setRange({ from: e.target.value })}
-          className="h-8 w-[140px] text-[12.5px]"
+          className="h-8 w-[140px] text-sm"
         />
         <span className="text-muted-foreground">→</span>
         <Input
@@ -73,14 +73,14 @@ export function PagosDateRange({
           value={initialTo}
           min={initialFrom || undefined}
           onChange={(e) => setRange({ to: e.target.value })}
-          className="h-8 w-[140px] text-[12.5px]"
+          className="h-8 w-[140px] text-sm"
         />
       </div>
       {hasRange ? (
         <button
           type="button"
           onClick={() => setRange({ from: "", to: "" })}
-          className="ml-auto inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[12px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="ml-auto inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-sm text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
         >
           <XIcon className="size-3.5" />
           Limpiar

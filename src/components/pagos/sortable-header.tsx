@@ -77,7 +77,7 @@ export function SortableHeader({
             : `Ordenar por ${label}`
       }
       className={cn(
-        "group inline-flex items-center gap-1 text-[12px] font-medium text-foreground transition-colors hover:text-foreground/70",
+        "group inline-flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-foreground/70",
         align === "end" && "justify-end",
         isPending && "opacity-70",
       )}

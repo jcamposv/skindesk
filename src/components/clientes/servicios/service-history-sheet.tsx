@@ -95,13 +95,13 @@ function HistoryBody({
             <Icon className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
               Historial · {SERVICE_TYPE_LABEL[service.serviceType]}
             </p>
             <DialogPrimitive.Title className="truncate font-heading text-base font-medium tracking-tight">
               {service.name}
             </DialogPrimitive.Title>
-            <p className="truncate text-[12px] text-muted-foreground">
+            <p className="truncate text-sm text-foreground/75">
               {completed} de {service.totalSessions} sesiones · toca una sesión
               para ver el detalle clínico.
             </p>
@@ -190,7 +190,7 @@ function SessionRow({
       >
         <span
           className={cn(
-            "flex size-7 items-center justify-center rounded-full text-[11px] font-bold",
+            "flex size-7 items-center justify-center rounded-full text-xs font-bold",
             isCompleted
               ? `${visual.iconBg} ${visual.iconColor}`
               : "bg-muted text-muted-foreground",
@@ -202,7 +202,7 @@ function SessionRow({
           <p className="truncate text-[13px] font-medium leading-tight">
             {formatDate(session.date)}
           </p>
-          <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+          <p className="flex items-center gap-1 truncate text-xs font-medium text-foreground/75">
             <UserIcon className="size-2.5" />
             {session.professional}
             <span aria-hidden className="mx-1 opacity-50">·</span>
@@ -212,7 +212,7 @@ function SessionRow({
         </div>
         <span
           className={cn(
-            "rounded-full border px-2 py-0.5 text-[10.5px] font-medium",
+            "rounded-full border px-2 py-0.5 text-[11px] font-medium",
             isCompleted
               ? "border-[#5C6E6C]/30 bg-[#E7ECEA] text-[#4F605C]"
               : isScheduled
@@ -235,7 +235,7 @@ function SessionRow({
       </button>
 
       {session.notes && !open ? (
-        <p className="text-[12px] text-foreground/85">{session.notes}</p>
+        <p className="text-sm text-foreground/85">{session.notes}</p>
       ) : null}
 
       {expandable && open ? (

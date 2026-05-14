@@ -174,13 +174,13 @@ function CitaDialogBody({
         className="flex h-full min-h-0 flex-col"
       >
         <SheetHeader className="gap-0.5 border-b px-5 pt-4 pb-3">
-          <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
             {isEdit ? "Editar cita" : "Nueva cita"}
           </p>
           <SheetTitle>
             {isEdit ? state.cita.title : "Agendar cita"}
           </SheetTitle>
-          <SheetDescription className="text-[12px]">
+          <SheetDescription className="text-sm">
             {isEdit
               ? "Actualizá los datos o eliminá la cita del calendario."
               : "Completá los datos para agendar la cita."}
@@ -195,7 +195,7 @@ function CitaDialogBody({
               <FormItem>
                 <FormLabel
                   htmlFor="cita-cliente"
-                  className="text-[11px] font-medium text-muted-foreground"
+                  className="text-xs font-semibold text-foreground/80"
                 >
                   Clienta
                 </FormLabel>
@@ -234,7 +234,7 @@ function CitaDialogBody({
             name="professionalId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Profesional responsable
                 </FormLabel>
                 <select
@@ -261,7 +261,7 @@ function CitaDialogBody({
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Estado
                 </FormLabel>
                 <div
@@ -304,7 +304,7 @@ function CitaDialogBody({
                         tabIndex={isActive ? 0 : -1}
                         onClick={() => field.onChange(s.value)}
                         className={cn(
-                          "min-h-9 rounded-md border px-3 py-1.5 text-[12px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/40",
+                          "min-h-9 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/40",
                           isActive
                             ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                             : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40",
@@ -333,7 +333,7 @@ function CitaDialogBody({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Título (opcional)
                 </FormLabel>
                 <Input
@@ -352,7 +352,7 @@ function CitaDialogBody({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                <FormLabel className="text-xs font-semibold text-foreground/80">
                   Notas internas (opcional)
                 </FormLabel>
                 <textarea
@@ -450,7 +450,7 @@ function ServicioPickerField({
         <FormItem>
           <FormLabel
             htmlFor="cita-servicio"
-            className="text-[11px] font-medium text-muted-foreground"
+            className="text-xs font-semibold text-foreground/80"
           >
             Servicio (opcional)
           </FormLabel>
@@ -509,7 +509,7 @@ function CancellationReasonField({
         <FormItem>
           <FormLabel
             htmlFor="cita-cancel-reason"
-            className="text-[11px] font-medium text-muted-foreground"
+            className="text-xs font-semibold text-foreground/80"
           >
             Motivo de cancelación
           </FormLabel>
@@ -590,7 +590,7 @@ function DateAndTimeFields({
           <FormItem>
             <FormLabel
               htmlFor="cita-day"
-              className="text-[11px] font-medium text-muted-foreground"
+              className="text-xs font-semibold text-foreground/80"
             >
               Día
             </FormLabel>
@@ -609,7 +609,7 @@ function DateAndTimeFields({
         <FormItem>
           <FormLabel
             htmlFor="cita-start-time"
-            className="text-[11px] font-medium text-muted-foreground"
+            className="text-xs font-semibold text-foreground/80"
           >
             Inicio
           </FormLabel>
@@ -628,7 +628,7 @@ function DateAndTimeFields({
             <FormItem>
               <FormLabel
                 htmlFor="cita-end-time"
-                className="text-[11px] font-medium text-muted-foreground"
+                className="text-xs font-semibold text-foreground/80"
               >
                 Fin
               </FormLabel>

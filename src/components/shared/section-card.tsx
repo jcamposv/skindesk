@@ -96,7 +96,7 @@ export function SectionCard({
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <h3
             className={cn(
-              "font-heading text-sm font-medium tracking-tight",
+              "font-heading text-base font-semibold tracking-tight",
               t.titleText,
             )}
           >
@@ -109,7 +109,7 @@ export function SectionCard({
         ) : null}
       </header>
       {hint ? (
-        <p className="-mt-2 mb-3 text-[11.5px] text-muted-foreground">{hint}</p>
+        <p className="-mt-2 mb-3 text-sm leading-relaxed text-foreground/75">{hint}</p>
       ) : null}
       <div className="grid gap-4">{children}</div>
     </section>

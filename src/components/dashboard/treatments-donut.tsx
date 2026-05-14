@@ -61,13 +61,13 @@ export function TreatmentsDonut({
             </PieChart>
           </ResponsiveContainer>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
               Total
             </p>
             <p className="text-2xl font-semibold leading-none tabular-nums">
               {total}
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">
+            <p className="mt-0.5 text-xs font-medium text-foreground/75">
               {totalLabel}
             </p>
           </div>

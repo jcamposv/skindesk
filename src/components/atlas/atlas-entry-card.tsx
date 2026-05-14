@@ -89,7 +89,7 @@ export function AtlasEntryCard({
 
       <div className="flex flex-1 flex-col gap-2 p-4">
         {showSection ? (
-          <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {ATLAS_SECTION_LABELS[entry.section]}
           </span>
         ) : null}
@@ -114,7 +114,7 @@ export function AtlasEntryCard({
               </Badge>
             ))}
             {entry.tags.length > 4 ? (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs font-medium text-foreground/75">
                 +{entry.tags.length - 4}
               </span>
             ) : null}

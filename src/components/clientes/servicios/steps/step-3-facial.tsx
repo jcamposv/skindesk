@@ -61,7 +61,7 @@ export function Step3Facial({
     <div className="grid gap-4">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
         <div className="lg:sticky lg:top-0 lg:self-start">
-          <p className="mb-2 text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-foreground/75">
             Mapa facial · zonas tratadas
           </p>
           <Controller
@@ -92,7 +92,7 @@ export function Step3Facial({
               name={p("payload.data.skinType")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Tipo de piel
                   </FormLabel>
                   <select
@@ -114,7 +114,7 @@ export function Step3Facial({
               name={p("payload.data.skinCondition")}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[11px] font-medium text-muted-foreground">
+                  <FormLabel className="text-xs font-semibold text-foreground/80">
                     Condición de la piel
                   </FormLabel>
                   <select
@@ -226,7 +226,7 @@ export function Step3Facial({
           name={p("durationMin")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Duración (min)
               </FormLabel>
               <NumericInput
@@ -245,7 +245,7 @@ export function Step3Facial({
           name={p("payload.data.reaction")}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Reacción posterior
               </FormLabel>
               <div className="flex flex-wrap gap-1.5">
@@ -258,8 +258,8 @@ export function Step3Facial({
                       onClick={() => field.onChange(r)}
                       className={
                         isActive
-                          ? "rounded-full border border-[#BB7154] bg-[#F6E0D6] px-2.5 py-1 text-[11px] font-medium text-[#8C4A30]"
-                          : "rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] text-muted-foreground hover:border-[#BB7154]/40"
+                          ? "rounded-full border border-[#BB7154] bg-[#F6E0D6] px-2.5 py-1 text-xs font-medium text-[#8C4A30]"
+                          : "rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-medium text-foreground/75 hover:border-[#BB7154]/40"
                       }
                     >
                       {REACTION_LABEL[r]}
@@ -278,7 +278,7 @@ export function Step3Facial({
         name={p("payload.data.protocol")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Protocolo aplicado
             </FormLabel>
             <textarea
@@ -298,7 +298,7 @@ export function Step3Facial({
         name={p("recommendations")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Recomendaciones para casa
             </FormLabel>
             <textarea
@@ -318,7 +318,7 @@ export function Step3Facial({
         name={p("notes")}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-[11px] font-medium text-muted-foreground">
+            <FormLabel className="text-xs font-semibold text-foreground/80">
               Notas de sesión
             </FormLabel>
             <textarea

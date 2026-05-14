@@ -78,7 +78,7 @@ export function CurrencySettingsCard({
       </CardHeader>
       <CardContent className="grid gap-3 text-sm">
         <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-bold uppercase tracking-wider text-foreground/80">
             Actual
           </span>
           <CurrencyOption
@@ -99,7 +99,7 @@ export function CurrencySettingsCard({
             user can confirm separator + symbol style before navigating
             away. Reads the optimistic state, not the persisted value. */}
         <div className="flex items-center justify-between rounded-lg border border-dashed bg-muted/20 px-3 py-2">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-bold uppercase tracking-wider text-foreground/80">
             Ejemplo
           </span>
           <span className="font-semibold tabular-nums text-foreground">

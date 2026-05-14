@@ -35,7 +35,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
 
   return (
     <div className="grid gap-3 rounded-xl border bg-card p-4">
-      <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
         Configuración general del servicio
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -44,7 +44,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Nombre del servicio
               </FormLabel>
               <Input
@@ -85,7 +85,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="startDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Fecha de inicio
               </FormLabel>
               <Input
@@ -104,7 +104,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="nextAppointment"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Próxima cita sugerida
               </FormLabel>
               <Input
@@ -123,7 +123,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="totalSessions"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Total de sesiones
               </FormLabel>
               <NumericInput
@@ -143,7 +143,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="packageAmount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Monto del paquete ({currency})
               </FormLabel>
               <CurrencyInput
@@ -163,7 +163,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="frequency"
           render={({ field }) => (
             <FormItem className="sm:col-span-2">
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Frecuencia
               </FormLabel>
               <div className="flex flex-wrap gap-1.5">
@@ -176,7 +176,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
                         type="button"
                         onClick={() => field.onChange(freq)}
                         className={cn(
-                          "rounded-full border px-3 py-1 text-[12px] font-medium transition-colors",
+                          "rounded-full border px-3 py-1 text-sm font-medium transition-colors",
                           isActive
                             ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                             : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40",
@@ -198,7 +198,7 @@ export function Step3Global({ staff }: Step3GlobalProps) {
           name="notes"
           render={({ field }) => (
             <FormItem className="sm:col-span-2">
-              <FormLabel className="text-[11px] font-medium text-muted-foreground">
+              <FormLabel className="text-xs font-semibold text-foreground/80">
                 Notas internas
               </FormLabel>
               <textarea

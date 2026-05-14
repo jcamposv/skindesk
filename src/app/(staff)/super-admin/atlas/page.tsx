@@ -96,7 +96,7 @@ export default async function AtlasAdminListPage({ searchParams }: PageProps) {
     <div className="grid gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="grid gap-1">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#EAE6DC] px-2.5 py-1 text-[11px] font-medium text-[#5C6E6C]">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#EAE6DC] px-2.5 py-1 text-xs font-medium text-[#5C6E6C]">
             <LibraryIcon className="size-3" />
             Atlas · Administración
           </span>

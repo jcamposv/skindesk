@@ -61,7 +61,7 @@ export function Chip({
       }}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30 focus-visible:ring-offset-2",
-        size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-[12.5px]",
+        size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm",
         pressed ? tones.on : tones.off,
         className,
       )}

@@ -272,7 +272,7 @@ export function BuilderHeader({
             <ChevronLeftIcon className="size-4" />
           </Button>
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider text-muted-foreground">
+            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/75">
               {persistedId ? "Editar rutina" : "Nueva rutina"}
               <span
                 aria-hidden="true"
@@ -292,14 +292,14 @@ export function BuilderHeader({
               aria-invalid={nameError ? true : undefined}
               aria-describedby={nameError ? "rutina-name-error" : undefined}
               className={cn(
-                "h-8 min-w-[260px] border-0 bg-transparent px-0 font-heading text-base font-medium focus-visible:ring-0",
+                "h-9 min-w-[260px] border-0 bg-transparent px-0 font-heading text-lg font-semibold text-foreground placeholder:text-foreground/45 focus-visible:ring-0 md:text-lg",
                 nameError && "text-destructive placeholder:text-destructive/60",
               )}
             />
             {nameError ? (
               <span
                 id="rutina-name-error"
-                className="flex items-center gap-1 text-[11px] font-medium text-destructive"
+                className="flex items-center gap-1 text-xs font-semibold text-destructive"
               >
                 <AlertCircleIcon className="size-3" />
                 {String(nameError)}
@@ -374,16 +374,16 @@ export function BuilderHeader({
       {/* Readiness microcopy — explains what's missing BEFORE the user
           clicks save/assign. Disappears when everything is filled. */}
       {!ready ? (
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <AlertCircleIcon className="size-3.5 text-[#BB7154]" />
-          <span>Para guardar necesitas:</span>
+        <div className="flex items-center gap-1.5 text-sm text-foreground/80">
+          <AlertCircleIcon className="size-4 text-[#BB7154]" />
+          <span className="font-medium">Para guardar necesitas:</span>
           {nameMissing ? (
-            <span className="rounded-full bg-[#FBEFE7] px-2 py-0.5 font-medium text-[#8C4A30]">
+            <span className="rounded-full bg-[#FBEFE7] px-2.5 py-0.5 text-xs font-semibold text-[#7A3D24]">
               Nombre
             </span>
           ) : null}
           {stepsMissing ? (
-            <span className="rounded-full bg-[#FBEFE7] px-2 py-0.5 font-medium text-[#8C4A30]">
+            <span className="rounded-full bg-[#FBEFE7] px-2.5 py-0.5 text-xs font-semibold text-[#7A3D24]">
               Al menos 1 paso
             </span>
           ) : null}
@@ -422,17 +422,17 @@ function MomentToggle({ value, active, onSelect }: MomentToggleProps) {
       aria-checked={active}
       onClick={onSelect}
       className={cn(
-        "inline-flex h-7 items-center gap-1 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors",
+        "inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-semibold transition-colors",
         active
           ? value === "am"
             ? "bg-[#C47A2B] text-white"
             : value === "pm"
               ? "bg-[#6B4FA0] text-white"
               : "bg-[#5C6E6C] text-white"
-          : "text-muted-foreground hover:bg-muted",
+          : "text-foreground/70 hover:bg-muted hover:text-foreground",
       )}
     >
-      {Icon ? <Icon className="size-3" /> : null}
+      {Icon ? <Icon className="size-3.5" /> : null}
       {label}
     </button>
   );

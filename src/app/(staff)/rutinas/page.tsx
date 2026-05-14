@@ -125,7 +125,7 @@ export default async function RutinasLibraryPage({ searchParams }: PageProps) {
     <div className="grid gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-[11px] font-medium text-[#6B4FA0]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0ECFB] px-2.5 py-1 text-xs font-medium text-[#6B4FA0]">
             <RouteIcon className="size-3" />
             Biblioteca
           </span>
@@ -162,7 +162,7 @@ export default async function RutinasLibraryPage({ searchParams }: PageProps) {
               <RouteIcon className="size-5" />
             </span>
             <div>
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 {label}
               </p>
               <p className="font-heading text-xl font-medium tabular-nums">

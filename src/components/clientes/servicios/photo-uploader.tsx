@@ -171,7 +171,7 @@ export function PhotoUploader({
 
   return (
     <div className="grid gap-2">
-      <label className="text-[12px] font-medium text-muted-foreground">
+      <label className="text-sm font-medium text-foreground/85">
         {label}
       </label>
       <div className="grid grid-cols-4 gap-2">
@@ -205,7 +205,7 @@ export function PhotoUploader({
                       className="size-full object-cover"
                     />
                   ) : (
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-xs font-medium text-foreground/75">
                       Cargada
                     </span>
                   )}
@@ -248,7 +248,7 @@ export function PhotoUploader({
           e.target.value = "";
         }}
       />
-      <p className="text-[10.5px] text-muted-foreground/80">
+      <p className="text-xs font-medium text-foreground/75/80">
         {uploading
           ? "Subiendo…"
           : paths.length > 0

@@ -99,7 +99,7 @@ export function StepSectionNav({ sections, className }: StepSectionNavProps) {
               style={{ width: `${pct}%` }}
             />
           </div>
-          <span className="tabular-nums text-[10.5px] font-medium text-muted-foreground">
+          <span className="tabular-nums text-xs font-semibold text-foreground/75">
             {doneCount}/{total}
           </span>
         </div>
@@ -119,17 +119,17 @@ export function StepSectionNav({ sections, className }: StepSectionNavProps) {
                 type="button"
                 onClick={() => jumpTo(s.id)}
                 className={cn(
-                  "group inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-[12px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30",
+                  "group inline-flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5C6E6C]/30",
                   isActive
                     ? "font-semibold text-[#4F605C]"
                     : s.done
-                      ? "text-foreground/70 hover:text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
+                      ? "text-foreground/85 hover:text-foreground"
+                      : "text-foreground/65 hover:text-foreground",
                 )}
               >
                 <span
                   className={cn(
-                    "flex size-4 shrink-0 items-center justify-center rounded-full text-[9.5px] font-bold transition-colors",
+                    "flex size-[18px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors",
                     s.done
                       ? "bg-[#5C6E6C] text-white"
                       : isActive

@@ -98,7 +98,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
         visual.tone,
       )}
     >
@@ -111,7 +111,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
 function MethodCell({ method }: { method: PaymentMethod }) {
   const Icon = METHOD_ICON[method];
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12.5px] text-foreground/80">
+    <span className="inline-flex items-center gap-1.5 text-sm text-foreground/80">
       <Icon className="size-3.5 text-muted-foreground" />
       {METHOD_LABEL[method]}
     </span>
@@ -127,7 +127,7 @@ function ServiceCell({
 }) {
   if (!servicio) {
     return (
-      <span className="text-xs text-muted-foreground/70">Pago general</span>
+      <span className="text-xs text-foreground/70">Pago general</span>
     );
   }
   const visual = SERVICE_VISUAL[servicio.serviceType];
@@ -147,7 +147,7 @@ function ServiceCell({
         <p className="truncate text-[13px] font-medium text-foreground">
           {servicio.name}
         </p>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs font-medium text-foreground/75">
           {SERVICE_TYPE_LABEL[servicio.serviceType]}
           {sesion ? ` · Sesión ${sesion.sessionNumber}` : ""}
         </p>
@@ -175,7 +175,7 @@ export function PagosTable({
         id: "paidAt",
         header: () => <SortableHeader sortKey="paidAt" label="Fecha" />,
         cell: ({ row }) => (
-          <span className="text-[12.5px] tabular-nums text-foreground/80">
+          <span className="text-sm tabular-nums text-foreground/80">
             {formatDate(row.original.paidAt)}
           </span>
         ),
@@ -212,11 +212,11 @@ export function PagosTable({
         cell: ({ row }) => {
           const v = row.original.concept;
           return v ? (
-            <span className="truncate text-[12.5px] text-foreground/80">
+            <span className="truncate text-sm text-foreground/80">
               {v}
             </span>
           ) : (
-            <span className="text-[12.5px] text-muted-foreground/70">—</span>
+            <span className="text-sm text-foreground/75/70">—</span>
           );
         },
       },
@@ -241,7 +241,7 @@ export function PagosTable({
           row.original.plan ? (
             <StatusBadge status={row.original.plan.status} />
           ) : (
-            <span className="text-[12.5px] text-muted-foreground/70">—</span>
+            <span className="text-sm text-foreground/75/70">—</span>
           ),
       },
       {
@@ -252,7 +252,7 @@ export function PagosTable({
           return (
             <span
               className={cn(
-                "tabular-nums text-[12.5px]",
+                "tabular-nums text-sm",
                 balance > 0
                   ? "font-semibold text-[#8C4A30]"
                   : "text-[#4F605C]",
@@ -267,7 +267,7 @@ export function PagosTable({
         id: "registeredBy",
         header: "Registrado por",
         cell: ({ row }) => (
-          <span className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 text-sm text-foreground/75">
             {row.original.registeredBy ?? "Sistema"}
           </span>
         ),

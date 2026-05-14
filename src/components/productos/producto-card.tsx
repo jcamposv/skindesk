@@ -213,7 +213,7 @@ function TagRow({ label, items, colorClass, max = 4 }: TagRowProps) {
         <span
           key={item}
           className={cn(
-            "rounded-full border px-2 py-0.5 text-[11px] font-medium",
+            "rounded-full border px-2 py-0.5 text-xs font-medium",
             colorClass,
           )}
         >
@@ -221,7 +221,7 @@ function TagRow({ label, items, colorClass, max = 4 }: TagRowProps) {
         </span>
       ))}
       {extra > 0 ? (
-        <span className="text-[11px] text-muted-foreground">+{extra}</span>
+        <span className="text-xs font-medium text-foreground/75">+{extra}</span>
       ) : null}
     </div>
   );

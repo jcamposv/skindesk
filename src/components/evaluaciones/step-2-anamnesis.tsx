@@ -211,7 +211,7 @@ function ProcedimientosCard() {
                   value={fechaFor(key)}
                   onChange={(e) => setProcFecha(key, e.target.value)}
                   placeholder="Ej: 2024 · 6 meses"
-                  className="h-8 text-[12.5px]"
+                  className="h-9 text-sm"
                 />
               ) : null}
             </div>
@@ -258,8 +258,8 @@ function PatologiasCard() {
       <div className="grid divide-y divide-border/40">
         {PATOLOGIAS_GROUPS.map((g, gi) => (
           <div key={g.group} className={cn("grid gap-2", gi === 0 ? "pb-3" : "py-3 last:pb-0")}>
-            <p className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-[#7B3D3D]/80">
-              <span className="size-1 rounded-full bg-[#7B3D3D]/60" />
+            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7B3D3D]">
+              <span className="size-1.5 rounded-full bg-[#7B3D3D]" />
               {g.group}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -279,7 +279,7 @@ function PatologiasCard() {
         ))}
       </div>
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Otras condiciones (especificar)
         </label>
         <Controller
@@ -333,7 +333,7 @@ function AlergiasCard() {
       tone="honey"
     >
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium">¿Padece alguna alergia?</span>
+        <span className="text-[15px] font-semibold text-foreground">¿Padece alguna alergia?</span>
         <Controller
           control={form.control}
           name="anamnesis.alergias.tiene"
@@ -348,7 +348,7 @@ function AlergiasCard() {
       </div>
       {tiene ? (
         <div className="rounded-xl bg-[#FBF9F4] p-4">
-          <p className="mb-2 text-[11.5px] font-medium text-muted-foreground">
+          <p className="mb-2 text-sm font-semibold text-foreground">
             ¿A qué es alérgica?
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -365,7 +365,7 @@ function AlergiasCard() {
             ))}
           </div>
           <div className="mt-3 grid gap-1.5">
-            <label className="text-[11.5px] font-medium text-muted-foreground">
+            <label className="text-sm font-medium text-foreground/85">
               Especificar
             </label>
             <Controller
@@ -436,7 +436,7 @@ function CondicionesAparatologiaCard() {
         ))}
       </div>
       {showWarn ? (
-        <div className="flex items-start gap-2 rounded-xl bg-[#F8EFD7] px-3 py-2.5 text-[11.5px] text-[#7C5E1F]">
+        <div className="flex items-start gap-2 rounded-xl bg-[#F8EFD7] px-3 py-2.5 text-sm leading-relaxed text-[#5E4615]">
           <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
           <p>
             <strong>Atención:</strong> esta condición puede contraindicar
@@ -446,7 +446,7 @@ function CondicionesAparatologiaCard() {
         </div>
       ) : null}
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Detalle de implantes / dispositivos
         </label>
         <Controller
@@ -514,7 +514,7 @@ function MedicamentosCard() {
       </div>
 
       <div className="grid gap-2">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           ¿Está bajo tratamiento con algún profesional de la salud?
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -533,7 +533,7 @@ function MedicamentosCard() {
       </div>
 
       <div className="grid gap-1.5">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Observación o diagnóstico relevante
         </label>
         <Controller
@@ -574,7 +574,7 @@ function MedicamentoSwitch({
 
   return (
     <div className="grid gap-2 rounded-xl border border-border/60 p-3">
-      <span className="text-[12.5px] font-medium">{label}</span>
+      <span className="text-[15px] font-semibold text-foreground">{label}</span>
       <Controller
         control={form.control}
         name={tieneFieldName}
@@ -621,7 +621,7 @@ function SaludEmocionalCard() {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
-          <span className="text-[12.5px] font-medium">
+          <span className="text-[15px] font-semibold text-foreground">
             ¿Se considera una persona ansiosa?
           </span>
           <Controller
@@ -650,7 +650,7 @@ function SaludEmocionalCard() {
           ) : null}
         </div>
         <div className="grid gap-2">
-          <span className="text-[12.5px] font-medium">
+          <span className="text-[15px] font-semibold text-foreground">
             ¿Se estresa fácilmente?
           </span>
           <Controller
@@ -668,7 +668,7 @@ function SaludEmocionalCard() {
       </div>
 
       <div className="grid gap-2">
-        <label className="text-[11.5px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           Nivel de estrés diario · 1 (poco) — 10 (en exceso)
         </label>
         <Controller
@@ -676,7 +676,7 @@ function SaludEmocionalCard() {
           name="anamnesis.estresNivel"
           render={({ field }) => (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[10.5px] text-muted-foreground">Poco</span>
+              <span className="text-xs font-medium text-foreground/75">Poco</span>
               {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
                 const active = field.value === n;
                 return (
@@ -686,15 +686,15 @@ function SaludEmocionalCard() {
                     onClick={() => field.onChange(n)}
                     className={
                       active
-                        ? "flex size-8 items-center justify-center rounded-md bg-[#5C6E6C] text-xs font-bold text-white"
-                        : "flex size-8 items-center justify-center rounded-md border border-border/70 bg-card text-xs font-medium text-muted-foreground transition-colors hover:border-[#5C6E6C]/40 hover:text-foreground"
+                        ? "flex size-9 items-center justify-center rounded-md bg-[#5C6E6C] text-sm font-bold text-white"
+                        : "flex size-9 items-center justify-center rounded-md border border-border/70 bg-card text-sm font-semibold text-foreground/80 transition-colors hover:border-[#5C6E6C]/40 hover:text-foreground"
                     }
                   >
                     {n}
                   </button>
                 );
               })}
-              <span className="text-[10.5px] text-muted-foreground">
+              <span className="text-xs font-medium text-foreground/75">
                 En exceso
               </span>
             </div>

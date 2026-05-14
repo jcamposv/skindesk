@@ -76,7 +76,7 @@ function StatTile({
         <Icon className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground/75">
           {label}
         </p>
         <p className="truncate text-[15px] font-semibold tracking-tight text-foreground">

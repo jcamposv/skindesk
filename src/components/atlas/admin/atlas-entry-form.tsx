@@ -303,7 +303,7 @@ export function AtlasEntryForm({
                       </span>
                     </div>
                   </FormControl>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground/75">
                     {slugStatus === "taken"
                       ? "Esa URL ya existe en esta sección."
                       : "Se autogenera desde el título. Edítalo para fijarlo."}
@@ -367,7 +367,7 @@ export function AtlasEntryForm({
                       </TabsContent>
                     </Tabs>
                   </FormControl>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground/75">
                     Soporta ## y ### encabezados, listas con `-`, listas
                     numeradas, blockquotes con `&gt;`, **negritas**, _itálicas_
                     y `código`.
@@ -421,7 +421,7 @@ export function AtlasEntryForm({
                       }
                     />
                   </FormControl>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground/75">
                     Menor primero. Empatados ordenan por fecha.
                   </p>
                   <FormMessage />
@@ -437,7 +437,7 @@ export function AtlasEntryForm({
                 currentPath={coverPath || null}
                 onChange={handleCoverChange}
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs font-medium text-foreground/75">
                 La portada se guarda al presionar “
                 {isEdit ? "Guardar cambios" : "Crear entrada"}”.
               </p>
@@ -548,7 +548,7 @@ function TagsField({
           <option key={tag} value={tag} />
         ))}
       </datalist>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs font-medium text-foreground/75">
         Hasta 20 tags. Sugerencias del Atlas existentes para evitar
         duplicados.
       </p>

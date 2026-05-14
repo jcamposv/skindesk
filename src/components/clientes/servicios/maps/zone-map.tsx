@@ -152,7 +152,7 @@ export function ZoneMap({
               onClick={() => !readOnly && onToggle(zone.id)}
               disabled={readOnly}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                 isSelected
                   ? "border-[#BB7154] bg-[#F6E0D6] text-[#8C4A30]"
                   : "border-border/60 bg-card/80 text-muted-foreground hover:border-[#BB7154]/40 hover:bg-[#FBEFE7]/60",

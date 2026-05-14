@@ -643,13 +643,13 @@ function MainIngredientsField({
           value.map((ing) => (
             <span
               key={ing}
-              className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-2 py-0.5 text-[11px] font-medium text-[#8C4A30]"
+              className="rounded-full border border-[#BB7154]/30 bg-[#FBEFE7] px-2 py-0.5 text-xs font-medium text-[#8C4A30]"
             >
               {ing}
             </span>
           ))
         ) : (
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-medium text-foreground/75">
             Vista previa de tags
           </span>
         )}
@@ -716,14 +716,14 @@ function SkinTypesField({
       </div>
 
       <div>
-        <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+        <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
           Otros tipos de piel
         </p>
         <div className="flex flex-wrap items-center gap-2">
           {customValue.map((c) => (
             <span
               key={c}
-              className="inline-flex items-center gap-1 rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-[11px] text-[#4F605C]"
+              className="inline-flex items-center gap-1 rounded-full border border-[#5C6E6C]/30 bg-[#E7ECEA] px-2 py-0.5 text-xs text-[#4F605C]"
             >
               {c}
               <button
@@ -816,7 +816,7 @@ function ConflictingIngredientsField({
         {value.map((c) => (
           <span
             key={c}
-            className="inline-flex items-center gap-1 rounded-full border border-[#BB7154]/40 bg-[#FBEFE7] px-2 py-0.5 text-[11px] text-[#8C4A30]"
+            className="inline-flex items-center gap-1 rounded-full border border-[#BB7154]/40 bg-[#FBEFE7] px-2 py-0.5 text-xs text-[#8C4A30]"
           >
             {c}
             <button
@@ -846,7 +846,7 @@ function ConflictingIngredientsField({
         />
         <AddPillButton onClick={add} disabled={!draft.trim()} />
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs font-medium text-foreground/75">
         El builder de rutinas usará esto para advertir si dos productos no se
         deberían combinar.
       </p>

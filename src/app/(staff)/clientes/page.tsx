@@ -100,7 +100,7 @@ export default async function ClientesPage({ searchParams }: PageProps) {
       {/* Hero header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-[11px] font-medium text-[#8C4A30]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F6E0D6] px-2.5 py-1 text-xs font-medium text-[#8C4A30]">
             <SparklesIcon className="size-3" />
             Centro de gestión
           </span>
@@ -166,7 +166,7 @@ function StatChip({ label, value, statusBadge, highlight }: StatChipProps) {
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {label}
         </span>
         {statusBadge ? (

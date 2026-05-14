@@ -73,7 +73,7 @@ export function ClienteDetailHeader({
       <div className="flex items-center justify-between border-b bg-[#FBF6F0]/70 px-3 py-1.5 sm:px-4">
         <Link
           href={ROUTES.clientes}
-          className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-foreground text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-3.5" />
           Volver a clientas
@@ -104,13 +104,13 @@ export function ClienteDetailHeader({
               <ClienteStatusBadge status={cliente.status} />
               <EvaluacionChip evaluacion={evaluacion} />
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-foreground/75">
               {age != null ? (
                 <span className="inline-flex items-center gap-1">
                   <SparklesIcon className="size-3 text-[#BB7154]" />
                   {age} años
                   {birth ? (
-                    <span className="text-muted-foreground/70"> · {birth}</span>
+                    <span className="text-foreground/70"> · {birth}</span>
                   ) : null}
                 </span>
               ) : null}
@@ -166,7 +166,7 @@ function EvaluacionChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1",
         complete
           ? "bg-[#E7ECEA] text-[#4F605C] ring-[#5C6E6C]/20"
           : done > 0
@@ -256,7 +256,7 @@ function Stat({
           : "text-foreground";
   return (
     <div className="flex flex-col gap-1 bg-[#FBF6F0]/80 px-3 py-2.5">
-      <span className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-[#7C5E1F]/80">
+      <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#7C5E1F]/80">
         <Icon className="size-3" />
         {label}
       </span>
@@ -270,7 +270,7 @@ function Stat({
         {primary}
       </span>
       {secondary ? (
-        <span className="truncate text-[11px] text-muted-foreground">
+        <span className="truncate text-xs font-medium text-foreground/75">
           {secondary}
         </span>
       ) : null}

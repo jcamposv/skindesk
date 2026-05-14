@@ -153,7 +153,7 @@ export function ClienteDetailTabs({
               <div key={group.label} className="flex flex-col gap-0.5">
                 <p
                   className={cn(
-                    "px-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70",
+                    "px-3 text-xs font-semibold uppercase tracking-wider text-foreground/65",
                     gi === 0 ? "pt-1" : "pt-2",
                   )}
                 >
@@ -295,7 +295,7 @@ function MobileTabPicker({
             <ActiveIcon className="size-4" />
           </span>
           <span className="flex min-w-0 flex-col">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground/75">
               Sección
             </span>
             <span className="truncate text-sm font-medium text-foreground">
@@ -319,7 +319,7 @@ function MobileTabPicker({
         >
           {TAB_GROUPS.map((group, gi) => (
             <div key={group.label} className={gi === 0 ? "" : "pt-3"}>
-              <p className="px-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+              <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-foreground/65">
                 {group.label}
               </p>
               <ul className="flex flex-col gap-0.5">

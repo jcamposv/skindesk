@@ -156,7 +156,7 @@ export function PagosTab({ services, initialPlans }: PagosTabProps) {
               <h2 className="font-heading text-lg font-medium tracking-tight">
                 Plan de pagos
               </h2>
-              <p className="text-[12.5px] text-muted-foreground">
+              <p className="text-sm text-foreground/75">
                 Resumen financiero por servicio y registro manual de pagos.
                 Sin cobros online — solo asentás lo que la clienta ya pagó.
               </p>
@@ -249,7 +249,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
         active
           ? "border-[#BB7154] bg-[#F6E0D6] font-medium text-[#8C4A30]"
           : "border-border/60 bg-card text-muted-foreground hover:border-[#BB7154]/40 hover:bg-[#FBEFE7]/20",
@@ -302,7 +302,7 @@ function EmptyTabState() {
         <h3 className="font-heading text-base">
           Todavía no hay servicios con precio asignado
         </h3>
-        <p className="max-w-md text-[12.5px] text-muted-foreground">
+        <p className="max-w-md text-sm text-foreground/75">
           Agregá un servicio con monto de paquete desde la pestaña “Servicios”
           y vuelve aquí para registrar los pagos manuales de la clienta.
         </p>

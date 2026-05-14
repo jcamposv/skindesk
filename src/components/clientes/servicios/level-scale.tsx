@@ -36,10 +36,10 @@ export function LevelScale({
   return (
     <div className="grid gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-[12px] font-medium text-muted-foreground">
+        <label className="text-sm font-medium text-foreground/85">
           {label}
         </label>
-        <span className="text-[11px] font-medium text-foreground/80">
+        <span className="text-xs font-medium text-foreground/80">
           {value}/5
         </span>
       </div>
@@ -58,7 +58,7 @@ export function LevelScale({
               aria-checked={step === value}
               onClick={() => onChange(step as LevelScore)}
               className={cn(
-                "h-7 flex-1 rounded-md border text-[11px] font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/30",
+                "h-7 flex-1 rounded-md border text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BB7154]/30",
                 isActive
                   ? `text-white ${TONE[tone]}`
                   : "border-border/60 bg-card text-muted-foreground hover:bg-[#F4F1EC]/50",
@@ -69,7 +69,7 @@ export function LevelScale({
           );
         })}
       </div>
-      <div className="flex justify-between text-[10px] uppercase tracking-wide text-muted-foreground/70">
+      <div className="flex justify-between text-[10px] uppercase tracking-wide text-foreground/70">
         <span>{scaleHints[0]}</span>
         <span>{scaleHints[1]}</span>
       </div>

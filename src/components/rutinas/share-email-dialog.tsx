@@ -100,7 +100,7 @@ export function ShareEmailDialog({
             placeholder="dra.lucia@clinica.com"
             disabled={pending}
           />
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs font-medium text-foreground/75">
             No incluímos datos de clientas ni notas clínicas en el email.
           </p>
         </div>

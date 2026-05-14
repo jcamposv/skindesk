@@ -41,7 +41,7 @@ const FITZPATRICK_DEF =
 const GLOGAU_DEF =
   "Clasificación del fotoenvejecimiento. Grado I (sin arrugas, joven) hasta Grado IV (arrugas marcadas, queratosis actínica).";
 const BIOTIPO_DEF =
-  "Tipo cutáneo basado en producción sebácea: normal, mixta (zona T grasa), grasa, seca/alípica, sensible.";
+  "Tipo cutáneo basado en producción sebácea: normal, mixta (zona T grasa), grasa, seca/alípica.";
 
 /**
  * Step 4 — Diagnóstico de piel.
@@ -226,7 +226,7 @@ function ClasificacionCard() {
       {/* Biotipo */}
       <div className="grid gap-2">
         <div className="flex items-center gap-1.5">
-          <h4 className="text-[12.5px] font-medium">Biotipo cutáneo</h4>
+          <h4 className="text-[15px] font-semibold text-foreground">Biotipo cutáneo</h4>
           <InfoTooltip content={BIOTIPO_DEF} />
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -253,7 +253,7 @@ function ClasificacionCard() {
       {/* Fitzpatrick */}
       <div className="grid gap-2">
         <div className="flex items-center gap-1.5">
-          <h4 className="text-[12.5px] font-medium">Fototipo · Fitzpatrick</h4>
+          <h4 className="text-[15px] font-semibold text-foreground">Fototipo · Fitzpatrick</h4>
           <InfoTooltip content={FITZPATRICK_DEF} />
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
@@ -289,7 +289,7 @@ function ClasificacionCard() {
                 >
                   {romanize(f.num)}
                 </div>
-                <div className="mt-0.5 text-[9.5px] leading-tight text-muted-foreground">
+                <div className="mt-0.5 text-[11px] leading-snug text-foreground/75">
                   {f.desc}
                 </div>
               </button>
@@ -301,7 +301,7 @@ function ClasificacionCard() {
       {/* Glogau */}
       <div className="grid gap-2">
         <div className="flex items-center gap-1.5">
-          <h4 className="text-[12.5px] font-medium">Fotoenvejecimiento · Glogau</h4>
+          <h4 className="text-[15px] font-semibold text-foreground">Fotoenvejecimiento · Glogau</h4>
           <InfoTooltip content={GLOGAU_DEF} />
         </div>
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -324,14 +324,14 @@ function ClasificacionCard() {
                     : "rounded-xl border border-border/60 bg-card p-3 text-left transition-colors hover:border-foreground/20"
                 }
               >
-                <div className="text-[11px] font-bold text-[#5C6E6C]">
+                <div className="text-xs font-bold uppercase tracking-wider text-[#5C6E6C]">
                   Grado {romanize(g.grado)}
                 </div>
-                <div className="text-[12px] font-semibold">{g.edad}</div>
-                <div className="text-[10.5px] text-muted-foreground">
+                <div className="text-sm font-semibold text-foreground">{g.edad}</div>
+                <div className="text-xs font-medium text-foreground/75">
                   {g.nivel}
                 </div>
-                <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/70">
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/80">
                   {g.desc}
                 </p>
               </button>
@@ -435,7 +435,7 @@ function AcneCard() {
       tone="rose"
     >
       <div className="flex items-center gap-3">
-        <span className="text-[12.5px] font-medium">¿Presenta acné activo?</span>
+        <span className="text-[15px] font-semibold text-foreground">¿Presenta acné activo?</span>
         <Controller
           control={form.control}
           name="diagnostico.acne.activo"
@@ -474,10 +474,10 @@ function AcneCard() {
                     name={`acne-${n}` as "acne-1" | "acne-2" | "acne-3" | "acne-4"}
                     className="size-9"
                   />
-                  <div className="text-[11px] font-bold text-[#7B3D3D]">
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#7B3D3D]">
                     Grado {romanize(n)}
                   </div>
-                  <p className="text-[9.5px] leading-tight text-foreground/70">
+                  <p className="text-xs leading-snug text-foreground/80">
                     {ACNE_DESC[n]}
                   </p>
                 </button>
@@ -485,7 +485,7 @@ function AcneCard() {
             })}
           </div>
           <div className="grid gap-1.5">
-            <label className="text-[11.5px] font-medium text-muted-foreground">
+            <label className="text-sm font-medium text-foreground/85">
               Tipo de lesión presente
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -564,10 +564,10 @@ function CicatricesCard() {
               {picto ? (
                 <Pictogram name={picto} className="size-9" />
               ) : null}
-              <div className="text-[11.5px] font-semibold text-[#7C5E1F]">
+              <div className="text-sm font-bold text-[#7C5E1F]">
                 {c.tipo}
               </div>
-              <p className="text-[9.5px] leading-tight text-foreground/70">
+              <p className="text-xs leading-snug text-foreground/80">
                 {c.desc}
               </p>
             </button>
@@ -794,7 +794,7 @@ function SubGroup({
   return (
     <div className="grid gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
           {label}
         </p>
         {right}

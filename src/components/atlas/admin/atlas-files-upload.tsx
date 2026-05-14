@@ -218,7 +218,7 @@ export function AtlasFilesUpload({
             ? "Suelta los archivos"
             : "Subir o arrastrar archivos"}
         </div>
-        <div className="text-[11px] text-muted-foreground">
+        <div className="text-xs font-medium text-foreground/75">
           PDF · HTML · JPG / PNG / WEBP · máx 50 MB cada uno
         </div>
       </button>
@@ -256,7 +256,7 @@ export function AtlasFilesUpload({
                   <p className="truncate text-sm font-medium">
                     {file.original_name}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs font-medium text-foreground/75">
                     {ATLAS_FILE_KIND_LABELS[file.kind]} ·{" "}
                     {formatBytes(file.size_bytes)}
                   </p>
@@ -293,7 +293,7 @@ export function AtlasFilesUpload({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{p.name}</p>
-                  <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <p className="flex items-center gap-1 text-xs font-medium text-foreground/75">
                     <Loader2Icon className="size-3 animate-spin" /> Subiendo…
                   </p>
                 </div>
