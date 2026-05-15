@@ -13,9 +13,9 @@ import {
 import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { PendingTasks } from "@/components/dashboard/pending-tasks";
 import { PersonRow } from "@/components/dashboard/person-row";
-import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { RevenueChartLazy } from "@/components/dashboard/revenue-chart-lazy";
 import { TipCard } from "@/components/dashboard/tip-card";
-import { TreatmentsDonut } from "@/components/dashboard/treatments-donut";
+import { TreatmentsDonutLazy } from "@/components/dashboard/treatments-donut-lazy";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatCard, type StatCardProps } from "@/components/shared/stat-card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
@@ -184,7 +184,7 @@ export default async function ProfesionalDashboardPage() {
           action={<PeriodSelector value="Últimos 6 meses" />}
           className="lg:col-span-2"
         >
-          <RevenueChart
+          <RevenueChartLazy
             data={revenueByMonth}
             currencySymbol={getCurrencySymbol(tenantConfig.currency)}
           />
@@ -218,7 +218,7 @@ export default async function ProfesionalDashboardPage() {
 
         <DashboardSection title="Tratamientos más populares">
           {hasTreatments ? (
-            <TreatmentsDonut
+            <TreatmentsDonutLazy
               data={topTreatments.slices}
               total={topTreatments.total}
             />

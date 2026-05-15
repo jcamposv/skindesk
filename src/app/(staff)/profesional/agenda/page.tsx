@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { AgendaCalendar } from "@/components/citas/agenda-calendar";
+import { AgendaCalendarLazy } from "@/components/citas/agenda-calendar-lazy";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
 import { getCurrentSession } from "@/lib/supabase/server";
 import { getCitasInRange } from "@/services/citas.service";
@@ -37,7 +37,7 @@ export default async function AgendaPage() {
   ]);
 
   return (
-    <AgendaCalendar
+    <AgendaCalendarLazy
       initialCitas={initialCitas}
       clientes={clientes}
       staff={staff}

@@ -2,7 +2,7 @@
 
 **Objetivo**: eliminar el ~1s de delay percibido al navegar entre pages, sin tocar lógica de negocio. Plan en 7 fases ordenadas por impacto/esfuerzo.
 
-**Última actualización**: 2026-05-15 (Fase 4 completa)
+**Última actualización**: 2026-05-15 (Fase 5 completa)
 
 ## Estado actual
 
@@ -12,7 +12,7 @@
 | 2 | Streaming con `<Suspense>` en cliente detail | ✅ Completa |
 | 3 | Builder: defer del catálogo de productos | ✅ Completa |
 | 4 | Service projections + RPC para library stats | ✅ Completa |
-| 5 | `next/dynamic` para libs pesadas (charts, calendar) | ⏳ Pendiente |
+| 5 | `next/dynamic` para libs pesadas (charts, calendar) | ✅ Completa |
 | 6 | `unstable_cache` para staff/clientes picker | ⏳ Pendiente |
 | 7 | Cleanup `force-dynamic` redundante | ⏳ Pendiente |
 
@@ -208,30 +208,37 @@ $$;
 
 ---
 
-## Fase 5 — `next/dynamic` ⏳
+## Fase 5 — `next/dynamic` ✅
 
-**Impacto esperado**: bundle inicial baja ~200KB combinado. TTI más rápido.
+**Resultado**: `react-big-calendar` (~150 KB) + `recharts` (~120 KB) salen del bundle inicial de las rutas que los usan.
 
-### 5.1 — Agenda calendar
+### Patrón aplicado: thin client wrapper con `ssr: false`
 
-`src/components/citas/agenda-calendar.tsx`:
-```tsx
-import dynamic from "next/dynamic";
+`next/dynamic` con `ssr: false` requiere ser invocado desde un Client Component. Solución: cada componente pesado tiene un `*-lazy.tsx` (también `"use client"`) que hace la dynamic import y re-expone el mismo `Props` typing. La page (server component) importa el lazy wrapper.
 
-const Calendar = dynamic(
-  () => import("react-big-calendar").then((m) => m.Calendar),
-  { ssr: false, loading: () => <CalendarSkeleton /> }
-);
-```
+`ssr: false` es necesario en ambos casos porque tanto `react-big-calendar` como `recharts` miden el DOM al montar (ResponsiveContainer, etc.) y crashearían en SSR.
 
-### 5.2 — Dashboard charts
+### 5.1 — Agenda calendar ✅
 
-- `src/components/dashboard/revenue-chart.tsx` (recharts)
-- `src/components/dashboard/treatments-donut.tsx` (recharts)
+**Creado**: `src/components/citas/agenda-calendar-lazy.tsx`
+- `import("./agenda-calendar")` con fallback `<SkeletonCalendar />` (de `dashboard-skeleton`).
+- `AgendaCalendarProps` exportada desde `agenda-calendar.tsx`.
 
-Mismo patrón. Skip si están above-the-fold y la métrica empeora.
+**Modificado**: `src/app/(staff)/profesional/agenda/page.tsx` importa `AgendaCalendarLazy`.
 
-**Verificación**: `next build` antes/después; comparar el "First Load JS" por ruta.
+### 5.2 — Dashboard charts ✅
+
+**Creado**:
+- `src/components/dashboard/revenue-chart-lazy.tsx` — fallback `<Skeleton h-[220px]>`.
+- `src/components/dashboard/treatments-donut-lazy.tsx` — fallback skeleton circular.
+
+**Modificado**:
+- `RevenueChartProps` y `TreatmentsDonutProps` exportadas.
+- `src/app/(staff)/profesional/page.tsx` usa `RevenueChartLazy` y `TreatmentsDonutLazy`.
+
+### Verificación de bundle (opcional)
+
+Para confirmar el ahorro real correr `next build` antes/después y comparar el "First Load JS" en las rutas `/profesional` y `/profesional/agenda`.
 
 ---
 

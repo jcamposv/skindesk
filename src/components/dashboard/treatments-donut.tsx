@@ -7,7 +7,7 @@ interface TreatmentSlice {
   value: number;
 }
 
-interface TreatmentsDonutProps {
+export interface TreatmentsDonutProps {
   data: readonly TreatmentSlice[];
   /** Big number rendered in the donut hole — typically the sum of slices. */
   total: number;

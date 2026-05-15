@@ -122,7 +122,7 @@ interface CalendarEvent {
   resource: AgendaCita;
 }
 
-interface AgendaCalendarProps {
+export interface AgendaCalendarProps {
   initialCitas: AgendaCita[];
   clientes: ClientePickerItem[];
   staff: StaffMember[];

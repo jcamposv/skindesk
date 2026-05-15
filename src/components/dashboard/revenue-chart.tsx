@@ -15,7 +15,7 @@ interface RevenuePoint {
   amount: number;
 }
 
-interface RevenueChartProps {
+export interface RevenueChartProps {
   data: readonly RevenuePoint[];
   /** Currency-formatted prefix used on the Y axis ticks. Defaults to "$". */
   currencySymbol?: string;
