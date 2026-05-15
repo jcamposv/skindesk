@@ -33,7 +33,12 @@ interface ClientesTableProps {
 
 function ageFromBirth(birthDate: string | null): number | null {
   if (!birthDate) return null;
-  const d = new Date(birthDate);
+  // birth_date is a Postgres `date` column — calendar-only. `new Date()`
+  // would parse "1988-12-12" as UTC midnight and shift the day back in
+  // negative-offset zones, off-by-one'ing age near a birthday. Treat the
+  // value as a civil date by appending T00:00:00 so JS parses it as
+  // browser-local midnight.
+  const d = new Date(`${birthDate}T00:00:00`);
   if (Number.isNaN(d.getTime())) return null;
   const now = new Date();
   let age = now.getFullYear() - d.getFullYear();

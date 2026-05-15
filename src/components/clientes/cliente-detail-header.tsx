@@ -39,10 +39,20 @@ const BIRTH_FMT = new Intl.DateTimeFormat("es-AR", {
   year: "numeric",
 });
 
+/** Parse a `YYYY-MM-DD` civil date (Postgres `date` column) without UTC
+ *  drift. JS' `new Date("1988-12-12")` is parsed as UTC midnight, which
+ *  shifts back a day when formatted in negative-offset zones like AR.
+ *  Appending `T00:00:00` (no Z) makes JS parse it as browser-local midnight,
+ *  so the same calendar day always comes back out. */
+function parseBirthDate(birthDate: string): Date | null {
+  const d = new Date(`${birthDate}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 function ageFromBirth(birthDate: string | null): number | null {
   if (!birthDate) return null;
-  const d = new Date(birthDate);
-  if (Number.isNaN(d.getTime())) return null;
+  const d = parseBirthDate(birthDate);
+  if (!d) return null;
   const now = new Date();
   let age = now.getFullYear() - d.getFullYear();
   const m = now.getMonth() - d.getMonth();
@@ -52,8 +62,8 @@ function ageFromBirth(birthDate: string | null): number | null {
 
 function formatBirth(birthDate: string | null): string | null {
   if (!birthDate) return null;
-  const d = new Date(birthDate);
-  if (Number.isNaN(d.getTime())) return null;
+  const d = parseBirthDate(birthDate);
+  if (!d) return null;
   return BIRTH_FMT.format(d);
 }
 
