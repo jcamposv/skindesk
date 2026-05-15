@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { CheckCircle2Icon, Trash2Icon } from "lucide-react";
 
+import { Combobox } from "@/components/shared/combobox";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -199,7 +200,7 @@ function CitaDialogBody({
                 >
                   Clienta
                 </FormLabel>
-                <select
+                <Combobox
                   id="cita-cliente"
                   autoFocus
                   aria-invalid={fieldState.invalid || undefined}
@@ -207,16 +208,17 @@ function CitaDialogBody({
                     fieldState.error ? "cita-cliente-error" : undefined
                   }
                   value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                >
-                  <option value="">Seleccionar clienta…</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.fullName}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => field.onChange(v)}
+                  options={clientes.map((c) => ({
+                    value: c.id,
+                    label: c.fullName,
+                  }))}
+                  placeholder="Seleccionar clienta…"
+                  searchPlaceholder="Buscar clienta…"
+                  emptyMessage="No encontramos clientas con ese nombre."
+                  ariaLabel="Clienta"
+                  triggerClassName="h-10"
+                />
                 <FormMessage id="cita-cliente-error" />
               </FormItem>
             )}
@@ -237,20 +239,20 @@ function CitaDialogBody({
                 <FormLabel className="text-xs font-semibold text-foreground/80">
                   Profesional responsable
                 </FormLabel>
-                <select
+                <Combobox
                   value={(field.value as string | null) ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? null : e.target.value)
-                  }
-                  className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                >
-                  <option value="">Sin asignar</option>
-                  {staff.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.fullName}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => field.onChange(v === "" ? null : v)}
+                  options={staff.map((s) => ({
+                    value: s.id,
+                    label: s.fullName,
+                  }))}
+                  placeholder="Sin asignar"
+                  searchPlaceholder="Buscar profesional…"
+                  emptyMessage="No encontramos profesionales."
+                  ariaLabel="Profesional responsable"
+                  triggerClassName="h-10"
+                  clearable
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -454,31 +456,31 @@ function ServicioPickerField({
           >
             Servicio (opcional)
           </FormLabel>
-          <select
+          <Combobox
             id="cita-servicio"
             value={(field.value as string | null) ?? ""}
-            onChange={(e) =>
-              field.onChange(e.target.value === "" ? null : e.target.value)
-            }
-            disabled={loading}
-            className="h-10 rounded-md border border-input bg-transparent px-3 text-sm focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <option value="">
-              {loading
+            onChange={(v) => field.onChange(v === "" ? null : v)}
+            options={options.map((s) => ({
+              value: s.id,
+              label:
+                s.status === "completed" || s.status === "cancelled"
+                  ? `${s.name} · ${s.status}`
+                  : s.name,
+            }))}
+            placeholder={
+              loading
                 ? "Cargando servicios…"
                 : options.length === 0
                   ? "Sin servicios para esta clienta"
-                  : "Sin asociar a un servicio"}
-            </option>
-            {options.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-                {s.status === "completed" || s.status === "cancelled"
-                  ? ` · ${s.status}`
-                  : ""}
-              </option>
-            ))}
-          </select>
+                  : "Sin asociar a un servicio"
+            }
+            searchPlaceholder="Buscar servicio…"
+            emptyMessage="No encontramos servicios con ese nombre."
+            disabled={loading}
+            ariaLabel="Servicio"
+            triggerClassName="h-10"
+            clearable
+          />
           <FormMessage />
         </FormItem>
       )}

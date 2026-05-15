@@ -38,6 +38,11 @@ interface ComboboxProps {
   disabled?: boolean;
   /** `aria-label` for the trigger when there's no visible label. */
   ariaLabel?: string;
+  /** Standard HTML attrs forwarded to the trigger button. */
+  id?: string;
+  autoFocus?: boolean;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }
 
 /**
@@ -57,6 +62,10 @@ export function Combobox({
   triggerClassName,
   disabled,
   ariaLabel,
+  id,
+  autoFocus,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const selected = options.find((o) => o.value === value);
@@ -66,11 +75,15 @@ export function Combobox({
       <PopoverTrigger
         render={
           <Button
+            id={id}
             variant="outline"
             type="button"
             disabled={disabled}
+            autoFocus={autoFocus}
             aria-label={ariaLabel}
             aria-expanded={open}
+            aria-invalid={ariaInvalid}
+            aria-describedby={ariaDescribedBy}
             className={cn(
               "h-9 w-full justify-between gap-2 px-3 font-normal",
               !selected && "text-foreground/55",
