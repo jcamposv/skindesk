@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import {
   archiveProductoAction,
   duplicateProductoAction,
+  getProductoForEditAction,
 } from "@/actions/productos.actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Producto } from "@/services/productos.service";
+import type {
+  Producto,
+  ProductoListItem,
+} from "@/services/productos.service";
 import {
   PRODUCTO_FORM_DEFAULTS,
   type UpsertProductoInput,
@@ -32,7 +36,7 @@ import { ProductosListTable } from "./productos-list-table";
 
 interface ProductosPageClientProps {
   tenantId: string;
-  items: Producto[];
+  items: ProductoListItem[];
   totalItems: number;
   canEdit: boolean;
   view: "grid" | "list";
@@ -58,14 +62,25 @@ export function ProductosPageClient({
 
   const [draftId] = useState(() => crypto.randomUUID());
   const [addOpen, setAddOpen] = useState(false);
+  // `editing` holds the FULL producto fetched on click — the grid only
+  // passes us a `ProductoListItem` projection (audit Phase 4.1), and the
+  // edit form needs every column. `pendingAction` (from useTransition)
+  // already covers the in-flight visual on the card cluster.
   const [editing, setEditing] = useState<Producto | null>(null);
-  const [deleting, setDeleting] = useState<Producto | null>(null);
+  const [deleting, setDeleting] = useState<ProductoListItem | null>(null);
 
-  function handleEdit(p: Producto) {
-    setEditing(p);
+  function handleEdit(p: ProductoListItem) {
+    startTransition(async () => {
+      const result = await getProductoForEditAction(p.id);
+      if (!result.success) {
+        toast.error(result.message ?? "No se pudo cargar el producto.");
+        return;
+      }
+      setEditing(result.data ?? null);
+    });
   }
 
-  function handleDuplicate(p: Producto) {
+  function handleDuplicate(p: ProductoListItem) {
     startTransition(async () => {
       const result = await duplicateProductoAction(p.id);
       if (!result.success) {
@@ -77,7 +92,7 @@ export function ProductosPageClient({
     });
   }
 
-  function handleDelete(p: Producto) {
+  function handleDelete(p: ProductoListItem) {
     setDeleting(p);
   }
 

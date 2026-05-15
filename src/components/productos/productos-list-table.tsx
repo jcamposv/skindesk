@@ -17,16 +17,16 @@ import {
   PRODUCTO_SKIN_TYPE_LABELS,
   type ProductoSkinType,
 } from "@/schemas/productos.schema";
-import type { Producto } from "@/services/productos.service";
+import type { ProductoListItem } from "@/services/productos.service";
 
 import { ProductoIllustration } from "./producto-illustration";
 
 interface ProductosListTableProps {
-  items: Producto[];
+  items: ProductoListItem[];
   totalItems: number;
-  onEdit: (p: Producto) => void;
-  onDuplicate: (p: Producto) => void;
-  onDelete: (p: Producto) => void;
+  onEdit: (p: ProductoListItem) => void;
+  onDuplicate: (p: ProductoListItem) => void;
+  onDelete: (p: ProductoListItem) => void;
 }
 
 const DATE_FORMAT = new Intl.DateTimeFormat("es", {
@@ -52,7 +52,7 @@ export function ProductosListTable({
   onDuplicate,
   onDelete,
 }: ProductosListTableProps) {
-  const columns = useMemo<ColumnDef<Producto, unknown>[]>(
+  const columns = useMemo<ColumnDef<ProductoListItem, unknown>[]>(
     () => [
       {
         id: "product",
@@ -106,7 +106,7 @@ export function ProductosListTable({
     [],
   );
 
-  const rowActions = useMemo<RowAction<Producto>[]>(
+  const rowActions = useMemo<RowAction<ProductoListItem>[]>(
     () => [
       { id: "edit", label: "Editar", icon: PencilIcon, onClick: onEdit },
       {
@@ -127,7 +127,7 @@ export function ProductosListTable({
   );
 
   return (
-    <DataTable<Producto>
+    <DataTable<ProductoListItem>
       mode="server"
       data={items}
       totalItems={totalItems}
@@ -151,7 +151,7 @@ export function ProductosListTable({
 
 // ─── Cells ──────────────────────────────────────────────────────────────────
 
-function ProductNameCell({ producto }: { producto: Producto }) {
+function ProductNameCell({ producto }: { producto: ProductoListItem }) {
   return (
     <div className="flex items-center gap-3">
       <div

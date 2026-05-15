@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormProvider,
@@ -27,25 +27,27 @@ import {
   upsertRutinaSchema,
   type UpsertRutinaInput,
 } from "@/schemas/rutinas.schema";
+import type { BuilderCatalogResult } from "@/services/productos.service";
 
-import { BuilderCatalog } from "./builder-catalog";
+import { BuilderCatalogAsync } from "./builder-catalog-async";
 import { BuilderHeader } from "./builder-header";
 import { BuilderMeta } from "./builder-meta";
 import { BuilderPhonePreview } from "./builder-phone-preview";
 import { BuilderStepCard } from "./builder-step-card";
 import { BuilderStepDialog } from "./builder-step-dialog";
+import { CatalogSkeleton } from "./catalog-skeleton";
 import type { BuilderInitial, BuilderProducto, BuilderStep } from "./types";
 import { keyFor, useStepsState } from "./use-steps-state";
 
 interface RutinaBuilderProps {
   initial: BuilderInitial;
-  productos: BuilderProducto[];
+  /** Unresolved promise — the page kicks off `listProductosForBuilder()`
+   *  but does NOT await it, so the builder shell renders immediately and
+   *  the catalog suspends on this promise via `use()` inside its own
+   *  `<Suspense>` boundary. See audit Phase 3. */
+  productosPromise: Promise<BuilderCatalogResult>;
   clientes: Array<{ id: string; fullName: string }>;
   clientName: string | null;
-  /** When the server-side `listProductosForBuilder` hit its cap, this is
-   *  the total matching count (so the catalog can hint "showing first N
-   *  of X"). `null` when nothing was clipped. */
-  catalogCappedAt: number | null;
 }
 
 /**
@@ -59,16 +61,10 @@ interface RutinaBuilderProps {
  */
 export function RutinaBuilder({
   initial,
-  productos,
+  productosPromise,
   clientes,
   clientName,
-  catalogCappedAt,
 }: RutinaBuilderProps) {
-  const productosById = useMemo(
-    () => new Map(productos.map((p) => [p.id, p])),
-    [productos],
-  );
-
   const [editingStepKey, setEditingStepKey] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   // Owned here (rather than inside BuilderHeader) so the phone preview's
@@ -102,11 +98,9 @@ export function RutinaBuilder({
       <Form {...form}>
         <BuilderInner
           initial={initial}
-          productosById={productosById}
-          productos={productos}
+          productosPromise={productosPromise}
           clientes={clientes}
           clientName={clientName}
-          catalogCappedAt={catalogCappedAt}
           persistedId={persistedId}
           setPersistedId={setPersistedId}
           editingStepKey={editingStepKey}
@@ -123,11 +117,9 @@ export function RutinaBuilder({
 
 interface BuilderInnerProps {
   initial: BuilderInitial;
-  productos: BuilderProducto[];
-  productosById: Map<string, BuilderProducto>;
+  productosPromise: Promise<BuilderCatalogResult>;
   clientes: Array<{ id: string; fullName: string }>;
   clientName: string | null;
-  catalogCappedAt: number | null;
   persistedId: string | null;
   setPersistedId: (id: string) => void;
   editingStepKey: string | null;
@@ -140,11 +132,9 @@ interface BuilderInnerProps {
 
 function BuilderInner({
   initial,
-  productos,
-  productosById,
+  productosPromise,
   clientes,
   clientName,
-  catalogCappedAt,
   persistedId,
   setPersistedId,
   editingStepKey,
@@ -162,12 +152,19 @@ function BuilderInner({
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragOver(false);
-      const productoId = e.dataTransfer.getData("text/plain");
-      if (!productoId) return;
-      const producto = productosById.get(productoId);
-      if (producto) addStep(producto);
+      // Catalog cards now serialize the full producto into the drag
+      // payload (`application/json`), so we don't need a productosById
+      // map in the parent — the catalog can stream in independently.
+      const json = e.dataTransfer.getData("application/json");
+      if (!json) return;
+      try {
+        const producto = JSON.parse(json) as BuilderProducto;
+        addStep(producto);
+      } catch {
+        // Stale or wrong-source drop. Silent — no UX impact.
+      }
     },
-    [addStep, productosById, setDragOver],
+    [addStep, setDragOver],
   );
 
   const totalMinutes = useMemo(
@@ -223,11 +220,12 @@ function BuilderInner({
                 </SheetDescription>
               </SheetHeader>
               <div className="h-[calc(100%-72px)]">
-                <BuilderCatalog
-                  productos={productos}
-                  onAdd={addStep}
-                  cappedAt={catalogCappedAt}
-                />
+                <Suspense fallback={<CatalogSkeleton />}>
+                  <BuilderCatalogAsync
+                    productosPromise={productosPromise}
+                    onAdd={addStep}
+                  />
+                </Suspense>
               </div>
             </SheetContent>
           </Sheet>
@@ -260,13 +258,17 @@ function BuilderInner({
         </div>
 
         <div className="grid flex-1 min-h-0 grid-cols-1 lg:grid-cols-[280px_1fr_300px]">
-          {/* Left: Catalog (desktop only — mobile uses the sheet above). */}
+          {/* Left: Catalog (desktop only — mobile uses the sheet above).
+              Suspends on the same `productosPromise` as the sheet — React
+              dedupes the read so the request fires once and both UIs fill
+              in together. */}
           <div className="hidden min-h-0 lg:block">
-            <BuilderCatalog
-              productos={productos}
-              onAdd={addStep}
-              cappedAt={catalogCappedAt}
-            />
+            <Suspense fallback={<CatalogSkeleton />}>
+              <BuilderCatalogAsync
+                productosPromise={productosPromise}
+                onAdd={addStep}
+              />
+            </Suspense>
           </div>
 
           {/* Center: Steps */}

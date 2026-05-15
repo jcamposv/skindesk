@@ -22,6 +22,58 @@ import type {
 type ServicioRow = Database["public"]["Tables"]["servicios"]["Row"];
 type SesionRow = Database["public"]["Tables"]["sesiones"]["Row"];
 
+/** Narrow projection consumed by `rowToServicio`. We skip bookkeeping
+ *  columns (`tenant_id`, `created_by`, `last_editor_id`, `updated_at`) —
+ *  these are either RLS-scoped or unused by the mapper. Audit Phase 4.2. */
+type ServicioProjectedRow = Pick<
+  ServicioRow,
+  | "id"
+  | "name"
+  | "service_type"
+  | "catalog_key"
+  | "start_date"
+  | "total_sessions"
+  | "frequency"
+  | "status"
+  | "notes"
+  | "package_amount"
+  | "professional_id"
+  | "professional_label"
+  | "next_appointment"
+  | "tags"
+  | "is_post_op"
+  | "laser_diagnosis"
+  | "version"
+  | "created_at"
+>;
+
+// Single-line literal so supabase-js can narrow the select() return type
+// (concatenation with `+` widens to `string` and breaks the typed builder).
+const SERVICIO_LIST_COLS =
+  "id, name, service_type, catalog_key, start_date, total_sessions, frequency, status, notes, package_amount, professional_id, professional_label, next_appointment, tags, is_post_op, laser_diagnosis, version, created_at";
+
+/** Narrow projection consumed by `rowToSession`. */
+type SesionProjectedRow = Pick<
+  SesionRow,
+  | "id"
+  | "servicio_id"
+  | "session_number"
+  | "session_date"
+  | "duration_min"
+  | "professional_id"
+  | "professional_label"
+  | "status"
+  | "notes"
+  | "before_paths"
+  | "after_paths"
+  | "recommendations"
+  | "next_suggestion"
+  | "payload"
+>;
+
+const SESION_LIST_COLS =
+  "id, servicio_id, session_number, session_date, duration_min, professional_id, professional_label, status, notes, before_paths, after_paths, recommendations, next_suggestion, payload";
+
 /**
  * Read all services for a clienta, sessions inlined, signed URLs attached
  * for any photo paths so the UI never sees raw storage paths.
@@ -40,7 +92,7 @@ export const getServiciosForCliente = cache(
 
     const { data: servicios, error: servErr } = await supabase
       .from("servicios")
-      .select("*")
+      .select(SERVICIO_LIST_COLS)
       .eq("cliente_id", clienteId)
       .order("created_at", { ascending: false });
 
@@ -50,7 +102,7 @@ export const getServiciosForCliente = cache(
     const servicioIds = servicios.map((s) => s.id);
     const { data: sesiones, error: sesErr } = await supabase
       .from("sesiones")
-      .select("*")
+      .select(SESION_LIST_COLS)
       .in("servicio_id", servicioIds)
       .order("session_number", { ascending: true });
 
@@ -87,7 +139,7 @@ export const getServicioById = cache(
 
     const { data: row, error } = await supabase
       .from("servicios")
-      .select("*")
+      .select(SERVICIO_LIST_COLS)
       .eq("id", servicioId)
       .maybeSingle();
 
@@ -96,7 +148,7 @@ export const getServicioById = cache(
 
     const { data: sesiones, error: sesErr } = await supabase
       .from("sesiones")
-      .select("*")
+      .select(SESION_LIST_COLS)
       .eq("servicio_id", servicioId)
       .order("session_number", { ascending: true });
 
@@ -121,7 +173,7 @@ export const getServicioById = cache(
 // ─── Mappers ────────────────────────────────────────────────────────────────
 
 function rowToServicio(
-  row: ServicioRow,
+  row: ServicioProjectedRow,
   sessions: Session[],
   profileNameById: Map<string, string>,
 ): AssignedService {
@@ -156,7 +208,7 @@ function rowToServicio(
 }
 
 function rowToSession(
-  row: SesionRow,
+  row: SesionProjectedRow,
   urlByPath: Map<string, string>,
   profileNameById: Map<string, string>,
 ): Session {

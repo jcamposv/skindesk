@@ -39,6 +39,29 @@ export type Producto = ProductoRow & {
   photoUrl: string | null;
 };
 
+/**
+ * Narrow projection for the catalog grid/table. Excludes the heavy
+ * clinical text columns (`clinical_notes`, `precautions`, `ingredients_inci`,
+ * `conflicting_ingredients`) plus the form-only columns (`absorption_time`,
+ * `application_instruction`, `frequency`, `suggested_amount`, `time_of_day`,
+ * `custom_skin_types`) — those load on edit via `getProductoById`. The
+ * grid only needs identity + visible facets (chips + photo + usage count).
+ * Audit Phase 4.1.
+ */
+export type ProductoListItem = Pick<
+  ProductoRow,
+  | "id"
+  | "name"
+  | "brand"
+  | "category"
+  | "photo_path"
+  | "main_ingredients"
+  | "additional_tags"
+  | "skin_types"
+  | "routines_usage_count"
+  | "updated_at"
+> & { photoUrl: string | null };
+
 interface ListParams {
   page: number;
   pageSize: number;
@@ -50,9 +73,13 @@ interface ListParams {
 }
 
 interface ListResult {
-  items: Producto[];
+  items: ProductoListItem[];
   totalItems: number;
 }
+
+/** Columns the catalog grid actually renders. Mirrors `ProductoListItem`. */
+const PRODUCTO_LIST_COLS =
+  "id, name, brand, category, photo_path, main_ingredients, additional_tags, skin_types, routines_usage_count, updated_at";
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1h — far longer than a page view.
 
@@ -85,7 +112,7 @@ export async function listProductos(params: ListParams): Promise<ListResult> {
 
   let query = supabase
     .from("productos")
-    .select("*", { count: "exact" })
+    .select(PRODUCTO_LIST_COLS, { count: "exact" })
     .is("archived_at", null);
 
   if (params.category) {
@@ -129,7 +156,7 @@ export async function listProductos(params: ListParams): Promise<ListResult> {
     rows.map((r) => r.photo_path).filter((p): p is string => Boolean(p)),
   );
 
-  const items: Producto[] = rows.map((row) => ({
+  const items: ProductoListItem[] = rows.map((row) => ({
     ...row,
     photoUrl: row.photo_path ? (photoUrlByPath.get(row.photo_path) ?? null) : null,
   }));

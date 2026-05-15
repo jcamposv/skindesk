@@ -47,23 +47,26 @@ export default async function EditarRutinaPage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const rutina = await getRutinaWithSteps(id);
-  if (!rutina) notFound();
 
-  const [catalog, clientes] = await Promise.all([
-    listProductosForBuilder(),
+  // Audit Phase 3: defer catalog (the slowest server-side block — 200
+  // productos + bulk `createSignedUrls`) by passing the promise unawaited
+  // to the client builder. It suspends on it inside its own boundary.
+  const productosPromise = listProductosForBuilder();
+
+  // Parallelize the previous waterfall — rutina + clientes-picker were
+  // sequential. The cliente lookup (for the preselected name) still
+  // depends on the rutina row, but is cached and tiny so a single extra
+  // round-trip after the parallel block is fine.
+  const [rutina, clientes] = await Promise.all([
+    getRutinaWithSteps(id),
     getClientesForPicker(),
   ]);
-  const productosRows = catalog.items;
-  const catalogCappedAt = catalog.isCapped ? catalog.totalMatching : null;
+  if (!rutina) notFound();
 
-  let clientName: string | null = null;
-  if (rutina.cliente_id) {
-    const cliente = await getClienteById(rutina.cliente_id);
-    clientName = cliente?.profile.full_name ?? null;
-  }
-
-  const productos = productosRows.map(toBuilderProducto);
+  const clienteForName = rutina.cliente_id
+    ? await getClienteById(rutina.cliente_id)
+    : null;
+  const clientName = clienteForName?.profile.full_name ?? null;
 
   const initialSteps: BuilderStep[] = rutina.steps.map((s) => ({
     id: s.id,
@@ -113,10 +116,9 @@ export default async function EditarRutinaPage({ params }: PageProps) {
   return (
     <RutinaBuilder
       initial={initial}
-      productos={productos}
+      productosPromise={productosPromise}
       clientes={clientes}
       clientName={clientName}
-      catalogCappedAt={catalogCappedAt}
     />
   );
 }

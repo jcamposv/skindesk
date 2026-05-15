@@ -174,6 +174,10 @@ const CatalogProductCard = memo(function CatalogProductCard({
   onAdd,
 }: CatalogProductCardProps) {
   function handleDragStart(e: React.DragEvent) {
+    // Carry the full producto snapshot so the drop zone can call addStep
+    // without holding a productosById map in the parent. This lets the
+    // catalog stream in via <Suspense> independently — see audit Phase 3.
+    e.dataTransfer.setData("application/json", JSON.stringify(producto));
     e.dataTransfer.setData("text/plain", producto.id);
     e.dataTransfer.effectAllowed = "copy";
   }

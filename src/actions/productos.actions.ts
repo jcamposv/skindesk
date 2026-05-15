@@ -98,6 +98,36 @@ function toRow(
 // Create
 // ---------------------------------------------------------------------------
 
+/**
+ * Lazy-load the full producto row for the edit Sheet. The catalog grid
+ * projects only the columns it renders (see `ProductoListItem` and audit
+ * Phase 4.1), so when the user clicks "Editar" the form needs to pull the
+ * heavy clinical fields (`clinical_notes`, `precautions`, etc.) plus the
+ * form-only fields. RLS scopes to the caller's tenant.
+ */
+export async function getProductoForEditAction(
+  id: string,
+): Promise<ActionState<import("@/services/productos.service").Producto>> {
+  const session = await getCurrentSession();
+  if (!session) {
+    return { success: false, message: "Inicia sesión para continuar." };
+  }
+  try {
+    const { getProductoById } = await import("@/services/productos.service");
+    const producto = await getProductoById(id);
+    if (!producto) {
+      return { success: false, message: "No encontramos el producto." };
+    }
+    return { success: true, data: producto };
+  } catch (err) {
+    return {
+      success: false,
+      message:
+        err instanceof Error ? err.message : "Error al cargar el producto.",
+    };
+  }
+}
+
 export async function createProductoAction(
   _prev: ActionState<{ productoId: string }> | null,
   formData: FormData,

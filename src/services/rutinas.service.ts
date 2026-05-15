@@ -368,23 +368,27 @@ export interface RutinasLibraryStats {
   both: number;
 }
 
+/**
+ * Bucket-count of non-archived templates. Backed by the
+ * `rutinas_library_stats` Postgres function (see migration
+ * `20260515144152_rutinas_library_stats_rpc.sql`) so the planner does the
+ * counting via FILTER instead of shipping every row to JS. The RPC column
+ * is named `ambos` (`both` is a Postgres reserved keyword) — we remap to
+ * the JS field name `both` for compatibility with existing callers.
+ */
 export const getLibraryStats = cache(
   async (): Promise<RutinasLibraryStats> => {
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from("rutinas")
-      .select("momento")
-      .eq("kind", "template")
-      .is("archived_at", null);
+      .rpc("rutinas_library_stats")
+      .single();
     if (error) throw new Error(error.message);
-    const rows = data ?? [];
-    const counts = { total: rows.length, am: 0, pm: 0, both: 0 };
-    for (const r of rows) {
-      if (r.momento === "am") counts.am++;
-      else if (r.momento === "pm") counts.pm++;
-      else counts.both++;
-    }
-    return counts;
+    return {
+      total: data?.total ?? 0,
+      am: data?.am ?? 0,
+      pm: data?.pm ?? 0,
+      both: data?.ambos ?? 0,
+    };
   },
 );
 

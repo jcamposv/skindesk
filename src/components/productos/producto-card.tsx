@@ -25,15 +25,15 @@ import {
   type ProductoSkinType,
   type ProductoTag,
 } from "@/schemas/productos.schema";
-import type { Producto } from "@/services/productos.service";
+import type { ProductoListItem } from "@/services/productos.service";
 
 import { ProductoIllustration } from "./producto-illustration";
 
 interface ProductoCardProps {
-  producto: Producto;
-  onEdit: (producto: Producto) => void;
-  onDuplicate: (producto: Producto) => void;
-  onDelete: (producto: Producto) => void;
+  producto: ProductoListItem;
+  onEdit: (producto: ProductoListItem) => void;
+  onDuplicate: (producto: ProductoListItem) => void;
+  onDelete: (producto: ProductoListItem) => void;
 }
 
 /**
@@ -146,10 +146,10 @@ export function ProductoCard({
 // ---------------------------------------------------------------------------
 
 interface ActionsMenuProps {
-  producto: Producto;
-  onEdit: (p: Producto) => void;
-  onDuplicate: (p: Producto) => void;
-  onDelete: (p: Producto) => void;
+  producto: ProductoListItem;
+  onEdit: (p: ProductoListItem) => void;
+  onDuplicate: (p: ProductoListItem) => void;
+  onDelete: (p: ProductoListItem) => void;
 }
 
 function ActionsMenu({

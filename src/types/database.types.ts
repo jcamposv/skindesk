@@ -2039,6 +2039,15 @@ export type Database = {
           used: number
         }[]
       }
+      rutinas_library_stats: {
+        Args: never
+        Returns: {
+          am: number
+          ambos: number
+          pm: number
+          total: number
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       touch_share_token: { Args: { p_token: string }; Returns: undefined }
