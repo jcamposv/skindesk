@@ -30,6 +30,9 @@ const STROKE = "#7B3D3D";
 const STROKE_LIGHT = "#A6735A";
 const FILL_BG = "#FBEFE7";
 const ACCENT = "#BB7154";
+// Solid peach silhouette used for the scar block pictograms — matches the
+// dermatology cross-section reference the client signed off on.
+const SCAR_PEACH = "#F4CDA0";
 
 export function Pictogram({ name, className }: PictogramProps) {
   return (
@@ -98,69 +101,37 @@ function renderPicto(name: PictogramName) {
         </>
       );
 
-    // ─── CICATRICES ──────────────────────────────────────────────────────
+    // ─── CICATRICES (perfil de bloque dérmico con corte/elevación) ──────
+    // Single-path silhouettes: the skin block is a rounded rect; the top
+    // edge dips (icepick / rolling / boxcar) or bulges (keloid) to convey
+    // the scar profile in one solid peach shape — no stroke, no overlay.
     case "scar-icepick":
-      // Estrecha + profunda: V profunda
       return (
-        <>
-          <path
-            d="M6 30 L 24 30 L 30 50 L 36 30 L 58 30"
-            fill="none"
-            stroke={STROKE}
-            strokeWidth="2"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          <path d="M6 30 L 24 30" stroke={STROKE_LIGHT} strokeWidth="0.8" />
-          <path d="M36 30 L 58 30" stroke={STROKE_LIGHT} strokeWidth="0.8" />
-        </>
+        <path
+          d="M8 14 L24 14 L32 48 L40 14 L56 14 A4 4 0 0 1 60 18 L60 54 A4 4 0 0 1 56 58 L8 58 A4 4 0 0 1 4 54 L4 18 A4 4 0 0 1 8 14 Z"
+          fill={SCAR_PEACH}
+        />
       );
     case "scar-rolling":
-      // Ondulaciones suaves
       return (
-        <>
-          <path
-            d="M6 32 Q 16 22, 22 32 Q 28 42, 34 32 Q 40 22, 46 32 Q 52 42, 58 32"
-            fill="none"
-            stroke={STROKE}
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </>
+        <path
+          d="M8 14 L22 14 A10 10 0 0 0 42 14 L56 14 A4 4 0 0 1 60 18 L60 54 A4 4 0 0 1 56 58 L8 58 A4 4 0 0 1 4 54 L4 18 A4 4 0 0 1 8 14 Z"
+          fill={SCAR_PEACH}
+        />
       );
     case "scar-boxcar":
-      // Rectangulares con bordes verticales
       return (
-        <>
-          <path
-            d="M6 30 L 18 30 L 18 44 L 30 44 L 30 30 L 42 30 L 42 44 L 54 44 L 54 30 L 58 30"
-            fill="none"
-            stroke={STROKE}
-            strokeWidth="2"
-            strokeLinejoin="miter"
-            strokeLinecap="round"
-          />
-        </>
+        <path
+          d="M8 14 L20 14 L20 32 L44 32 L44 14 L56 14 A4 4 0 0 1 60 18 L60 54 A4 4 0 0 1 56 58 L8 58 A4 4 0 0 1 4 54 L4 18 A4 4 0 0 1 8 14 Z"
+          fill={SCAR_PEACH}
+        />
       );
     case "scar-keloid":
-      // Elevada sobre la piel (cresta hacia arriba)
       return (
-        <>
-          <path
-            d="M6 38 L 22 38 Q 28 22, 32 22 Q 36 22, 42 38 L 58 38"
-            fill={FILL_BG}
-            stroke={STROKE}
-            strokeWidth="2"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          <path
-            d="M22 38 Q 28 22, 32 22 Q 36 22, 42 38"
-            fill={ACCENT}
-            fillOpacity="0.25"
-            stroke="none"
-          />
-        </>
+        <path
+          d="M8 14 L22 14 A10 10 0 0 1 42 14 L56 14 A4 4 0 0 1 60 18 L60 54 A4 4 0 0 1 56 58 L8 58 A4 4 0 0 1 4 54 L4 18 A4 4 0 0 1 8 14 Z"
+          fill={SCAR_PEACH}
+        />
       );
   }
 }
