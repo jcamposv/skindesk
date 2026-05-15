@@ -32,8 +32,6 @@ import {
 } from "@/services/dashboard.service";
 
 export const metadata: Metadata = { title: "Dashboard" };
-export const dynamic = "force-dynamic";
-
 const NUMBER_FORMAT = new Intl.NumberFormat("es-AR");
 
 // Widgets that still use seed data — keep until their backing tables ship.

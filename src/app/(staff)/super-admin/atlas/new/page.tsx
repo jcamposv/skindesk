@@ -7,8 +7,6 @@ import { ROUTES } from "@/lib/constants";
 import { listAllAtlasTags } from "@/services/atlas.service";
 
 export const metadata: Metadata = { title: "Nueva entrada · Atlas CMS" };
-export const dynamic = "force-dynamic";
-
 export default async function NewAtlasEntryPage() {
   const existingTags = await listAllAtlasTags();
   // Stable id for the form session — used as the storage prefix for the

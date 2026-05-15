@@ -24,9 +24,6 @@ import { getCitasForCliente } from "@/services/citas.service";
 import { getClienteById } from "@/services/clientes.service";
 import { getEvaluacionForCliente } from "@/services/evaluaciones.service";
 import { getStaffForTenant } from "@/services/staff.service";
-
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

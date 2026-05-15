@@ -9,8 +9,6 @@ import { getClientesForPicker } from "@/services/clientes.service";
 import { getStaffForTenant } from "@/services/staff.service";
 
 export const metadata: Metadata = { title: "Agenda" };
-export const dynamic = "force-dynamic";
-
 export default async function AgendaPage() {
   const session = await getCurrentSession();
   if (!session) redirect(ROUTES.login);

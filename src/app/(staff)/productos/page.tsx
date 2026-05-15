@@ -25,8 +25,6 @@ import {
 } from "@/services/productos.service";
 
 export const metadata: Metadata = { title: "Catálogo de productos" };
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

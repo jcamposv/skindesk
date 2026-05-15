@@ -13,8 +13,6 @@ import { getClienteById, getClientesForPicker } from "@/services/clientes.servic
 import { listProductosForBuilder } from "@/services/productos.service";
 
 export const metadata: Metadata = { title: "Nueva rutina" };
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

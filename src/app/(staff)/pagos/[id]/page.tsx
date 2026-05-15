@@ -36,9 +36,6 @@ import {
   getPaymentTransactionById,
   getServicioSessionsProgress,
 } from "@/services/pagos.service";
-
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }

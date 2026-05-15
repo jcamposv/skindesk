@@ -31,9 +31,6 @@ import {
   getRutinaByShareToken,
   type RutinaWithSteps,
 } from "@/services/rutinas.service";
-
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ token: string }>;
 }

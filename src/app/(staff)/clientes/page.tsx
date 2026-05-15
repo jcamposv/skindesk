@@ -21,9 +21,6 @@ import { getStaffForTenant } from "@/services/staff.service";
 export const metadata: Metadata = {
   title: "Clientes",
 };
-
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

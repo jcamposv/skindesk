@@ -26,8 +26,6 @@ import {
 } from "@/services/rutinas.service";
 
 export const metadata: Metadata = { title: "Biblioteca de rutinas" };
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

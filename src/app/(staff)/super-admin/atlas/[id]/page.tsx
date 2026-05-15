@@ -34,9 +34,6 @@ export async function generateMetadata({
   const entry = await getAtlasEntryById(id);
   return { title: entry ? `${entry.title} · Atlas CMS` : "Atlas CMS" };
 }
-
-export const dynamic = "force-dynamic";
-
 export default async function EditAtlasEntryPage({ params }: PageProps) {
   const { id } = await params;
   const entry = await getAtlasEntryById(id);

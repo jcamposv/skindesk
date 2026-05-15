@@ -26,8 +26,6 @@ import { listProductosForBuilder } from "@/services/productos.service";
 import { getRutinaWithSteps } from "@/services/rutinas.service";
 
 export const metadata: Metadata = { title: "Editar rutina" };
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }

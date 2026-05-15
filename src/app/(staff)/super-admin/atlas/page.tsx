@@ -20,8 +20,6 @@ import { listAtlasEntries } from "@/services/atlas.service";
 export const metadata: Metadata = { title: "Atlas · Administración" };
 // CMS sees draft + archived rows — content branches by role at the data
 // layer, so we keep it dynamic instead of caching.
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

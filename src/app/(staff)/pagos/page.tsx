@@ -26,9 +26,6 @@ import type { ServiceType } from "@/schemas/servicios.schema";
 export const metadata: Metadata = {
   title: "Pagos",
 };
-
-export const dynamic = "force-dynamic";
-
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

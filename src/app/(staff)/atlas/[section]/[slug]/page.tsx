@@ -58,8 +58,6 @@ export async function generateMetadata({
 // Page is per-user (favorite state + super_admin draft preview) so we
 // keep it dynamic. The other reader surfaces (`/atlas`, `/atlas/[section]`)
 // can ISR because they don't branch by viewer.
-export const dynamic = "force-dynamic";
-
 export default async function AtlasEntryPage({ params }: PageProps) {
   const { section: rawSection, slug } = await params;
   if (!isAtlasSection(rawSection)) notFound();

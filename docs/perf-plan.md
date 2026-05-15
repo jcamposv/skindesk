@@ -2,7 +2,7 @@
 
 **Objetivo**: eliminar el ~1s de delay percibido al navegar entre pages, sin tocar lógica de negocio. Plan en 7 fases ordenadas por impacto/esfuerzo.
 
-**Última actualización**: 2026-05-15 (Fase 5 completa)
+**Última actualización**: 2026-05-15 — Plan completo: Fases 1–5 + 7 aplicadas, Fase 6 saltada por análisis RLS.
 
 ## Estado actual
 
@@ -13,8 +13,8 @@
 | 3 | Builder: defer del catálogo de productos | ✅ Completa |
 | 4 | Service projections + RPC para library stats | ✅ Completa |
 | 5 | `next/dynamic` para libs pesadas (charts, calendar) | ✅ Completa |
-| 6 | `unstable_cache` para staff/clientes picker | ⏳ Pendiente |
-| 7 | Cleanup `force-dynamic` redundante | ⏳ Pendiente |
+| 6 | `unstable_cache` para staff/clientes picker | ⏭️ Saltada (RLS) |
+| 7 | Cleanup `force-dynamic` redundante | ✅ Completa |
 
 ## Resumen del audit
 
@@ -242,45 +242,101 @@ Para confirmar el ahorro real correr `next build` antes/después y comparar el "
 
 ---
 
-## Fase 6 — `unstable_cache` ⏳
+## Fase 6 — `unstable_cache` ⏭️ Saltada
 
-**Impacto esperado**: ~50 ms × N páginas que comparten staff/clientes-picker.
+**Decisión**: skipear esta fase. El audit de RLS revela que las dos queries candidatas dependen del **rol y permisos** del usuario, no solo del tenant — y un cache cross-request keyado por `tenant_id` filtraría datos entre roles.
 
-### 6.1 — `getStaffForTenant`
+### Análisis RLS
 
-`src/services/staff.service.ts`:
+**`profiles` (consumida por `getStaffForTenant`)**:
+- `profesional`: policy le da todas las filas del tenant ✓
+- `asistente`: la policy `profiles_asistente_read_clientas` solo le da `role = 'clienta'` — para una query `where role in ('profesional','asistente')` recibe **0 filas**.
+- Si cachémos por `tenantId` la primera vez que un profesional consulta, un asistente leería desde el cache la lista completa de staff. Bypass de RLS.
+
+**`clientes` (consumida por `getClientesForPicker`)**:
+- `profesional`: todas las clientas del tenant ✓
+- `asistente` con `clientas:view`: todas ✓
+- `asistente` sin permiso: **0 filas**
+- Mismo problema: el cache leakea entre permisos distintos dentro del tenant.
+
+### Mitigaciones consideradas
+
+1. **Gate-then-cache + admin client + filtro manual por tenant_id**. Funciona, pero:
+   - Es complejo (auditoría de seguridad por cada cambio del archivo).
+   - Si un dev futuro toca la función y olvida el filtro, queda fuga multi-tenant.
+   - El gain real es ~50 ms × N pages — marginal (LOW priority en el audit).
+2. **Cache keyado por `(tenant_id, role, permissions)`**: granular pero el cache hit ratio cae al piso.
+
+### Veredicto
+
+Mantener `React.cache()` (in-request dedup, ya en el código) y NO agregar `unstable_cache` cross-request acá. La ganancia perceptual real para el usuario final es invisible; el riesgo arquitectónico es real.
+
+### Si en el futuro hace falta
+
+El patrón seguro sería:
 ```ts
-import { unstable_cache } from "next/cache";
-
-export const getStaffForTenant = unstable_cache(
-  async (tenantId: string) => { ... },
-  ["staff-for-tenant"],
-  { tags: (tenantId) => [`staff:${tenantId}`], revalidate: 300 }
-);
+// Permission gate OUTSIDE the cache
+export async function getStaffForTenant(tenantId: string) {
+  const session = await getCurrentSession();
+  if (!session) return [];
+  if (session.profile.role !== "profesional" && session.profile.role !== "super_admin") {
+    return []; // asistente nunca llega al cache
+  }
+  return unstable_cache(
+    () => fetchStaffWithAdminClient(tenantId),  // admin + manual .eq("tenant_id", tenantId)
+    ["staff-for-tenant", tenantId],
+    { revalidate: 300, tags: [`staff:${tenantId}`] }
+  )();
+}
 ```
 
-Revalidar en server actions de CRUD de staff (`revalidateTag`).
-
-### 6.2 — `getClientesForPicker`
-
-Mismo patrón, tag `clientes-picker:${tenantId}`.
-
-### ⚠️ Cuidado
-
-Verificar que el RLS de estas tablas NO dependa de `auth.uid()` (solo de `tenant_id`). Si depende del usuario, **no se puede cachear cross-request**.
+Wire `revalidateTag` en futuras acciones de staff CRUD (no existen aún).
 
 ---
 
-## Fase 7 — Cleanup `force-dynamic` ⏳
+## Fase 7 — Cleanup `force-dynamic` ✅
 
-Audit grep:
-```bash
-grep -rn "export const dynamic" src/app/\(staff\)/
+**Resultado**: 15 declaraciones redundantes eliminadas de pages staff. Los 3 route handlers (`*/pdf/route.tsx`, `pagos/export.csv/route.ts`, API webhooks) mantienen el opt-in explícito por claridad.
+
+### Justificación
+
+Todos los staff pages llaman a `getCurrentSession()` que internamente hace `await cookies()` (ver `src/lib/supabase/server.ts:13`). Por contrato de Next 16, leer `cookies()` en un Server Component opta-out de static rendering automáticamente. El `export const dynamic = "force-dynamic"` era pura redundancia.
+
+### Archivos limpiados (15)
+
+```
+src/app/(staff)/profesional/page.tsx
+src/app/(staff)/profesional/agenda/page.tsx
+src/app/(staff)/clientes/page.tsx
+src/app/(staff)/clientes/[id]/page.tsx
+src/app/(staff)/rutinas/page.tsx
+src/app/(staff)/rutinas/nueva/page.tsx
+src/app/(staff)/rutinas/[id]/editar/page.tsx
+src/app/(staff)/rutinas/share/[token]/page.tsx
+src/app/(staff)/productos/page.tsx
+src/app/(staff)/pagos/page.tsx
+src/app/(staff)/pagos/[id]/page.tsx
+src/app/(staff)/atlas/[section]/[slug]/page.tsx
+src/app/(staff)/super-admin/atlas/page.tsx
+src/app/(staff)/super-admin/atlas/new/page.tsx
+src/app/(staff)/super-admin/atlas/[id]/page.tsx
 ```
 
-Quitar el opt-in donde `searchParams: Promise<...>` o `cookies()` ya lo fuerzan. Dejarlo donde el page no consume nada dinámico explícitamente pero depende del tenant.
+### Mantenidos (3, son route handlers)
 
-**Impacto**: marginal, principalmente limpieza.
+```
+src/app/(staff)/rutinas/[id]/pdf/route.tsx
+src/app/(staff)/rutinas/share/[token]/pdf/route.tsx
+src/app/(staff)/pagos/export.csv/route.ts
+src/app/api/atlas/files/[fileId]/html/route.ts
+src/app/api/webhooks/stripe/route.ts
+```
+
+Route handlers tienen reglas distintas de inferencia dinámica — la directiva explícita es legítima.
+
+### Impacto
+
+Marginal en runtime. El framework ahora puede aplicar partial pre-rendering (PPR) o cache-de-segmento donde tenga sentido sin tener que respetar el opt-in manual.
 
 ---
 
