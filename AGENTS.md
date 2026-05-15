@@ -14,6 +14,41 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Reason: a single tenant outside AR — or a profesional travelling — surfaces every hardcoded TZ as a bug. The helper is cached per-request via `React.cache()`, so reading it multiple times in the same Server Component cycle costs one DB round-trip.
 
+# Loading shells — every new page needs a sibling `loading.tsx`
+
+Every new `page.tsx` under `src/app/(staff)/` (and any other auth'd route group) **must** ship a sibling `loading.tsx`. The dashboard pages are all `force-dynamic` and have no streaming, so without a `loading.tsx` the Next.js router blocks the route transition until the RSC fully resolves — producing the 1-second click→render delay we audited and removed in Phase 1 of the perf plan.
+
+## Rules
+
+- Add `loading.tsx` next to every new `page.tsx`. Routes that ship without one are a regression.
+- Compose the shell from the primitives in `src/components/shared/dashboard-skeleton.tsx` (`SkeletonHero`, `SkeletonStatStrip`, `SkeletonToolbar`, `SkeletonTable`, `SkeletonCardGrid`, `SkeletonDetailHeader`, `SkeletonTabs`, `SkeletonCalendar`, `SkeletonBuilder`, `SkeletonContentCard`, `SkeletonChart`, `SkeletonForm`). Mix-and-match — don't roll your own animated divs.
+- Match the page's actual visual rhythm: same header layout, same number of stat cards, same column count in tables/grids. The shell should be "the page minus the data", not a generic spinner.
+- `aria-hidden="true"` on the wrapper / hero / shell pieces so screen readers don't announce loading-placeholder structure.
+- The only routes that may skip `loading.tsx` are static / ISR ones (`export const revalidate = 60` or similar) — those are served from cache and the shell is never visible. Check the page header before deciding.
+
+## Example
+
+```tsx
+// src/app/(staff)/<route>/loading.tsx
+import {
+  SkeletonHero,
+  SkeletonStatStrip,
+  SkeletonTable,
+} from "@/components/shared/dashboard-skeleton";
+
+export default function Loading() {
+  return (
+    <div className="grid gap-6">
+      <SkeletonHero withButton />
+      <SkeletonStatStrip count={4} />
+      <SkeletonTable rows={8} columns={5} />
+    </div>
+  );
+}
+```
+
+If a new page needs a shape that no primitive covers, **add the primitive to `dashboard-skeleton.tsx`** rather than inlining bespoke `<Skeleton>` blocks. Future pages will reuse it.
+
 # Color palette — single source of truth
 
 The SkinDesk brand colors live as CSS variables in `src/app/globals.css` and are exposed through Tailwind tokens (`primary`, `secondary`, `accent`, `destructive`, `muted`). **Never hardcode hex colors in new code** when an existing token covers the role. The palette:
