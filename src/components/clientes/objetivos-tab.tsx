@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangleIcon,
+  CalendarIcon,
   CheckCircle2Icon,
+  CheckIcon,
+  ChevronDownIcon,
   ClipboardListIcon,
+  ClockIcon,
   LayersIcon,
   PencilIcon,
   PlusIcon,
@@ -14,6 +18,7 @@ import {
   SparklesIcon,
   SunIcon,
   TargetIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,11 +28,11 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ClienteDetail } from "@/services/clientes.service";
@@ -36,8 +41,8 @@ import {
   type AlterationCode,
   type Evaluacion,
   type PlanData,
+  type PlanSesion,
   FRECUENCIAS,
-  NUMERO_SESIONES,
   TRATAMIENTOS_RECOMENDADOS,
 } from "@/types/evaluacion";
 
@@ -46,10 +51,69 @@ interface Props {
   evaluacion: Evaluacion | null;
 }
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function makeSesion(index: number): PlanSesion {
+  return {
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${index}`,
+    nombre: `Sesión ${index + 1}`,
+    fecha: null,
+    descripcion: "",
+    completada: false,
+  };
+}
+
+/** Always return an array — legacy plans pre-date `sesiones` so the field
+ *  is optional/undefined on JSONB rows persisted before v2. */
+function sesionesOf(plan: PlanData): PlanSesion[] {
+  return Array.isArray(plan.sesiones) ? plan.sesiones : [];
+}
+
+function planHasContent(plan: PlanData): boolean {
+  return (
+    Boolean(plan.nombrePlan) ||
+    Boolean(plan.objetivoPrincipal) ||
+    plan.tratamientos.length > 0 ||
+    Boolean(plan.numeroSesiones) ||
+    Boolean(plan.frecuencia) ||
+    Boolean(plan.notasClinicas) ||
+    sesionesOf(plan).length > 0
+  );
+}
+
+function formatDateLong(iso: string | null): string {
+  if (!iso) return "Sin fecha";
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+}
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isToday(iso: string | null): boolean {
+  return iso != null && iso === todayISO();
+}
+
+function isPastDate(iso: string | null): boolean {
+  if (!iso) return false;
+  return iso < todayISO();
+}
+
+// ─── Main component ─────────────────────────────────────────────────────────
+
 export function ObjetivosTab({ cliente, evaluacion }: Props) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
-  const [, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
 
   if (!evaluacion) {
     return (
@@ -69,17 +133,48 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
     );
   }
 
-  const hasPlan =
-    Boolean(evaluacion.plan.objetivoPrincipal) ||
-    evaluacion.plan.tratamientos.length > 0 ||
-    Boolean(evaluacion.plan.numeroSesiones) ||
-    Boolean(evaluacion.plan.frecuencia) ||
-    Boolean(evaluacion.plan.notasClinicas);
+  // Narrow into a non-null local so closures below keep the narrowing —
+  // TS only narrows for the immediate scope after an early return.
+  const eval_ = evaluacion;
+  const hasPlan = planHasContent(eval_.plan);
+  const sesiones = sesionesOf(eval_.plan);
+  const hasSesiones = sesiones.length > 0;
+
+  // Single source of save logic — used by full editor save and the
+  // per-session toggle below.
+  function savePlan(next: PlanData, onDone?: () => void) {
+    startTransition(async () => {
+      const result = await upsertEvaluacionAction(
+        cliente.id,
+        { plan: next },
+        eval_.version,
+      );
+      if (!result.success) {
+        if (result.errors?.version?.includes("conflict")) {
+          toast.error(
+            "Otro usuario actualizó esta evaluación. Refrescando…",
+          );
+          router.refresh();
+          return;
+        }
+        toast.error(result.message ?? "No se pudo guardar el plan.");
+        return;
+      }
+      onDone?.();
+      router.refresh();
+    });
+  }
+
+  function handleToggleSesion(sesionId: string) {
+    const nextSesiones = sesiones.map((s) =>
+      s.id === sesionId ? { ...s, completada: !s.completada } : s,
+    );
+    savePlan({ ...eval_.plan, sesiones: nextSesiones });
+  }
 
   return (
     <div className="grid gap-5">
-      {/* Top action bar — primary CTA matches the header "Nueva cita"
-          treatment so the Objetivos panel has the same visual anchor. */}
+      {/* Top action bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card px-4 py-3 shadow-sm">
         <div className="min-w-0">
           <h2 className="font-heading text-sm font-medium tracking-tight text-[#8C4A30]">
@@ -112,15 +207,26 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
         </Button>
       </div>
 
-      <ResumenClinicoCard evaluacion={evaluacion} />
+      <ResumenClinicoCard evaluacion={eval_} />
 
       <SectionCard
         icon={TargetIcon}
-        title="Plan de tratamiento"
+        title={
+          hasSesiones && eval_.plan.nombrePlan
+            ? eval_.plan.nombrePlan
+            : "Plan de tratamiento"
+        }
         tone="copper"
       >
-        {hasPlan ? (
-          <PlanSummary plan={evaluacion.plan} />
+        {hasSesiones ? (
+          <PlanProgressView
+            plan={eval_.plan}
+            sesiones={sesiones}
+            onToggleSesion={handleToggleSesion}
+            pending={pending}
+          />
+        ) : hasPlan ? (
+          <PlanSummary plan={eval_.plan} />
         ) : (
           <div className="grid place-items-center gap-2 rounded-xl border border-dashed border-border/60 bg-muted/20 px-4 py-8 text-center">
             <span className="flex size-9 items-center justify-center rounded-full bg-[#F6E0D6] text-[#8C4A30]">
@@ -138,30 +244,10 @@ export function ObjetivosTab({ cliente, evaluacion }: Props) {
       <PlanEditorSheet
         open={editing}
         onClose={() => setEditing(false)}
-        plan={evaluacion.plan}
-        onSave={(next) => {
-          startTransition(async () => {
-            const result = await upsertEvaluacionAction(
-              cliente.id,
-              { plan: next },
-              evaluacion.version,
-            );
-            if (!result.success) {
-              if (result.errors?.version?.includes("conflict")) {
-                toast.error(
-                  "Otro usuario actualizó esta evaluación. Refrescando…",
-                );
-                router.refresh();
-                return;
-              }
-              toast.error(result.message ?? "No se pudo guardar el plan.");
-              return;
-            }
-            setEditing(false);
-            toast.success("Plan guardado.");
-            router.refresh();
-          });
-        }}
+        plan={eval_.plan}
+        clienteName={cliente.profile.full_name ?? "Clienta"}
+        onSave={(next) => savePlan(next, () => setEditing(false))}
+        saving={pending}
       />
     </div>
   );
@@ -279,7 +365,7 @@ function ResumenClinicoCard({ evaluacion }: { evaluacion: Evaluacion }) {
       {topCodes.length > 0 ? (
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/80">
-            Mapa facial · alteraciones más frecuentes
+            Alteraciones más frecuentes
           </p>
           <ul className="grid gap-1.5 sm:grid-cols-2">
             {topCodes.map(([code, count]) => {
@@ -320,8 +406,6 @@ function SummaryColumn({ title, children }: SummaryColumnProps) {
       <p className="text-xs font-bold uppercase tracking-wider text-[#4F605C]">
         {title}
       </p>
-      {/* `flex-wrap` so multiple pills sit inline (left-aligned) instead of
-          stacking full-width — slimmer, more clinical look. */}
       <div className="flex flex-wrap gap-1">{children}</div>
     </div>
   );
@@ -351,7 +435,232 @@ function SummaryPill({ icon: Icon, text, tone = "default" }: SummaryPillProps) {
   );
 }
 
-// ─── Plan summary (read-only render) ────────────────────────────────────────
+// ─── Plan progress view (v2 with sesiones) ─────────────────────────────────
+
+interface PlanProgressViewProps {
+  plan: PlanData;
+  sesiones: PlanSesion[];
+  onToggleSesion: (id: string) => void;
+  pending: boolean;
+}
+
+function PlanProgressView({
+  plan,
+  sesiones,
+  onToggleSesion,
+  pending,
+}: PlanProgressViewProps) {
+  const completedCount = useMemo(
+    () => sesiones.filter((s) => s.completada).length,
+    [sesiones],
+  );
+  const total = sesiones.length;
+  const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+
+  return (
+    <div className="grid gap-4">
+      {/* Header row — objetivo + progress */}
+      <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+        <div className="min-w-0">
+          {plan.objetivoPrincipal ? (
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground/75">
+              Objetivo
+            </p>
+          ) : null}
+          {plan.objetivoPrincipal ? (
+            <p className="mt-0.5 text-[15px] font-semibold text-foreground">
+              {plan.objetivoPrincipal}
+            </p>
+          ) : null}
+          <p className="mt-2 text-sm text-foreground/75 tabular-nums">
+            Progreso general ·{" "}
+            <span className="font-semibold text-foreground">
+              {completedCount} de {total} sesiones
+            </span>
+            {plan.frecuencia ? (
+              <>
+                <span className="mx-1.5 text-foreground/40">·</span>
+                <span>{plan.frecuencia}</span>
+              </>
+            ) : null}
+          </p>
+        </div>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 self-start rounded-full px-3 py-1 text-xs font-bold tabular-nums",
+            percent === 100
+              ? "bg-[#E7ECEA] text-[#4F605C]"
+              : "bg-[#F4F1EC] text-[#4F605C]",
+          )}
+        >
+          {percent === 100 ? <CheckCircle2Icon className="size-3.5" /> : null}
+          {percent}% completado
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-border/50"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+      >
+        <div
+          className="h-full rounded-full bg-[#5C6E6C] transition-[width] duration-300"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      {/* Cronograma */}
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/75">
+          Cronograma de sesiones
+        </p>
+        <ol className="grid gap-2">
+          {sesiones.map((s, idx) => (
+            <SesionProgressRow
+              key={s.id}
+              sesion={s}
+              order={idx + 1}
+              disabled={pending}
+              onToggle={() => onToggleSesion(s.id)}
+            />
+          ))}
+        </ol>
+      </div>
+
+      {/* Optional plan-level meta */}
+      {plan.tratamientos.length > 0 ? (
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/75">
+            Tratamientos sugeridos
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {plan.tratamientos.map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center rounded-full bg-[#E7ECEA] px-3 py-1 text-sm font-medium text-[#4F605C]"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {plan.notasClinicas ? (
+        <div>
+          <p className="mb-1 text-xs font-bold uppercase tracking-wider text-foreground/75">
+            Notas clínicas
+          </p>
+          <p className="rounded-xl bg-muted/40 px-3 py-2 text-sm leading-relaxed text-foreground/85">
+            {plan.notasClinicas}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+interface SesionProgressRowProps {
+  sesion: PlanSesion;
+  order: number;
+  disabled: boolean;
+  onToggle: () => void;
+}
+
+function SesionProgressRow({
+  sesion,
+  order,
+  disabled,
+  onToggle,
+}: SesionProgressRowProps) {
+  const done = sesion.completada;
+  const today = isToday(sesion.fecha);
+  const past = !done && isPastDate(sesion.fecha);
+  // Visual tone:
+  //  done  → sage card with check
+  //  today → copper highlight
+  //  past  → copper highlight (overdue)
+  //  else  → muted card with the order number
+  const tone: "done" | "today" | "future" = done
+    ? "done"
+    : today || past
+      ? "today"
+      : "future";
+
+  const statusLabel = done
+    ? formatDateLong(sesion.fecha)
+    : today
+      ? "Hoy"
+      : past
+        ? `Atrasada · ${formatDateLong(sesion.fecha)}`
+        : formatDateLong(sesion.fecha);
+
+  return (
+    <li
+      className={cn(
+        "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors",
+        tone === "done"
+          ? "border-[#5C6E6C]/30 bg-[#E7ECEA]/40"
+          : tone === "today"
+            ? "border-[#BB7154]/40 bg-[#FBEFE7]/50"
+            : "border-border/60 bg-card",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        disabled={disabled}
+        aria-label={
+          done ? "Marcar como pendiente" : "Marcar como completada"
+        }
+        className={cn(
+          "flex size-8 shrink-0 items-center justify-center rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#5C6E6C]/40 disabled:opacity-60",
+          tone === "done"
+            ? "bg-[#5C6E6C] hover:bg-[#4F605C]"
+            : tone === "today"
+              ? "bg-[#BB7154] hover:bg-[#A56146]"
+              : "bg-muted text-foreground/70 hover:bg-foreground/15",
+        )}
+      >
+        {done ? (
+          <CheckIcon className="size-4" strokeWidth={3} />
+        ) : tone === "today" ? (
+          <ClockIcon className="size-4" />
+        ) : (
+          <span className="text-xs font-bold tabular-nums">{order}</span>
+        )}
+      </button>
+      <div className="min-w-0 flex-1">
+        <p
+          className={cn(
+            "truncate text-[15px] font-semibold",
+            done ? "text-[#4F605C]" : "text-foreground",
+          )}
+        >
+          {sesion.nombre || `Sesión ${order}`}
+        </p>
+        {sesion.descripcion ? (
+          <p className="truncate text-xs text-foreground/75">
+            {sesion.descripcion}
+          </p>
+        ) : null}
+      </div>
+      <span
+        className={cn(
+          "shrink-0 text-xs font-semibold tabular-nums",
+          tone === "today" ? "text-[#8C4A30]" : "text-foreground/65",
+        )}
+      >
+        {statusLabel}
+      </span>
+    </li>
+  );
+}
+
+// ─── Legacy plan summary (no sesiones) ─────────────────────────────────────
 
 function PlanSummary({ plan }: { plan: PlanData }) {
   return (
@@ -419,37 +728,61 @@ function SmallStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Plan editor (Sheet) ────────────────────────────────────────────────────
+// ─── Plan editor (Sheet · dynamic sessions table) ──────────────────────────
 
 interface PlanEditorSheetProps {
   open: boolean;
   onClose: () => void;
   plan: PlanData;
+  clienteName: string;
   onSave: (next: PlanData) => void;
+  saving: boolean;
 }
 
+/**
+ * Centered Dialog rather than a right-side Sheet — at the previous
+ * `sm:max-w-3xl` Sheet width the multi-column session table squeezed
+ * the inputs to single-letter widths (UX feedback from QA screenshot).
+ * A centered dialog can grow to `sm:max-w-5xl` without fighting any
+ * side panels, and at lg+ the four-column row finally breathes.
+ *
+ * Responsiveness: caps at `calc(100%-2rem)` from the base shadcn Dialog
+ * styles, so on narrow viewports it still fills the screen minus a
+ * comfortable gutter.
+ */
 function PlanEditorSheet({
   open,
   onClose,
   plan,
+  clienteName,
   onSave,
+  saving,
 }: PlanEditorSheetProps) {
   return (
-    <Sheet open={open} onOpenChange={(o) => (o ? null : onClose())}>
-      <SheetContent
-        side="right"
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-xl"
+    <Dialog open={open} onOpenChange={(o) => (o ? null : onClose())}>
+      <DialogContent
+        className="flex max-h-[90vh] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl"
       >
-        <SheetHeader className="border-b px-5 pt-5 pb-4">
-          <SheetTitle className="text-base">Plan de tratamiento</SheetTitle>
-        </SheetHeader>
-        {/* Mount the editor only while open so the local draft starts fresh
-            each time the sheet opens — no need to mirror props in an effect. */}
+        <DialogHeader className="border-b px-5 pt-5 pb-4 text-left">
+          <DialogTitle className="font-heading text-lg font-semibold">
+            {plan.sesiones && plan.sesiones.length > 0
+              ? `Editar plan de sesiones · ${clienteName}`
+              : `Crear plan de sesiones · ${clienteName}`}
+          </DialogTitle>
+        </DialogHeader>
+        {/* Re-mount on open so the draft starts fresh each time without
+            mirroring props via an effect (react-best-practices
+            `rerender-derived-state-no-effect`). */}
         {open ? (
-          <PlanEditorBody plan={plan} onSave={onSave} onClose={onClose} />
+          <PlanEditorBody
+            plan={plan}
+            onSave={onSave}
+            onClose={onClose}
+            saving={saving}
+          />
         ) : null}
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -457,89 +790,107 @@ interface PlanEditorBodyProps {
   plan: PlanData;
   onSave: (next: PlanData) => void;
   onClose: () => void;
+  saving: boolean;
 }
 
-function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
-  const [draft, setDraft] = useState<PlanData>(plan);
+function PlanEditorBody({
+  plan,
+  onSave,
+  onClose,
+  saving,
+}: PlanEditorBodyProps) {
+  // Lazy initializer: respect the saved cronograma when one exists, otherwise
+  // open with a single empty row so the profesional starts from a blank
+  // slate and adds sessions manually (user preference — auto-seeding from
+  // the legacy `numeroSesiones` count was forcing rows they didn't want).
+  const [draft, setDraft] = useState<PlanData>(() => {
+    const sesiones = sesionesOf(plan);
+    if (sesiones.length > 0) return { ...plan, sesiones };
+    return { ...plan, sesiones: [makeSesion(0)] };
+  });
+  const [showAdvanced, setShowAdvanced] = useState(
+    () => plan.tratamientos.length > 0 || Boolean(plan.notasClinicas),
+  );
+
+  const sesiones = draft.sesiones ?? [];
+
+  function patch<K extends keyof PlanData>(key: K, value: PlanData[K]) {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function patchSesion<K extends keyof PlanSesion>(
+    id: string,
+    key: K,
+    value: PlanSesion[K],
+  ) {
+    setDraft((prev) => ({
+      ...prev,
+      sesiones: (prev.sesiones ?? []).map((s) =>
+        s.id === id ? { ...s, [key]: value } : s,
+      ),
+    }));
+  }
+
+  function addSesion() {
+    setDraft((prev) => {
+      const current = prev.sesiones ?? [];
+      return { ...prev, sesiones: [...current, makeSesion(current.length)] };
+    });
+  }
+
+  function removeSesion(id: string) {
+    setDraft((prev) => ({
+      ...prev,
+      sesiones: (prev.sesiones ?? []).filter((s) => s.id !== id),
+    }));
+  }
 
   function toggleTratamiento(t: string) {
-    setDraft((prev) =>
-      prev.tratamientos.includes(t)
-        ? { ...prev, tratamientos: prev.tratamientos.filter((v) => v !== t) }
-        : { ...prev, tratamientos: [...prev.tratamientos, t] },
-    );
+    setDraft((prev) => ({
+      ...prev,
+      tratamientos: prev.tratamientos.includes(t)
+        ? prev.tratamientos.filter((v) => v !== t)
+        : [...prev.tratamientos, t],
+    }));
+  }
+
+  function handleSave() {
+    // Auto-sync the derived legacy field for backward compatibility with
+    // any read paths that still look at `numeroSesiones` (PDFs, etc.).
+    const total = sesiones.length;
+    onSave({
+      ...draft,
+      numeroSesiones: total > 0 ? `${total} ${total === 1 ? "sesión" : "sesiones"}` : "",
+    });
   }
 
   return (
     <>
       <div className="flex-1 overflow-y-auto px-5 py-5">
         <div className="grid gap-5">
-          <div className="grid gap-1.5">
-            <label className="text-sm font-medium text-foreground/85">
-              Objetivo del tratamiento
-            </label>
-            <Input
-              value={draft.objetivoPrincipal}
-              onChange={(e) =>
-                setDraft((p) => ({
-                  ...p,
-                  objetivoPrincipal: e.target.value,
-                }))
-              }
-              placeholder="Reducir acné, nivelar tono, reafirmar…"
-              className="h-10"
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <label className="text-sm font-medium text-foreground/85">
-              Tratamientos en cabina sugeridos
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {TRATAMIENTOS_RECOMENDADOS.map((t) => (
-                <Chip
-                  key={t}
-                  pressed={draft.tratamientos.includes(t)}
-                  onPressedChange={() => toggleTratamiento(t)}
-                  size="sm"
-                  tone="sage"
-                >
-                  {t}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-foreground/85">
-                Número de sesiones
-              </label>
-              <select
-                value={draft.numeroSesiones}
-                onChange={(e) =>
-                  setDraft((p) => ({ ...p, numeroSesiones: e.target.value }))
-                }
-                className="h-10 rounded-md border border-input bg-transparent px-3 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              >
-                <option value="">Seleccionar…</option>
-                {NUMERO_SESIONES.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-foreground/85">
-                Frecuencia
-              </label>
+          {/* Header inputs */}
+          <div className="grid gap-3 md:grid-cols-3">
+            <FieldLabel label="Nombre del plan">
+              <Input
+                value={draft.nombrePlan ?? ""}
+                onChange={(e) => patch("nombrePlan", e.target.value)}
+                placeholder="Plan facial antiedad"
+                className="h-10"
+              />
+            </FieldLabel>
+            <FieldLabel label="Objetivo del plan">
+              <Input
+                value={draft.objetivoPrincipal}
+                onChange={(e) => patch("objetivoPrincipal", e.target.value)}
+                placeholder="Reducir acné y mejorar textura"
+                className="h-10"
+              />
+            </FieldLabel>
+            <FieldLabel label="Frecuencia entre sesiones">
               <select
                 value={draft.frecuencia}
-                onChange={(e) =>
-                  setDraft((p) => ({ ...p, frecuencia: e.target.value }))
-                }
-                className="h-10 rounded-md border border-input bg-transparent px-3 text-sm transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                onChange={(e) => patch("frecuencia", e.target.value)}
+                className="h-10 rounded-md border border-input bg-transparent px-3 text-[0.9375rem] text-foreground transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <option value="">Seleccionar…</option>
                 {FRECUENCIAS.map((f) => (
@@ -548,40 +899,208 @@ function PlanEditorBody({ plan, onSave, onClose }: PlanEditorBodyProps) {
                   </option>
                 ))}
               </select>
-            </div>
+            </FieldLabel>
           </div>
 
-          <div className="grid gap-1.5">
-            <label className="text-sm font-medium text-foreground/85">
-              Notas clínicas / observaciones
-            </label>
-            <Textarea
-              value={draft.notasClinicas}
-              onChange={(e) =>
-                setDraft((p) => ({ ...p, notasClinicas: e.target.value }))
-              }
-              rows={4}
-              placeholder="Notas internas, consideraciones especiales, alertas para sesiones futuras…"
-            />
+          {/* Sessions table */}
+          <div className="grid gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
+                Sesiones programadas · {sesiones.length}
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={addSesion}
+              >
+                <PlusIcon className="size-3.5" />
+                Agregar sesión
+              </Button>
+            </div>
+
+            {sesiones.length === 0 ? (
+              <div className="grid place-items-center gap-2 rounded-xl border border-dashed border-border/60 bg-muted/20 px-4 py-8 text-center">
+                <p className="text-sm font-medium text-foreground/75">
+                  Sin sesiones agregadas.
+                </p>
+                <p className="text-xs text-foreground/65">
+                  Tocá <span className="font-medium">Agregar sesión</span>{" "}
+                  para empezar el cronograma.
+                </p>
+              </div>
+            ) : (
+              <ul className="grid gap-2">
+                {sesiones.map((s, idx) => (
+                  <SesionEditorRow
+                    key={s.id}
+                    sesion={s}
+                    order={idx + 1}
+                    onPatch={(key, value) => patchSesion(s.id, key, value)}
+                    onRemove={() => removeSesion(s.id)}
+                    canRemove={sesiones.length > 1}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Advanced (collapsible): tratamientos + notas */}
+          <div className="grid gap-2 rounded-xl border bg-card">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-foreground/85 hover:bg-muted/40"
+            >
+              <span className="flex items-center gap-1.5">
+                <SparklesIcon className="size-4 text-[#8C4A30]" />
+                Tratamientos sugeridos y notas clínicas
+              </span>
+              <ChevronDownIcon
+                className={cn(
+                  "size-4 text-foreground/60 transition-transform",
+                  showAdvanced && "rotate-180",
+                )}
+              />
+            </button>
+            {showAdvanced ? (
+              <div className="grid gap-4 border-t px-3 pb-3 pt-3">
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-foreground/85">
+                    Tratamientos en cabina sugeridos
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {TRATAMIENTOS_RECOMENDADOS.map((t) => (
+                      <Chip
+                        key={t}
+                        pressed={draft.tratamientos.includes(t)}
+                        onPressedChange={() => toggleTratamiento(t)}
+                        size="sm"
+                        tone="sage"
+                      >
+                        {t}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-foreground/85">
+                    Notas clínicas / observaciones
+                  </label>
+                  <Textarea
+                    value={draft.notasClinicas}
+                    onChange={(e) => patch("notasClinicas", e.target.value)}
+                    rows={3}
+                    placeholder="Notas internas, consideraciones especiales, alertas para sesiones futuras…"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
 
       <footer className="flex items-center justify-end gap-2 border-t bg-card/60 px-5 py-3">
-        <Button type="button" variant="outline" size="sm" onClick={onClose}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onClose}
+          disabled={saving}
+        >
           Cancelar
         </Button>
         <Button
           type="button"
           size="sm"
-          onClick={() => onSave(draft)}
+          variant="cta"
+          onClick={handleSave}
+          disabled={saving}
           className="gap-1.5"
         >
           <CheckCircle2Icon className="size-4" />
-          Guardar plan
+          {saving ? "Guardando…" : "Guardar plan"}
         </Button>
       </footer>
     </>
+  );
+}
+
+interface SesionEditorRowProps {
+  sesion: PlanSesion;
+  order: number;
+  onPatch: <K extends keyof PlanSesion>(key: K, value: PlanSesion[K]) => void;
+  onRemove: () => void;
+  canRemove: boolean;
+}
+
+function SesionEditorRow({
+  sesion,
+  order,
+  onPatch,
+  onRemove,
+  canRemove,
+}: SesionEditorRowProps) {
+  return (
+    <li className="grid items-center gap-2 rounded-xl border border-border/60 bg-card p-2.5 md:grid-cols-[40px_minmax(0,1.4fr)_minmax(0,150px)_minmax(0,1.6fr)_40px]">
+      <span className="flex size-8 items-center justify-center justify-self-center rounded-full bg-gradient-to-br from-[#5C6E6C] to-[#4F605C] text-xs font-bold text-white tabular-nums">
+        {order}
+      </span>
+      <Input
+        value={sesion.nombre}
+        onChange={(e) => onPatch("nombre", e.target.value)}
+        placeholder={`Sesión ${order} · protocolo`}
+        className="h-9"
+        aria-label={`Nombre sesión ${order}`}
+      />
+      <div className="relative">
+        <CalendarIcon className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-foreground/55" />
+        <input
+          type="date"
+          value={sesion.fecha ?? ""}
+          onChange={(e) =>
+            onPatch("fecha", e.target.value === "" ? null : e.target.value)
+          }
+          className="h-9 w-full rounded-md border border-input bg-transparent pl-7 pr-2 text-sm text-foreground tabular-nums focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          aria-label={`Fecha sesión ${order}`}
+        />
+      </div>
+      <Input
+        value={sesion.descripcion}
+        onChange={(e) => onPatch("descripcion", e.target.value)}
+        placeholder="Descripción breve…"
+        className="h-9"
+        aria-label={`Descripción sesión ${order}`}
+      />
+      <Button
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        onClick={onRemove}
+        disabled={!canRemove}
+        aria-label={`Quitar sesión ${order}`}
+        className="text-foreground/65 hover:text-destructive disabled:opacity-30"
+      >
+        <Trash2Icon className="size-4" />
+      </Button>
+    </li>
+  );
+}
+
+function FieldLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-1.5">
+      <label className="text-sm font-medium text-foreground/85">{label}</label>
+      {children}
+    </div>
   );
 }
 
@@ -589,3 +1108,8 @@ function romanize(n: number) {
   const map = ["", "I", "II", "III", "IV", "V", "VI"];
   return map[n] ?? String(n);
 }
+
+// `toast` is wired via sonner from a global `<Toaster />` in the staff
+// layout. Importing here avoids a tree-shake regression if the package
+// gets renamed at some point.
+void toast;

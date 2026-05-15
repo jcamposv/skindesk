@@ -473,12 +473,39 @@ export const FRECUENCIAS = [
   "Cada 6 semanas",
 ] as const;
 
+/**
+ * One scheduled session inside a treatment plan. The plan editor lets the
+ * profesional spell out what gets done on each visit + when; the progress
+ * view in Objetivos tab renders the same array as a cronograma with
+ * completed/pending status.
+ */
+export interface PlanSesion {
+  /** Stable id, generated client-side via crypto.randomUUID(). */
+  id: string;
+  /** Protocol / display name e.g. "Limpieza profunda + RF". */
+  nombre: string;
+  /** ISO date string (YYYY-MM-DD). Null while the row is still being
+   *  scheduled by the profesional. */
+  fecha: string | null;
+  /** Short note about what will happen in this session. */
+  descripcion: string;
+  /** True once the cosmetóloga marks the session as done. */
+  completada: boolean;
+}
+
 export interface PlanData {
+  /** Plan headline e.g. "Plan facial antiedad". Added with the v2 dynamic
+   *  editor — backward-compatible default is "" for legacy plans. */
+  nombrePlan?: string;
   objetivoPrincipal: string;
   tratamientos: string[];
+  /** Derived from `sesiones.length` for v2 plans, but kept as a free-form
+   *  string for legacy plans that pre-date the dynamic editor. */
   numeroSesiones: string;
   frecuencia: string;
   notasClinicas: string;
+  /** v2 sessions cronograma. Empty array for legacy plans. */
+  sesiones?: PlanSesion[];
 }
 
 // ─── Top-level evaluación ────────────────────────────────────────────────────
@@ -603,11 +630,13 @@ export function emptyEvaluacion(
       observaciones: "",
     },
     plan: {
+      nombrePlan: "",
       objetivoPrincipal: "",
       tratamientos: [],
       numeroSesiones: "",
       frecuencia: "",
       notasClinicas: "",
+      sesiones: [],
     },
     consentimientoAceptado: false,
     version: 1,
