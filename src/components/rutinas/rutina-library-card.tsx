@@ -9,12 +9,10 @@ import {
   Link2Icon,
   Link2OffIcon,
   MailIcon,
-  MoonIcon,
   MoreVerticalIcon,
   PencilIcon,
   SendIcon,
   ShareIcon,
-  SunIcon,
   Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +23,8 @@ import {
   generateShareTokenAction,
   revokeShareTokenAction,
 } from "@/actions/rutinas.actions";
+import { MomentoChip } from "@/components/rutinas/momento-chip";
+import { invalidateRutinaDetail } from "@/components/rutinas/rutina-detail-sheet";
 import { ShareEmailDialog } from "@/components/rutinas/share-email-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +37,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
-  RUTINA_MOMENTO_SHORT,
   RUTINA_TAG_LABELS,
   type RutinaMomento,
   type RutinaTag,
@@ -84,6 +83,7 @@ function RutinaLibraryCardImpl({
 
   const momento = rutina.momento as RutinaMomento;
   const editHref = `${ROUTES.rutinas}/${rutina.id}/editar`;
+  const pdfHref = `${ROUTES.rutinas}/${rutina.id}/pdf`;
   const visibleSteps = rutina.stepsPreview.slice(0, 3);
   const hiddenCount = Math.max(0, rutina.stepCount - visibleSteps.length);
 
@@ -95,6 +95,8 @@ function RutinaLibraryCardImpl({
         return;
       }
       toast.success(res.message ?? "Rutina duplicada.");
+      // Source rutina is unchanged but a duplicate appears in the list —
+      // refresh handles the new row; the source's detail cache is fine.
       router.refresh();
     });
   }
@@ -108,6 +110,7 @@ function RutinaLibraryCardImpl({
       }
       toast.success(res.message ?? "Rutina eliminada.");
       setConfirmDelete(false);
+      invalidateRutinaDetail(rutina.id);
       router.refresh();
     });
   }
@@ -126,6 +129,9 @@ function RutinaLibraryCardImpl({
       } catch {
         toast.success("Link generado: " + url);
       }
+      // The share_token is part of the cached detail — flush so the Sheet
+      // shows the "Compartida" pill next time it opens.
+      invalidateRutinaDetail(rutina.id);
     });
   }
 
@@ -137,6 +143,7 @@ function RutinaLibraryCardImpl({
         return;
       }
       toast.success(res.message ?? "Link revocado.");
+      invalidateRutinaDetail(rutina.id);
       router.refresh();
     });
   }
@@ -166,11 +173,11 @@ function RutinaLibraryCardImpl({
               .join(" · ")}
           </p>
         </div>
-        <MomentoBadge momento={momento} />
+        <MomentoChip momento={momento} variant="ring" />
         <ActionsMenu
           canShare={canShare}
           hasShareToken={Boolean(rutina.share_token)}
-          editHref={editHref}
+          pdfHref={pdfHref}
           onDuplicate={handleDuplicate}
           onShare={handleShare}
           onShareEmail={() => setEmailOpen(true)}
@@ -236,25 +243,27 @@ function RutinaLibraryCardImpl({
         </div>
       ) : null}
 
-      {/* Footer — actions */}
-      <footer className="mt-auto flex items-center justify-between gap-2 border-t bg-muted/30 px-4 py-2.5">
+      {/* Footer — actions. Editar collapses to icon-only at narrow widths
+          (cards on xl:grid-cols-4 are ~270px wide and the full three-button
+          row was cramped). Label returns at md+ for clarity. */}
+      <footer className="mt-auto flex items-center justify-between gap-1 border-t bg-muted/30 px-3 py-2.5">
         <Button
           size="sm"
           variant="ghost"
-          className="gap-1.5"
           onClick={() => onView(rutina.id)}
         >
           Ver
         </Button>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Button
             size="sm"
             variant="outline"
             className="gap-1.5"
+            aria-label="Editar rutina"
             render={<Link href={editHref} />}
           >
             <PencilIcon className="size-3.5" />
-            Editar
+            <span className="hidden md:inline">Editar</span>
           </Button>
           <Button
             type="button"
@@ -317,28 +326,10 @@ export const RutinaLibraryCard = memo(RutinaLibraryCardImpl);
 
 // ─── Subcomponents ──────────────────────────────────────────────────────────
 
-function MomentoBadge({ momento }: { momento: RutinaMomento }) {
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-foreground ring-1 ring-border">
-      {momento === "am" ? (
-        <SunIcon className="size-3 text-[#C47A2B]" />
-      ) : momento === "pm" ? (
-        <MoonIcon className="size-3 text-[#6B4FA0]" />
-      ) : (
-        <>
-          <SunIcon className="size-3 text-[#C47A2B]" />
-          <MoonIcon className="size-3 text-[#6B4FA0]" />
-        </>
-      )}
-      {RUTINA_MOMENTO_SHORT[momento]}
-    </span>
-  );
-}
-
 interface ActionsMenuProps {
   canShare: boolean;
   hasShareToken: boolean;
-  editHref: string;
+  pdfHref: string;
   onDuplicate: () => void;
   onShare: () => void;
   onShareEmail: () => void;
@@ -349,7 +340,7 @@ interface ActionsMenuProps {
 function ActionsMenu({
   canShare,
   hasShareToken,
-  editHref,
+  pdfHref,
   onDuplicate,
   onShare,
   onShareEmail,
@@ -371,21 +362,13 @@ function ActionsMenu({
         }
       />
       <DropdownMenuContent align="end">
-        <DropdownMenuItem render={<Link href={editHref} />}>
-          <PencilIcon className="size-4" />
-          Editar
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={onDuplicate}>
           <CopyIcon className="size-4" />
           Duplicar
         </DropdownMenuItem>
         <DropdownMenuItem
           render={
-            <a
-              href={editHref.replace("/editar", "/pdf")}
-              target="_blank"
-              rel="noopener noreferrer"
-            />
+            <a href={pdfHref} target="_blank" rel="noopener noreferrer" />
           }
         >
           <DownloadIcon className="size-4" />

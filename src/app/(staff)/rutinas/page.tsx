@@ -7,10 +7,9 @@ import { LibraryGrid } from "@/components/rutinas/library-grid";
 import { LibraryListTable } from "@/components/rutinas/library-list-table";
 import { LibraryPagination } from "@/components/rutinas/library-pagination";
 import { LibraryToolbar } from "@/components/rutinas/library-toolbar";
+import { StatStrip, type StatStripItem } from "@/components/shared/stat-strip";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ROUTES, dashboardForRole } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import { getCurrentSession } from "@/lib/supabase/server";
 import {
   PRODUCTO_SKIN_TYPES,
@@ -98,26 +97,30 @@ export default async function RutinasLibraryPage({ searchParams }: PageProps) {
     session.profile.role === "profesional" &&
     (subStatus === "active" || subStatus === "trialing");
 
-  const statCards: Array<{ label: string; value: number; color: string }> = [
+  const statItems: StatStripItem[] = [
     {
       label: "Plantillas totales",
       value: stats.total,
-      color: "text-[#5C6E6C] bg-[#E7ECEA]",
+      icon: RouteIcon,
+      colorClass: "text-[#5C6E6C] bg-[#E7ECEA]",
     },
     {
       label: "Para la mañana",
       value: stats.am,
-      color: "text-[#7C5E1F] bg-[#F8EFD7]",
+      icon: RouteIcon,
+      colorClass: "text-[#7C5E1F] bg-[#F8EFD7]",
     },
     {
       label: "Para la noche",
       value: stats.pm,
-      color: "text-[#6B4FA0] bg-[#F0ECFB]",
+      icon: RouteIcon,
+      colorClass: "text-[#6B4FA0] bg-[#F0ECFB]",
     },
     {
       label: "Día completo",
       value: stats.both,
-      color: "text-[#8C4A30] bg-[#F6E0D6]",
+      icon: RouteIcon,
+      colorClass: "text-[#8C4A30] bg-[#F6E0D6]",
     },
   ];
 
@@ -147,35 +150,7 @@ export default async function RutinasLibraryPage({ searchParams }: PageProps) {
         </Button>
       </header>
 
-      <section
-        aria-label="Resumen de la biblioteca"
-        className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        {statCards.map(({ label, value, color }) => (
-          <Card
-            key={label}
-            size="sm"
-            className="flex flex-row items-center gap-2.5 px-3 py-2"
-          >
-            <span
-              className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full",
-                color,
-              )}
-            >
-              <RouteIcon className="size-4" />
-            </span>
-            <div className="min-w-0 leading-tight">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/75">
-                {label}
-              </p>
-              <p className="font-heading text-lg font-semibold tabular-nums text-foreground">
-                {value}
-              </p>
-            </div>
-          </Card>
-        ))}
-      </section>
+      <StatStrip items={statItems} ariaLabel="Resumen de la biblioteca" />
 
       <LibraryToolbar view={view} />
 

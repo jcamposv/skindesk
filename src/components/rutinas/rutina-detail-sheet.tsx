@@ -3,15 +3,14 @@
 import Link from "next/link";
 import {
   ChevronRightIcon,
-  MoonIcon,
   PencilIcon,
   SendIcon,
   SparklesIcon,
-  SunIcon,
 } from "lucide-react";
-import useSWR from "swr";
+import useSWR, { mutate as globalMutate } from "swr";
 
 import { getRutinaDetailAction } from "@/actions/rutinas.actions";
+import { MomentoChip } from "@/components/rutinas/momento-chip";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import {
   RUTINA_MOMENTO_LABELS,
   RUTINA_TAG_LABELS,
@@ -36,6 +34,29 @@ interface RutinaDetailSheetProps {
   rutinaId: string | null;
   onOpenChange: (open: boolean) => void;
   onAssign: (rutinaId: string) => void;
+}
+
+/** Stable SWR cache key for a single rutina detail. Exported so action
+ *  callers (duplicate/archive/share/edit) can call `invalidateRutinaDetail`
+ *  below to flush the cache — otherwise reopening the Sheet right after a
+ *  mutation shows stale data until the 60s dedupe window expires. */
+export function rutinaDetailKey(id: string): [string, string] {
+  return ["rutina-detail", id];
+}
+
+/** Drop the cached detail for a specific rutina (or all of them if id is
+ *  omitted). Call this from a client component after any mutation that
+ *  could have changed what the Sheet renders. */
+export function invalidateRutinaDetail(id?: string): void {
+  if (id) {
+    void globalMutate(rutinaDetailKey(id));
+  } else {
+    void globalMutate(
+      (key) => Array.isArray(key) && key[0] === "rutina-detail",
+      undefined,
+      { revalidate: false },
+    );
+  }
 }
 
 /** Lazy fetcher — runs only when `id` is non-null (SWR returns `undefined`
@@ -65,8 +86,8 @@ export function RutinaDetailSheet({
   onAssign,
 }: RutinaDetailSheetProps) {
   const { data, error, isLoading } = useSWR(
-    rutinaId ? ["rutina-detail", rutinaId] : null,
-    () => fetchRutina(rutinaId!),
+    rutinaId ? rutinaDetailKey(rutinaId) : null,
+    ([, id]) => fetchRutina(id),
     {
       revalidateOnFocus: false,
       dedupingInterval: 60_000,
@@ -83,6 +104,7 @@ export function RutinaDetailSheet({
       <SheetContent
         side="right"
         className="flex w-full flex-col gap-0 p-0 sm:max-w-lg"
+        aria-busy={isLoading}
       >
         <SheetHeader className="border-b px-5 py-4">
           <SheetTitle className="font-heading text-lg font-semibold">
@@ -101,7 +123,11 @@ export function RutinaDetailSheet({
           ) : null}
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div
+          className="flex-1 overflow-y-auto px-5 py-4"
+          aria-live="polite"
+          aria-busy={isLoading}
+        >
           {error ? (
             <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
               {error instanceof Error
@@ -193,7 +219,7 @@ function DetailBody({ data }: { data: RutinaWithSteps }) {
           <SectionLabel>
             Pasos {data.steps.length > 0 ? `(${data.steps.length})` : null}
           </SectionLabel>
-          <MomentoChip momento={momento} />
+          <MomentoChip momento={momento} variant="solid" longLabel />
         </div>
 
         {data.steps.length === 0 ? (
@@ -296,33 +322,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
       {children}
     </p>
-  );
-}
-
-function MomentoChip({ momento }: { momento: RutinaMomento }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide",
-        momento === "am"
-          ? "bg-[#F8EFD7] text-[#7C5E1F]"
-          : momento === "pm"
-            ? "bg-[#F0ECFB] text-[#6B4FA0]"
-            : "bg-[#E7ECEA] text-[#4F605C]",
-      )}
-    >
-      {momento === "am" ? (
-        <SunIcon className="size-3" />
-      ) : momento === "pm" ? (
-        <MoonIcon className="size-3" />
-      ) : (
-        <>
-          <SunIcon className="size-3" />
-          <MoonIcon className="size-3" />
-        </>
-      )}
-      {RUTINA_MOMENTO_LABELS[momento]}
-    </span>
   );
 }
 

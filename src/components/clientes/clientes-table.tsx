@@ -19,6 +19,7 @@ import type { FilterConfig, RowAction } from "@/components/data-table";
 import { ClienteAvatar } from "@/components/clientes/cliente-avatar";
 import { ClienteStatusBadge } from "@/components/clientes/cliente-status-badge";
 import { ROUTES } from "@/lib/constants";
+import { formatDate } from "@/lib/dates";
 import { CLIENTE_STATUSES } from "@/schemas/clientes.schema";
 import type { ClienteListRow } from "@/services/clientes.service";
 import type { StaffMember } from "@/services/staff.service";
@@ -29,12 +30,6 @@ interface ClientesTableProps {
   staff: StaffMember[];
   currentProfesional: { id: string; full_name: string };
 }
-
-const DATE_FORMAT = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
 
 function ageFromBirth(birthDate: string | null): number | null {
   if (!birthDate) return null;
@@ -47,20 +42,13 @@ function ageFromBirth(birthDate: string | null): number | null {
   return age >= 0 && age < 130 ? age : null;
 }
 
-function formatDate(value: string | null): string {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
-  return DATE_FORMAT.format(d);
-}
-
 function ServicesCell({ value }: { value: unknown }) {
   const list = Array.isArray(value)
     ? (value.filter((v) => typeof v === "string") as string[])
     : [];
   if (list.length === 0) {
     return (
-      <span className="text-xs italic text-foreground/60">
+      <span className="text-xs italic text-foreground/75">
         Sin servicios activos
       </span>
     );
@@ -181,7 +169,7 @@ export function ClientesTable({
           const v = row.original.last_appointment_at;
           if (!v) {
             return (
-              <span className="text-xs italic text-foreground/60">
+              <span className="text-xs italic text-foreground/75">
                 Sin cita previa
               </span>
             );
@@ -200,7 +188,7 @@ export function ClientesTable({
           const v = row.original.next_appointment_at;
           if (!v) {
             return (
-              <span className="text-xs italic text-foreground/60">
+              <span className="text-xs italic text-foreground/75">
                 Sin próxima cita
               </span>
             );

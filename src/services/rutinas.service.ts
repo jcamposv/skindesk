@@ -89,6 +89,9 @@ export async function listLibraryRutinas(
   // One round-trip: full rutinas row + step count + the first ~6 steps
   // ordered by step_order. We use a second embed (`steps_preview`) for the
   // ordered list since PostgREST can't aggregate + sort in the same alias.
+  // Both embeds pin the FK explicitly (`!rutina_steps_rutina_id_fkey`) so
+  // PostgREST never has to guess between aliases when the relationship is
+  // referenced twice in one query.
   // Limited at 6 (capped via embedded `limit`) so a 20-step routine doesn't
   // dump 20 rows into the response — the card only needs 3, the spare 3 cover
   // future "show first 5" tweaks without a service change.
@@ -96,8 +99,8 @@ export async function listLibraryRutinas(
     .from("rutinas")
     .select(
       `*,
-       rutina_steps(count),
-       steps_preview:rutina_steps(step_order, producto:productos(name))`,
+       rutina_steps!rutina_steps_rutina_id_fkey(count),
+       steps_preview:rutina_steps!rutina_steps_rutina_id_fkey(step_order, producto:productos(name))`,
       { count: "exact" },
     )
     .order("step_order", {
@@ -168,7 +171,7 @@ export const listRutinasForCliente = cache(
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("rutinas")
-      .select("*, rutina_steps(count)")
+      .select("*, rutina_steps!rutina_steps_rutina_id_fkey(count)")
       .eq("kind", "assignment")
       .eq("cliente_id", clienteId)
       .is("archived_at", null)
