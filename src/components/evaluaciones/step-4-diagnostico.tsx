@@ -32,6 +32,10 @@ import {
 import { FacialMap } from "./facial-map";
 import { InfoTooltip } from "./info-tooltip";
 import { Pictogram } from "./pictograms";
+import {
+  AcneGradeSelector,
+  type AcneGrade,
+} from "@/components/shared/acne-grade-selector";
 import { SectionCard } from "@/components/shared/section-card";
 import { StepSectionNav, type StepSection } from "./step-section-nav";
 import { useEvaluacionForm } from "./evaluacion-form-context";
@@ -406,13 +410,6 @@ function AcneCard() {
     name: "diagnostico.acne.lesiones",
   }) ?? []) as string[];
 
-  const ACNE_DESC: Record<number, string> = {
-    1: "Comedones, mínima inflamación",
-    2: "Pápulas y pústulas, inflamación moderada",
-    3: "Lesiones extensas, riesgo cicatricial",
-    4: "Nódulos y quistes, manejo médico",
-  };
-
   function toggleLesion(v: string) {
     if (lesiones.includes(v)) {
       form.setValue(
@@ -450,40 +447,14 @@ function AcneCard() {
       </div>
       {activo ? (
         <>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[1, 2, 3, 4].map((n) => {
-              const active = grado === n;
-              return (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() =>
-                    form.setValue(
-                      "diagnostico.acne.grado",
-                      active ? null : n,
-                      { shouldDirty: true },
-                    )
-                  }
-                  className={
-                    active
-                      ? "flex flex-col items-center gap-1 rounded-xl border-2 border-[#C58F8A] bg-[#F8EAE9] p-2.5 text-center"
-                      : "flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-card p-2.5 text-center transition-colors hover:border-foreground/20"
-                  }
-                >
-                  <Pictogram
-                    name={`acne-${n}` as "acne-1" | "acne-2" | "acne-3" | "acne-4"}
-                    className="size-9"
-                  />
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#7B3D3D]">
-                    Grado {romanize(n)}
-                  </div>
-                  <p className="text-xs leading-snug text-foreground/80">
-                    {ACNE_DESC[n]}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
+          <AcneGradeSelector
+            value={(grado as AcneGrade | null) ?? null}
+            onChange={(next) =>
+              form.setValue("diagnostico.acne.grado", next, {
+                shouldDirty: true,
+              })
+            }
+          />
           <div className="grid gap-1.5">
             <label className="text-sm font-medium text-foreground/85">
               Tipo de lesión presente
