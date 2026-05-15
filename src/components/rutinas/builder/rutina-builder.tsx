@@ -8,9 +8,16 @@ import {
   useForm,
   useWatch,
 } from "react-hook-form";
-import { PackagePlusIcon, PackageIcon, SmartphoneIcon } from "lucide-react";
+import { PackagePlusIcon, PackageIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import {
   Sheet,
@@ -67,6 +74,7 @@ export function RutinaBuilder({
 }: RutinaBuilderProps) {
   const [editingStepKey, setEditingStepKey] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   // Owned here (rather than inside BuilderHeader) so the phone preview's
   // "Descargar PDF" CTA flips on as soon as the header persists a fresh
   // rutina. `history.replaceState` syncs the URL but doesn't remount the
@@ -109,6 +117,8 @@ export function RutinaBuilder({
           handleDropZoneOver={handleDropZoneOver}
           handleDropZoneLeave={handleDropZoneLeave}
           setDragOver={setDragOver}
+          previewOpen={previewOpen}
+          setPreviewOpen={setPreviewOpen}
         />
       </Form>
     </FormProvider>
@@ -128,6 +138,8 @@ interface BuilderInnerProps {
   setDragOver: (b: boolean) => void;
   handleDropZoneOver: (e: React.DragEvent) => void;
   handleDropZoneLeave: () => void;
+  previewOpen: boolean;
+  setPreviewOpen: (open: boolean) => void;
 }
 
 function BuilderInner({
@@ -143,6 +155,8 @@ function BuilderInner({
   setDragOver,
   handleDropZoneOver,
   handleDropZoneLeave,
+  previewOpen,
+  setPreviewOpen,
 }: BuilderInnerProps) {
   const { steps, addStep, removeStep, reorderStep, saveStep } = useStepsState(
     initial.steps,
@@ -196,12 +210,13 @@ function BuilderInner({
           onPersisted={setPersistedId}
           clientes={clientes}
           preselectedClienteName={clientName}
+          onOpenPreview={() => setPreviewOpen(true)}
         />
 
-        {/* Mobile / tablet drawer triggers — only visible below `lg`,
-            where the side columns are hidden. Catalog opens from the
-            left, the phone preview from the right. */}
-        <div className="flex items-center justify-between gap-2 border-b bg-card px-4 py-2 lg:hidden">
+        {/* Mobile / tablet catalog drawer — only visible below `lg`, where
+            the left column is hidden. The phone preview is now in a modal
+            triggered from the header, so it works at every breakpoint. */}
+        <div className="flex items-center gap-2 border-b bg-card px-4 py-2 lg:hidden">
           <Sheet>
             <SheetTrigger
               render={
@@ -229,35 +244,9 @@ function BuilderInner({
               </div>
             </SheetContent>
           </Sheet>
-
-          <Sheet>
-            <SheetTrigger
-              render={
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <SmartphoneIcon className="size-3.5" />
-                  Vista de clienta
-                </Button>
-              }
-            />
-            <SheetContent side="right" className="w-[320px] p-0">
-              <SheetHeader className="border-b px-4 py-3">
-                <SheetTitle className="text-sm">Vista de la clienta</SheetTitle>
-                <SheetDescription className="text-xs">
-                  Así verá la rutina en su portal.
-                </SheetDescription>
-              </SheetHeader>
-              <div className="h-[calc(100%-72px)] overflow-hidden">
-                <LivePreview
-                  clientName={clientName}
-                  steps={steps}
-                  rutinaId={persistedId}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
 
-        <div className="grid flex-1 min-h-0 grid-cols-1 lg:grid-cols-[280px_1fr_300px]">
+        <div className="grid flex-1 min-h-0 grid-cols-1 lg:grid-cols-[280px_1fr]">
           {/* Left: Catalog (desktop only — mobile uses the sheet above).
               Suspends on the same `productosPromise` as the sheet — React
               dedupes the read so the request fires once and both UIs fill
@@ -351,16 +340,6 @@ function BuilderInner({
             </div>
           </div>
 
-          {/* Right: Phone preview — uses useWatch via `LivePreview` so we
-              don't subscribe the whole builder to name/momento/skinType
-              changes. */}
-          <div className="hidden min-h-0 lg:block">
-            <LivePreview
-              clientName={clientName}
-              steps={steps}
-              rutinaId={persistedId}
-            />
-          </div>
         </div>
       </form>
 
@@ -371,6 +350,27 @@ function BuilderInner({
           if (editingStepKey) saveStep(updated, editingStepKey);
         }}
       />
+
+      {/* Phone preview — modal triggered from the header's "Vista previa"
+          button. Only mounts when open, so `useWatch` inside `LivePreview`
+          stops subscribing while the modal is closed. */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="h-[92vh] max-h-[92vh] gap-0 overflow-hidden p-0 sm:max-w-lg">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Vista de la clienta</DialogTitle>
+            <DialogDescription>
+              Así verá la rutina en su portal.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-full overflow-y-auto">
+            <LivePreview
+              clientName={clientName}
+              steps={steps}
+              rutinaId={persistedId}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

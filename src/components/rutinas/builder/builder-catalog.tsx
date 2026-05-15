@@ -4,9 +4,9 @@ import { memo, useMemo, useState } from "react";
 import Image from "next/image";
 import { PlusIcon, SearchIcon } from "lucide-react";
 
+import { MultiCombobox } from "@/components/shared/multi-combobox";
 import { Input } from "@/components/ui/input";
 import { ProductoIllustration } from "@/components/productos/producto-illustration";
-import { cn } from "@/lib/utils";
 import {
   PRODUCTO_CATEGORIA_LABELS,
   PRODUCTO_CATEGORIAS,
@@ -43,12 +43,14 @@ export function BuilderCatalog({
   cappedAt,
 }: BuilderCatalogProps) {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<ProductoCategoria | "">("");
+  const [categories, setCategories] = useState<ProductoCategoria[]>([]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
+    const categorySet =
+      categories.length > 0 ? new Set<string>(categories) : null;
     return productos.filter((p) => {
-      if (category && p.category !== category) return false;
+      if (categorySet && !categorySet.has(p.category)) return false;
       if (!term) return true;
       const haystack = [
         p.name,
@@ -59,7 +61,16 @@ export function BuilderCatalog({
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [productos, search, category]);
+  }, [productos, search, categories]);
+
+  const categoryOptions = useMemo(
+    () =>
+      PRODUCTO_CATEGORIAS.map((c) => ({
+        value: c,
+        label: PRODUCTO_CATEGORIA_LABELS[c],
+      })),
+    [],
+  );
 
   return (
     <aside className="flex h-full min-h-0 flex-col border-r bg-card">
@@ -84,21 +95,22 @@ export function BuilderCatalog({
         </label>
       </div>
 
-      {/* Category chip rail — horizontal scroll on mobile. */}
-      <div className="flex gap-1.5 overflow-x-auto border-b px-3 py-2 scrollbar-hide">
-        <CategoryChip
-          label="Todos"
-          active={category === ""}
-          onSelect={() => setCategory("")}
+      {/* Category filter — searchable multi-select. Replaces the prior chip
+          rail, which overflowed the 280px column and forced horizontal
+          scroll once we shipped more than ~4 categorias. */}
+      <div className="border-b px-3 py-2">
+        <MultiCombobox
+          options={categoryOptions}
+          value={categories}
+          onChange={(next) => setCategories(next as ProductoCategoria[])}
+          placeholder="Todas las categorías"
+          searchPlaceholder="Buscar categoría…"
+          emptyMessage="Sin categorías."
+          ariaLabel="Filtrar por categoría"
+          showSelectAll
+          selectAllLabel="Todas las categorías"
+          triggerClassName="text-xs items-center"
         />
-        {PRODUCTO_CATEGORIAS.map((c) => (
-          <CategoryChip
-            key={c}
-            label={PRODUCTO_CATEGORIA_LABELS[c]}
-            active={category === c}
-            onSelect={() => setCategory(c)}
-          />
-        ))}
       </div>
 
       {cappedAt !== null ? (
@@ -129,36 +141,6 @@ export function BuilderCatalog({
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
-
-interface CategoryChipProps {
-  label: string;
-  active: boolean;
-  onSelect: () => void;
-}
-
-// Memoised so typing in the search input doesn't re-render every chip in
-// the rail. Props are primitives/stable callbacks, so the default shallow
-// compare is enough.
-const CategoryChip = memo(function CategoryChip({
-  label,
-  active,
-  onSelect,
-}: CategoryChipProps) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        "shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-        active
-          ? "border-[#5C6E6C] bg-[#E7ECEA] text-[#4F605C]"
-          : "border-border/70 bg-card text-foreground/75 hover:border-[#5C6E6C]/40 hover:bg-[#F4F1EC] hover:text-foreground",
-      )}
-    >
-      {label}
-    </button>
-  );
-});
 
 interface CatalogProductCardProps {
   producto: BuilderProducto;

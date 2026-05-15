@@ -53,7 +53,7 @@ export function BuilderPhonePreview({
   );
 
   return (
-    <aside className="flex h-full min-h-0 flex-col border-l bg-card">
+    <aside className="flex h-full min-h-0 flex-col bg-card">
       <header className="border-b px-4 py-3">
         <h2 className="text-xs font-bold uppercase tracking-wider text-foreground/80">
           Vista de la clienta

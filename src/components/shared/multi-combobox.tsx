@@ -48,6 +48,12 @@ interface MultiComboboxProps {
    *  grow vertically and wrap chips onto multiple rows — that's the right
    *  behavior for a fields with no horizontal neighbour to crowd. */
   maxVisibleChips?: number;
+  /** Show a "Seleccionar todas" toggle at the top of the popover. Clicking
+   *  toggles between selecting every option and clearing them. Custom
+   *  (free-form) entries already in `value` are preserved both ways so the
+   *  toggle is non-destructive when `allowCustom` is true. */
+  showSelectAll?: boolean;
+  selectAllLabel?: string;
 }
 
 /**
@@ -72,9 +78,31 @@ export function MultiCombobox({
   disabled,
   ariaLabel,
   maxVisibleChips,
+  showSelectAll = false,
+  selectAllLabel = "Seleccionar todas",
 }: MultiComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
+
+  const optionValueSet = React.useMemo(
+    () => new Set(options.map((o) => o.value)),
+    [options],
+  );
+  const allOptionsSelected = React.useMemo(
+    () =>
+      options.length > 0 &&
+      options.every((o) => value.includes(o.value)),
+    [options, value],
+  );
+
+  function toggleAll() {
+    if (allOptionsSelected) {
+      onChange(value.filter((v) => !optionValueSet.has(v)));
+    } else {
+      const customOnly = value.filter((v) => !optionValueSet.has(v));
+      onChange([...customOnly, ...options.map((o) => o.value)]);
+    }
+  }
 
   const labelByValue = React.useMemo(() => {
     const map = new Map<string, string>();
@@ -202,6 +230,42 @@ export function MultiCombobox({
               }
             }}
           />
+          {showSelectAll && options.length > 0 ? (
+            // Sits outside `CommandList` on purpose: stays visible while the
+            // user is searching individual options, and toggles every
+            // option on/off in a single click. Custom entries are
+            // preserved.
+            <button
+              type="button"
+              onClick={toggleAll}
+              className="flex w-full items-center gap-2 border-b px-3 py-2 text-sm font-medium text-foreground/85 transition-colors hover:bg-muted/60"
+            >
+              <span
+                className={cn(
+                  "grid size-4 shrink-0 place-items-center rounded-sm border",
+                  allOptionsSelected
+                    ? "border-[#5C6E6C] bg-[#5C6E6C] text-white"
+                    : "border-foreground/30",
+                )}
+                aria-hidden="true"
+              >
+                {allOptionsSelected ? (
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="size-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="2.5,6.5 5,9 9.5,3.5" />
+                  </svg>
+                ) : null}
+              </span>
+              {selectAllLabel}
+            </button>
+          ) : null}
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>

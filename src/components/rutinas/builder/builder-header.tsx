@@ -8,6 +8,7 @@ import {
   AlertCircleIcon,
   ChevronLeftIcon,
   DownloadIcon,
+  EyeIcon,
   MoonIcon,
   SendIcon,
   SunIcon,
@@ -43,6 +44,10 @@ interface BuilderHeaderProps {
    *  assignment routine. Drives the confirmation chip in the assign
    *  dialog. */
   preselectedClienteName: string | null;
+  /** Opens the phone-preview modal owned by the builder. The header only
+   *  triggers; the modal lives next to `LivePreview` so it stays close to
+   *  the form state it subscribes to. */
+  onOpenPreview: () => void;
 }
 
 /**
@@ -60,6 +65,7 @@ export function BuilderHeader({
   onPersisted,
   clientes,
   preselectedClienteName,
+  onOpenPreview,
 }: BuilderHeaderProps) {
   const router = useRouter();
   const {
@@ -333,6 +339,16 @@ export function BuilderHeader({
             disabled={pending}
           >
             {pending ? "Guardando…" : "Guardar en biblioteca"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={onOpenPreview}
+          >
+            <EyeIcon className="size-3.5" />
+            Vista previa
           </Button>
           {persistedId ? (
             // PDF route streams the rendered document; using a plain anchor
