@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import {
   ArrowRightIcon,
   DownloadIcon,
   ListPlusIcon,
+  Loader2Icon,
   MoonIcon,
   PencilIcon,
   PlusIcon,
@@ -20,6 +22,7 @@ import { useTransition } from "react";
 import {
   archiveRutinaAction,
   assignRutinaToClienteAction,
+  listLibraryTemplatesForPickerAction,
 } from "@/actions/rutinas.actions";
 import { AssignRutinaDialog } from "@/components/rutinas/assign-rutina-dialog";
 import { Button } from "@/components/ui/button";
@@ -39,15 +42,13 @@ interface RutinasAsignadasTabProps {
   clienteId: string;
   clientName: string;
   rutinas: Array<RutinaRow & { stepCount: number }>;
-  /** Library templates the profesional can assign. */
-  libraryTemplates: Array<RutinaRow & { stepCount: number }>;
 }
 
 /**
  * Cliente detail tab — shows routines assigned to this specific clienta.
  * Two CTAs:
- *   · "Asignar desde biblioteca" → opens AssignRutinaDialog with the
- *     clienta preselected; picker lists library templates.
+ *   · "Asignar desde biblioteca" → opens the picker dialog, which lazy-
+ *     loads tenant templates on first open (see `LibraryPickerDialog`).
  *   · "Nueva rutina" → navigates to the builder with the cliente
  *     pre-selected (`?cliente=<id>`).
  */
@@ -55,7 +56,6 @@ export function RutinasAsignadasTab({
   clienteId,
   clientName,
   rutinas,
-  libraryTemplates,
 }: RutinasAsignadasTabProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [assignTemplateId, setAssignTemplateId] = useState<string | null>(null);
@@ -83,7 +83,6 @@ export function RutinasAsignadasTab({
             size="sm"
             className="gap-1.5"
             onClick={() => setPickerOpen(true)}
-            disabled={libraryTemplates.length === 0}
           >
             <ListPlusIcon className="size-4" />
             Asignar desde biblioteca
@@ -127,11 +126,12 @@ export function RutinasAsignadasTab({
         </div>
       )}
 
-      {/* Library picker — list of templates with one-click assign. */}
+      {/* Library picker — lazy-loads templates the first time it opens
+          (SWR caches per-session), so the cliente detail page doesn't pay
+          the cost up-front. */}
       <LibraryPickerDialog
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        templates={libraryTemplates}
         onPick={(templateId) => {
           setPickerOpen(false);
           setAssignTemplateId(templateId);
@@ -308,23 +308,56 @@ function AssignedRutinaCard({ rutina, clienteId }: AssignedRutinaCardProps) {
 interface LibraryPickerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  templates: Array<RutinaRow & { stepCount: number }>;
   onPick: (templateId: string) => void;
+}
+
+interface LibraryPickerItem {
+  id: string;
+  name: string;
+  momento: string;
+  stepCount: number;
+}
+
+/** Stable SWR key — single string so React identity is preserved across
+ *  renders. Tenant scoping happens inside the action via RLS, so no need
+ *  to embed tenant_id here. */
+const LIBRARY_PICKER_KEY = "library-templates:picker";
+
+async function fetchLibraryPickerTemplates(): Promise<LibraryPickerItem[]> {
+  const res = await listLibraryTemplatesForPickerAction();
+  if (!res.success) {
+    throw new Error(res.message ?? "No se pudo cargar la biblioteca.");
+  }
+  return res.data ?? [];
 }
 
 function LibraryPickerDialog({
   open,
   onOpenChange,
-  templates,
   onPick,
 }: LibraryPickerDialogProps) {
-  // Reusing the dialog primitive directly here keeps this tab a single file —
-  // the AssignRutinaDialog also lives outside and handles the final step.
+  // Only fire the SWR fetch once the dialog has opened at least once. SWR
+  // keeps the response cached for the rest of the session, so repeat opens
+  // are instant — and a freshly-created template appears via revalidation
+  // (the assign action also revalidates this key in the rutinas module).
+  const { data, error, isLoading } = useSWR(
+    open ? LIBRARY_PICKER_KEY : null,
+    fetchLibraryPickerTemplates,
+    {
+      // Templates change rarely — avoid hammering the action on focus.
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    },
+  );
+
   if (!open) return null;
+  const templates = data ?? [];
+
   return (
     <div
       role="dialog"
       aria-modal="true"
+      aria-busy={isLoading || undefined}
       className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onOpenChange(false);
@@ -341,7 +374,18 @@ function LibraryPickerDialog({
           </p>
         </header>
         <div className="max-h-[60vh] overflow-y-auto p-3">
-          {templates.length === 0 ? (
+          {isLoading && templates.length === 0 ? (
+            <div className="grid place-items-center gap-2 rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              <Loader2Icon className="size-5 animate-spin" />
+              Cargando plantillas…
+            </div>
+          ) : error ? (
+            <p className="rounded-lg border border-dashed border-destructive/30 p-6 text-center text-sm text-destructive">
+              {error instanceof Error
+                ? error.message
+                : "No se pudo cargar la biblioteca."}
+            </p>
+          ) : templates.length === 0 ? (
             <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
               Todavía no hay plantillas en tu biblioteca.
             </p>

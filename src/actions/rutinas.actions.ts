@@ -297,6 +297,58 @@ export async function createRutinaAction(
 // Detail fetch — used by the library Sheet (lazy load on "Ver" click)
 // ---------------------------------------------------------------------------
 
+/** Lightweight picker projection for the "Asignar desde biblioteca"
+ *  dialog inside cliente detail. Returns the same shape the dialog already
+ *  consumes (`id, name, momento, created_at, main_objective, stepCount`).
+ *  Fetched lazily when the user opens the picker so it never blocks the
+ *  cliente detail page's initial render (see audit Phase 2 / Vercel
+ *  `async-suspense-boundaries`). RLS scopes to caller's tenant. */
+export async function listLibraryTemplatesForPickerAction(): Promise<
+  ActionState<
+    Array<{
+      id: string;
+      name: string;
+      momento: string;
+      created_at: string;
+      main_objective: string | null;
+      stepCount: number;
+    }>
+  >
+> {
+  const session = await getCurrentSession();
+  if (!session) {
+    return { success: false, message: "Inicia sesión para continuar." };
+  }
+  try {
+    const { listLibraryRutinas } = await import(
+      "@/services/rutinas.service"
+    );
+    // Cap at 200 — the picker is one-shot, doesn't paginate. If a tenant
+    // ever passes that, we'll switch to a search input + server-driven
+    // pagination here.
+    const { items } = await listLibraryRutinas({ pageSize: 200 });
+    return {
+      success: true,
+      data: items.map((r) => ({
+        id: r.id,
+        name: r.name,
+        momento: r.momento,
+        created_at: r.created_at,
+        main_objective: r.main_objective,
+        stepCount: r.stepCount,
+      })),
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message:
+        err instanceof Error
+          ? err.message
+          : "Error al cargar las plantillas.",
+    };
+  }
+}
+
 /** Thin server-action wrapper around `getRutinaWithSteps` so the library
  *  grid's client-side Sheet can lazy-load the full routine on demand.
  *  RLS scopes results to the caller's tenant. */

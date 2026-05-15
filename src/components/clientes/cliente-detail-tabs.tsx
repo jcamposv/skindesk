@@ -1,13 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  CameraIcon,
-  ChevronDownIcon,
-  FolderOpenIcon,
-  HistoryIcon,
-} from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 
 import {
   isTabKey,
@@ -15,13 +10,6 @@ import {
   TABS,
   type TabKey,
 } from "@/components/clientes/cliente-detail-tabs-config";
-import { DatosPersonalesForm } from "@/components/clientes/datos-personales-form";
-import { EmptyTab } from "@/components/clientes/empty-tab";
-import { EvaluacionTab } from "@/components/clientes/evaluacion-tab";
-import { ObjetivosTab } from "@/components/clientes/objetivos-tab";
-import { PagosTab } from "@/components/clientes/pagos/pagos-tab";
-import { RutinasAsignadasTab } from "@/components/clientes/rutinas-asignadas-tab";
-import { ServiciosTab } from "@/components/clientes/servicios/servicios-tab";
 import {
   Sheet,
   SheetContent,
@@ -30,30 +18,22 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import type { ClienteDetail } from "@/services/clientes.service";
-import type { StaffMember } from "@/services/staff.service";
-import type { ProfesionalValue } from "@/components/clientes/servicios/profesional-select";
-import type { AssignedService } from "@/components/clientes/servicios/types";
-import type { PaymentPlanSummary } from "@/services/pagos.service";
-import type { Database } from "@/types/database.types";
-import type { Evaluacion } from "@/types/evaluacion";
-
-type RutinaRow = Database["public"]["Tables"]["rutinas"]["Row"];
 
 interface ClienteDetailTabsProps {
-  cliente: ClienteDetail;
-  evaluacion: Evaluacion | null;
-  servicios: AssignedService[];
-  staff: StaffMember[];
-  /** Plain object keyed by servicioId (the page serialized the Map). */
-  initialPaymentPlans: Record<string, PaymentPlanSummary>;
-  currentProfesional: ProfesionalValue;
   initialTab?: TabKey;
-  /** Routines assigned to this clienta. */
-  assignedRutinas: Array<RutinaRow & { stepCount: number }>;
-  /** Tenant's library templates — used by the "Asignar desde biblioteca"
-   *  picker inside the rutinas tab. */
-  libraryRutinas: Array<RutinaRow & { stepCount: number }>;
+  /** Each tab's content is passed in as a slot from the Server Component
+   *  parent. Heavy tabs (rutinas, servicios, pagos) get wrapped in
+   *  `<Suspense>` by the parent so they stream in independently — the
+   *  page shell never waits for them. */
+  datosSlot: ReactNode;
+  evaluacionSlot: ReactNode;
+  objetivosSlot: ReactNode;
+  rutinasSlot: ReactNode;
+  pagosSlot: ReactNode;
+  serviciosSlot: ReactNode;
+  archivosSlot: ReactNode;
+  historialSlot: ReactNode;
+  fotosSlot: ReactNode;
 }
 
 /**
@@ -74,15 +54,16 @@ interface ClienteDetailTabsProps {
  * activates. Arrow-key roving could be added later if there's a need.
  */
 export function ClienteDetailTabs({
-  cliente,
-  evaluacion,
-  servicios,
-  staff,
-  initialPaymentPlans,
-  currentProfesional,
   initialTab,
-  assignedRutinas,
-  libraryRutinas,
+  datosSlot,
+  evaluacionSlot,
+  objetivosSlot,
+  rutinasSlot,
+  pagosSlot,
+  serviciosSlot,
+  archivosSlot,
+  historialSlot,
+  fotosSlot,
 }: ClienteDetailTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -176,81 +157,27 @@ export function ClienteDetailTabs({
         </nav>
       </aside>
 
-      {/* === BODY ============================================================ */}
+      {/* === BODY ===========================================================
+          All slots are rendered into the DOM but only the active one is
+          visible (`hidden` is a non-trivial choice — it preserves form
+          state and lets Suspense boundaries inside hidden tabs finish
+          streaming in the background, so clicking a heavy tab feels
+          instant). */}
       <section
         role="tabpanel"
         id={`tabpanel-${active}`}
         aria-labelledby={`tab-${active}`}
         className="min-w-0"
       >
-        {active === "datos" ? <DatosPersonalesForm cliente={cliente} /> : null}
-        {active === "evaluacion" ? (
-          <EvaluacionTab cliente={cliente} initialEvaluacion={evaluacion} />
-        ) : null}
-        {active === "objetivos" ? (
-          <ObjetivosTab cliente={cliente} evaluacion={evaluacion} />
-        ) : null}
-        {active === "rutinas" ? (
-          <RutinasAsignadasTab
-            clienteId={cliente.id}
-            clientName={cliente.profile.full_name ?? "esta clienta"}
-            rutinas={assignedRutinas}
-            libraryTemplates={libraryRutinas}
-          />
-        ) : null}
-        {active === "pagos" ? (
-          <PagosTab
-            services={servicios}
-            initialPlans={initialPaymentPlans}
-          />
-        ) : null}
-        {active === "servicios" ? (
-          <ServiciosTab
-            cliente={cliente}
-            initialServices={servicios}
-            staff={staff}
-            currentProfesional={currentProfesional}
-          />
-        ) : null}
-        {active === "archivos" ? (
-          <EmptyTab
-            icon={FolderOpenIcon}
-            title="Archivos"
-            description="Documentos firmados, consentimientos, recetas y otros archivos clínicos asociados a la clienta."
-            preview={[
-              "Consentimientos firmados",
-              "Recetas y derivaciones",
-              "Resultados de laboratorio",
-              "Archivos compartidos por la clienta",
-            ]}
-          />
-        ) : null}
-        {active === "historial" ? (
-          <EmptyTab
-            icon={HistoryIcon}
-            title="Historial"
-            description="Línea de tiempo cronológica de citas, sesiones, notas, mensajes y cambios — el registro completo del recorrido de tu clienta."
-            preview={[
-              "Citas, sesiones y no-show",
-              "Notas técnicas por evento",
-              "Cambios de plan y motivos",
-              "Mensajes y recordatorios enviados",
-            ]}
-          />
-        ) : null}
-        {active === "fotos" ? (
-          <EmptyTab
-            icon={CameraIcon}
-            title="Fotos de evolución"
-            description="Galería visual antes/después organizada por sesión, con comparador lateral y zoom para mostrarle a tu clienta el progreso real."
-            preview={[
-              "Galería ordenada por sesión",
-              "Comparador antes / después",
-              "Vistas frontal, perfil y oblicua",
-              "Compartir álbum con la clienta",
-            ]}
-          />
-        ) : null}
+        <div hidden={active !== "datos"}>{datosSlot}</div>
+        <div hidden={active !== "evaluacion"}>{evaluacionSlot}</div>
+        <div hidden={active !== "objetivos"}>{objetivosSlot}</div>
+        <div hidden={active !== "rutinas"}>{rutinasSlot}</div>
+        <div hidden={active !== "pagos"}>{pagosSlot}</div>
+        <div hidden={active !== "servicios"}>{serviciosSlot}</div>
+        <div hidden={active !== "archivos"}>{archivosSlot}</div>
+        <div hidden={active !== "historial"}>{historialSlot}</div>
+        <div hidden={active !== "fotos"}>{fotosSlot}</div>
       </section>
     </div>
   );
